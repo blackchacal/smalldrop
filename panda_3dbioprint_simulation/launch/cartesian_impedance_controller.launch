@@ -34,7 +34,7 @@
   <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
 
   <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
-  <node if="$(arg show_error)" name="controller_error_plot" pkg="panda_3dbioprint_simulation" type="controller_error_plot.py" />
+  <node if="$(arg show_error)" name="controller_error_plot" pkg="panda_3dbioprint_debug_tools" type="controller_error_plot.py" />
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find panda_3dbioprint_simulation)/rviz/config.rviz" />
 

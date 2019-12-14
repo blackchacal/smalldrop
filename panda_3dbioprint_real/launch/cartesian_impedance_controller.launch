@@ -17,6 +17,6 @@
 
   <node if="$(arg rviz)" pkg="rviz" type="rviz" output="screen" name="rviz"/>
   <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
-  <node if="$(arg show_error)" name="controller_error_plot" pkg="panda_3dbioprint_real" type="controller_error_plot.py" />
+  <node if="$(arg show_error)" name="controller_error_plot" pkg="panda_3dbioprint_debug_tools" type="controller_error_plot.py" />
 
 </launch>
