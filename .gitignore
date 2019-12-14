@@ -1,0 +1,7 @@
+# ROS workspace src files
+CMakeLists.txt
+
+# Unwanted packages
+franka_control_panda
+franka_simulation_helio
+gazebo_ros_demos
