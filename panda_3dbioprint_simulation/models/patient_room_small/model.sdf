@@ -2,6 +2,36 @@
 <sdf version='1.6'>
   <model name='patient_room_small'>
     <pose frame=''>-0.37 0 0 0 0 1.571</pose>
+    <link name='Floor'>
+      <collision name='Floor_Collision'>
+        <geometry>
+          <box>
+            <size>3.75 3.0 0.01</size>
+          </box>
+        </geometry>
+        <pose frame=''>0 0 1.25 0 -0 0</pose>
+      </collision>
+      <visual name='Floor_Visual'>
+        <pose frame=''>0 0 0 0 -0 0</pose>
+        <geometry>
+          <box>
+            <size>3.75 3.0 0.01</size>
+          </box>
+        </geometry>
+        <material>
+          <script>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Floor/Image</name>
+          </script>
+          <ambient>1 1 1 1</ambient>
+        </material>
+        <meta>
+          <layer>0</layer>
+        </meta>
+      </visual>
+      <pose frame=''>0 -0.39 0.01 0 -0 0</pose>
+    </link>
     <link name='Wall_0'>
       <collision name='Wall_0_Collision'>
         <geometry>
@@ -21,7 +51,7 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <name>Gazebo/Gray</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -49,8 +79,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -71,8 +102,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -97,8 +129,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -123,8 +156,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -149,8 +183,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -175,8 +210,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -201,8 +237,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -227,8 +264,9 @@
         </geometry>
         <material>
           <script>
-            <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <uri>model://patient_room_small/materials/scripts</uri>
+            <uri>model://patient_room_small/materials/textures</uri>
+            <name>Wall/Image</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>
@@ -264,7 +302,7 @@
         <material>
           <script>
             <uri>file://media/materials/scripts/gazebo.material</uri>
-            <name>Gazebo/Grey</name>
+            <name>Gazebo/Gray</name>
           </script>
           <ambient>1 1 1 1</ambient>
         </material>

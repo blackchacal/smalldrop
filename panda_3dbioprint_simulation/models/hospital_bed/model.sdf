@@ -1,7 +1,7 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
   <model name='hospital_bed'>
-    <pose frame=''>0 -0.75 0 0 0 3.1415</pose>
+    <pose frame=''>0 -0.75 0.01 0 0 3.1415</pose>
     <link name='body'>
       <pose frame=''>0 0 0 0 0 0</pose>
       <visual name='body_visual'>
