@@ -224,6 +224,33 @@ Visualization Manager:
         panda_3dbioprint_simulation: true
       Queue Size: 10
       Value: true
+    - Alpha: 0.5
+      Class: rviz/Effort
+      Enabled: true
+      History Length: 1
+      Joints:
+        panda_joint1:
+          Value: true
+        panda_joint2:
+          Value: true
+        panda_joint3:
+          Value: true
+        panda_joint4:
+          Value: true
+        panda_joint5:
+          Value: true
+        panda_joint6:
+          Value: true
+        panda_joint7:
+          Value: true
+      Name: Effort
+      Robot Description: robot_description
+      Scale: 1
+      TF Prefix: ""
+      Topic: /joint_states
+      Unreliable: true
+      Value: true
+      Width: 0.019999999552965164
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -259,18 +286,18 @@ Visualization Manager:
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: -0.6775769591331482
-        Y: 0.14822128415107727
-        Z: 2.6477484703063965
+        X: -0.6751099824905396
+        Y: 0.7734866738319397
+        Z: 2.056018590927124
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.8653982877731323
+      Pitch: 0.6753981709480286
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 2.5053935050964355
+      Yaw: 1.9653936624526978
     Saved: ~
 Window Geometry:
   Displays:
