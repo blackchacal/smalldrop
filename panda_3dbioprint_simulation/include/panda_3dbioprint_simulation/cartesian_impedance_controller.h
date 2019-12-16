@@ -20,7 +20,7 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <geometry_msgs/Pose.h>
-
+#include <panda_3dbioprint_simulation/Tau.h>
 
 namespace panda_3dbioprint_simulation
 {
@@ -62,6 +62,7 @@ private:
   // Publisher / Subscriber
   ros::Subscriber poseSub;
   ros::Publisher posePub;
+  ros::Publisher tauPub;
 
   // File handlers
   std::ifstream fh_gains;
@@ -71,7 +72,6 @@ private:
   bool jacobian(Eigen::Matrix<double, 6, 7> &J_out, const Eigen::Matrix<double, 7, 1> &q_in);
   bool fk(const Eigen::Matrix<double, 7, 1> &q_in, Eigen::Matrix4d &transf);
   bool dynamic(Eigen::Matrix<double, 7, 1>& q, Eigen::Matrix<double, 7, 1>& qdot);
-  // bool dynamic(KDL::JntSpaceInertiaMatrix& kdl_inertia, KDL::JntArray& kdl_coriolis, KDL::JntArray& kdl_gravity, Eigen::Matrix<double, 7, 1>& q, Eigen::Matrix<double, 7, 1>& qdot, KDL::Vector& g_vector);
   Eigen::Vector3d R2r(Eigen::Matrix3d &Rotation);
 
   void DesiredGainsParamCallback(panda_3dbioprint_simulation::CartesianImpedanceControllerConfig &config, uint32_t level);

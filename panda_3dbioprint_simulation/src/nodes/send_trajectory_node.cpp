@@ -19,15 +19,6 @@ int main(int argc, char **argv)
   ros::Publisher pub = nh.advertise<geometry_msgs::Pose>("/cartesian_impedance_controller/desired_pose", 10);
   ros::Subscriber sub = nh.subscribe("/cartesian_impedance_controller/current_pose", 10, currentPoseCallback);
 
-  geometry_msgs::Pose final_pose;
-  final_pose.position.x = initial_pose.position.x;
-  final_pose.position.y = initial_pose.position.y;
-  final_pose.position.z = initial_pose.position.z - 0.2;
-  final_pose.orientation.x = initial_pose.orientation.x;
-  final_pose.orientation.y = initial_pose.orientation.y;
-  final_pose.orientation.z = initial_pose.orientation.z;
-  final_pose.orientation.w = initial_pose.orientation.w;
-
   // Process current pose callback
   ros::Rate r(10);
   while (ros::ok() && !has_pose)
@@ -35,28 +26,37 @@ int main(int argc, char **argv)
     ros::spinOnce();
     r.sleep();
   }
+
+  geometry_msgs::Pose final_pose;
+  final_pose.position.x = initial_pose.position.x;
+  final_pose.position.y = initial_pose.position.y;
+  final_pose.position.z = initial_pose.position.z - 0.15;
+  final_pose.orientation.x = initial_pose.orientation.x;
+  final_pose.orientation.y = initial_pose.orientation.y;
+  final_pose.orientation.z = initial_pose.orientation.z;
+  final_pose.orientation.w = initial_pose.orientation.w;
   
   int freq = 100; // 100 Hz
   int ttime = 5; // Trajectory duration in seconds
 
-  // line_trajectory(pub, ttime, freq, initial_pose, final_pose, true);
+  line_trajectory(pub, ttime, freq, initial_pose, final_pose, true);
 
-  // Move to edge of arc first
-  float radius = 0.2;
-  geometry_msgs::Pose arc_start, center;
-  arc_start.position.x = initial_pose.position.x + radius;
-  arc_start.position.z = initial_pose.position.y;
-  arc_start.position.z = initial_pose.position.z - 0.1;
-  arc_start.orientation = initial_pose.orientation;
+  // // Move to edge of arc first
+  // float radius = 0.2;
+  // geometry_msgs::Pose arc_start, center;
+  // arc_start.position.x = initial_pose.position.x + radius;
+  // arc_start.position.z = initial_pose.position.y;
+  // arc_start.position.z = initial_pose.position.z - 0.1;
+  // arc_start.orientation = initial_pose.orientation;
 
-  center.position.x = initial_pose.position.x;
-  center.position.z = initial_pose.position.y;
-  center.position.z = initial_pose.position.z - 0.1;
-  center.orientation = initial_pose.orientation;
+  // center.position.x = initial_pose.position.x;
+  // center.position.z = initial_pose.position.y;
+  // center.position.z = initial_pose.position.z - 0.1;
+  // center.orientation = initial_pose.orientation;
 
-  line_trajectory(pub, 2, freq, initial_pose, center);
-  line_trajectory(pub, 2, freq, center, arc_start);
-  arc_trajectory(pub, ttime, freq, center, radius, true);
+  // line_trajectory(pub, 2, freq, initial_pose, center);
+  // line_trajectory(pub, 2, freq, center, arc_start);
+  // arc_trajectory(pub, ttime, freq, center, radius, true);
   
   return 0;
 }
@@ -87,7 +87,7 @@ void line_trajectory(ros::Publisher pub, double duration, float frequency, geome
     transform.setOrigin( tf::Vector3(p.x(), p.y(), p.z()) );
     tf::Quaternion q(pose_a.orientation.x, pose_a.orientation.y, pose_a.orientation.z, pose_a.orientation.w);
     transform.setRotation(q);
-    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "trajectory"));
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "panda_link0", "trajectory"));
 
     // Send trajectory to robot
     geometry_msgs::Pose msg;

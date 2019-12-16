@@ -85,6 +85,7 @@ bool CartesianImpedanceController::init(hardware_interface::RobotHW *robot_hw, r
 
   poseSub = controller_nh.subscribe("/cartesian_impedance_controller/desired_pose", 10, &CartesianImpedanceController::updatePoseCallback, this);
   posePub = controller_nh.advertise<geometry_msgs::Pose>("/cartesian_impedance_controller/current_pose", 10);
+  tauPub = controller_nh.advertise<panda_3dbioprint_simulation::Tau>("/cartesian_impedance_controller/tau", 10);
 
   // ---------------------------------------------------------------------------
   // Init Values
@@ -248,6 +249,20 @@ void CartesianImpedanceController::update(const ros::Time &time, const ros::Dura
 
   // Calculate final torque
   tau_d << tau_task + tau_null + C + g;
+
+  // Publish desired torques
+  panda_3dbioprint_simulation::Tau tau_msg;
+  tau_msg.joint_name.resize(joint_handles.size());
+  for (size_t i = 0; i < joint_handles.size(); i++)
+    tau_msg.joint_name[i] = joint_handles[i].getName();
+
+  tau_msg.tau_d.resize(tau_d.size());
+  tau_msg.tau_task.resize(tau_task.size());
+  tau_msg.tau_null.resize(tau_null.size());
+  Eigen::VectorXd::Map(&tau_msg.tau_d[0], tau_d.size()) = tau_d;
+  Eigen::VectorXd::Map(&tau_msg.tau_task[0], tau_task.size()) = tau_task;
+  Eigen::VectorXd::Map(&tau_msg.tau_null[0], tau_null.size()) = tau_null;
+  tauPub.publish(tau_msg);
 
   // Set desired torque to each joint
   for (size_t i = 0; i < 7; ++i)
