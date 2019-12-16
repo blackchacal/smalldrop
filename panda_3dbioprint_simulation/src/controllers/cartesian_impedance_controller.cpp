@@ -122,7 +122,7 @@ void CartesianImpedanceController::starting(const ros::Time &time)
 {
   // Set desired end-effector position and euler angles
   Eigen::Matrix<double, 7, 1> qd;
-  qd << 0, 0, 0, -PI/2, 0, PI/2, 0;
+  qd << 0, 0, 0, -M_PI_2, 0, M_PI_2, M_PI_4;
   
   if (!fk(qd, T0ee_d))
     ROS_ERROR("Cannot get forward kinematics.");

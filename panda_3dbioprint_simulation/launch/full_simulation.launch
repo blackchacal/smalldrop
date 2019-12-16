@@ -32,7 +32,10 @@
   <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
 
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find panda_3dbioprint_simulation)/rviz/config.rviz" />
+  <!-- Include node to show gazebo models on rviz -->
+  <node name="gazebo_models_rviz" pkg="panda_3dbioprint_simulation" type="3dp_gazebo_models_to_rviz" required="true" output="screen" />
 
+  <!-- Include debug tools -->
   <include file="$(find panda_3dbioprint_debug_tools)/launch/debug_tools.launch">
     <arg name="show_error" value="$(arg show_error)"/>
   </include>

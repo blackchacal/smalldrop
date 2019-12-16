@@ -24,8 +24,6 @@
 
 namespace panda_3dbioprint_simulation
 {
-#define PI 3.14159265 // 8th decimal places
-
 class CartesianImpedanceController : public controller_interface::MultiInterfaceController<hardware_interface::EffortJointInterface>
 {
 private:

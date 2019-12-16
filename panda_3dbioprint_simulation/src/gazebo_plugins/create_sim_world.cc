@@ -9,7 +9,7 @@ namespace gazebo
   {
     public: void Load(physics::WorldPtr _parent, sdf::ElementPtr /*_sdf*/)
     {
-      _parent->InsertModelFile("model://patient_room_small");
+      _parent->InsertModelFile("model://patient_room");
       _parent->InsertModelFile("model://hospital_bed");
       _parent->InsertModelFile("model://doctor_1");
       _parent->InsertModelFile("model://doctor_2");
