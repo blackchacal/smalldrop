@@ -24,5 +24,6 @@
     <arg name="verbose" value="$(arg verbose)"/>
   </include>
 
-  <!-- <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model panda" /> -->
+  <!-- Add robot to simulation world -->
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model panda" />
 </launch>

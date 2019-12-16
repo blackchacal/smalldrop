@@ -1,0 +1,4 @@
+<launch>
+  <arg name="show_error" default="false" />
+  <node if="$(arg show_error)" name="controller_error_plot" pkg="panda_3dbioprint_debug_tools" type="controller_error_plot.py" />
+</launch>

@@ -1,0 +1,48 @@
+<launch>
+  <!-- Robot gains setup and test arguments -->
+  <arg name="show_error" default="false" />
+  <arg name="gains" default="false" />
+
+  <!-- GAZEBO arguments -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="recording" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="true"/>
+
+  <!-- Include simulation world -->
+  <include file="$(find panda_3dbioprint_simulation)/launch/create_sim_world.launch">
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="recording" value="$(arg recording)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find panda_3dbioprint_simulation)/config/panda_control.yaml" command="load"/>
+
+  <!-- load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_impedance_controller joint_state_controller panda_hand_controller" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+  <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
+
+  <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find panda_3dbioprint_simulation)/rviz/config.rviz" />
+
+  <include file="$(find panda_3dbioprint_debug_tools)/launch/debug_tools.launch">
+    <arg name="show_error" value="$(arg show_error)"/>
+  </include>
+
+  <node name="spacenav" pkg="spacenav_node" type="spacenav_node"/>
+  <arg name="sensitivity" default="1"/>
+  <node name="spacenav_control" pkg="spacenav_control" type="spacenav_control_node" args="-s $(arg sensitivity)" output="screen" respawn="true">
+    <param name="controller_topic" type="str" value="/cartesian_impedance_controller/desired_pose" />
+    <param name="controller_topic_type" type="str" value="geometry_msgs::Pose" />
+    <param name="robot_state_topic" type="str" value="/cartesian_impedance_controller/current_pose" />
+    <param name="robot_state_topic_type" type="str" value="geometry_msgs::Pose" />
+  </node>
+</launch>

@@ -11,6 +11,14 @@ namespace gazebo
     {
       _parent->InsertModelFile("model://patient_room_small");
       _parent->InsertModelFile("model://hospital_bed");
+      _parent->InsertModelFile("model://doctor_1");
+      _parent->InsertModelFile("model://doctor_2");
+      _parent->InsertModelFile("model://patient");
+      _parent->InsertModelFile("model://service_cart");
+      _parent->InsertModelFile("model://emergency_console");
+      _parent->InsertModelFile("model://tv");
+      _parent->InsertModelFile("model://serum_support");
+      _parent->InsertModelFile("model://support_table");
     }
   };
   // Register this plugin with the simulator

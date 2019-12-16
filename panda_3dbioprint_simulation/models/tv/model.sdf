@@ -1,0 +1,31 @@
+<?xml version='1.0'?>
+<sdf version='1.6'>
+  <model name='tv'>
+    <pose frame=''>-1 1.72 1.45 1.571 0 0</pose>
+    <link name='body'>
+      <pose frame=''>0 0 0 0 0 0</pose>
+      <visual name='body_visual'>
+        <pose frame=''>0 0 0 0 0 0</pose>
+        <geometry>
+          <mesh>
+            <uri>model://tv/meshes/tv.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <meta>
+          <layer>1</layer>
+        </meta>
+      </visual>
+      <collision name='body_collision'>
+        <geometry>
+          <mesh>
+            <uri>model://tv/meshes/tv.dae</uri>
+            <scale>0.001 0.001 0.001</scale>
+          </mesh>
+        </geometry>
+        <pose frame=''>0 0 0 0 0 0</pose>
+      </collision>
+    </link>
+    <static>1</static>
+  </model>
+</sdf>
