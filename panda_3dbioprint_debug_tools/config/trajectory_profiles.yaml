@@ -1,0 +1,30 @@
+joint_space:
+  # Only one method can be active at a time. If two or more are defined as active, the first one
+  # will be the one used.
+  poly3:
+    active: false
+    theta0: 0
+    thetaf: 3.1415
+    t0: 0
+    tf: 5
+    frequency: 10
+  poly3c:
+    active: false
+    theta0: 0
+    thetaf: 3.1415
+    theta0_d: 2
+    thetaf_d: 50
+    t0: 0
+    tf: 5
+    frequency: 10
+  poly5c:
+    active: true
+    theta0: 0
+    thetaf: 3.1415
+    theta0_d: 0
+    thetaf_d: 2
+    theta0_dd: 2
+    thetaf_dd: -0.75
+    t0: 0
+    tf: 5
+    frequency: 10
