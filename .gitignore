@@ -1,5 +1,5 @@
 # ROS workspace src files
-CMakeLists.txt
+/CMakeLists.txt
 
 # Unwanted packages
 franka_control_panda
