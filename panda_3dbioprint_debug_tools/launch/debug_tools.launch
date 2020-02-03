@@ -1,10 +1,15 @@
 <launch>
   <arg name="show_error" default="false" />
-  <arg name="show_trajectories" default="false" />
+  <arg name="show_trajectories_joint" default="false" />
+  <arg name="show_trajectories_cartesian" default="false" />
 
   <node if="$(arg show_error)" name="controller_error_plot" pkg="panda_3dbioprint_debug_tools" type="controller_error_plot.py" />
   
-  <node if="$(arg show_trajectories)" name="joint_trajectory_profiles_plot" pkg="panda_3dbioprint_debug_tools" type="joint_trajectory_profiles_plot" required="false" output="screen">
+  <node if="$(arg show_trajectories_joint)" name="joint_trajectory_profiles_plot" pkg="panda_3dbioprint_debug_tools" type="joint_trajectory_profiles_plot" required="false" output="screen">
+    <rosparam file="$(find panda_3dbioprint_debug_tools)/config/trajectory_profiles.yaml" command="load"/>
+  </node>
+
+  <node if="$(arg show_trajectories_cartesian)" name="cartesian_trajectory_profiles_plot" pkg="panda_3dbioprint_debug_tools" type="cartesian_trajectory_profiles_plot" required="false" output="screen">
     <rosparam file="$(find panda_3dbioprint_debug_tools)/config/trajectory_profiles.yaml" command="load"/>
   </node>
 </launch>

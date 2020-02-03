@@ -9,7 +9,10 @@ using namespace trajectory_planner;
 
 const std::string joint_poly3_param_prefix = "/joint_trajectory_profiles_plot/joint_space/poly3/";
 const std::string joint_poly3c_param_prefix = "/joint_trajectory_profiles_plot/joint_space/poly3c/";
+const std::string joint_poly3c_vias_param_prefix = "/joint_trajectory_profiles_plot/joint_space/poly3c_vias/";
 const std::string joint_poly5c_param_prefix = "/joint_trajectory_profiles_plot/joint_space/poly5c/";
+const std::string joint_lspb_param_prefix = "/joint_trajectory_profiles_plot/joint_space/lspb/";
+const std::string joint_lspb_vias_param_prefix = "/joint_trajectory_profiles_plot/joint_space/lspb_vias/";
 
 std::string profile = "";
 double theta0;
@@ -18,8 +21,11 @@ double theta0_d;
 double thetaf_d;
 double theta0_dd;
 double thetaf_dd;
+double thetab_dd;
 double t0;
 double tf;
+std::vector<double> thetas;
+std::vector<double> times;
 double freq;
 bool active;
 
@@ -47,6 +53,15 @@ bool check_params(ros::NodeHandle nh)
     profile = "poly3c";
     return true;
   }
+  else if (nh.hasParam(joint_poly3c_vias_param_prefix+"active") && nh.getParam(joint_poly3c_vias_param_prefix+"active", active) && active)
+  {
+    nh.getParam(joint_poly3c_vias_param_prefix+"thetas", thetas);
+    nh.getParam(joint_poly3c_vias_param_prefix+"times", times);
+    nh.getParam(joint_poly3c_vias_param_prefix+"frequency", freq);
+    tf = times.back();
+    profile = "poly3c_vias";
+    return true;
+  }
   else if (nh.hasParam(joint_poly5c_param_prefix+"active") && nh.getParam(joint_poly5c_param_prefix+"active", active) && active)
   {
     nh.getParam(joint_poly5c_param_prefix+"theta0", theta0);
@@ -59,6 +74,27 @@ bool check_params(ros::NodeHandle nh)
     nh.getParam(joint_poly5c_param_prefix+"tf", tf);
     nh.getParam(joint_poly5c_param_prefix+"frequency", freq);
     profile = "poly5c";
+    return true;
+  }
+  else if (nh.hasParam(joint_lspb_param_prefix+"active") && nh.getParam(joint_lspb_param_prefix+"active", active) && active)
+  {
+    nh.getParam(joint_lspb_param_prefix+"theta0", theta0);
+    nh.getParam(joint_lspb_param_prefix+"thetaf", thetaf);
+    nh.getParam(joint_lspb_param_prefix+"thetab_dd", thetab_dd);
+    nh.getParam(joint_lspb_param_prefix+"t0", t0);
+    nh.getParam(joint_lspb_param_prefix+"tf", tf);
+    nh.getParam(joint_lspb_param_prefix+"frequency", freq);
+    profile = "lspb";
+    return true;
+  }
+  else if (nh.hasParam(joint_lspb_vias_param_prefix+"active") && nh.getParam(joint_lspb_vias_param_prefix+"active", active) && active)
+  {
+    nh.getParam(joint_lspb_vias_param_prefix+"thetas", thetas);
+    nh.getParam(joint_lspb_vias_param_prefix+"times", times);
+    nh.getParam(joint_lspb_vias_param_prefix+"thetab_dd", thetab_dd);
+    nh.getParam(joint_lspb_vias_param_prefix+"frequency", freq);
+    tf = times.back();
+    profile = "lspb_vias";
     return true;
   }
   return false;
@@ -76,23 +112,26 @@ int main(int argc, char **argv)
 
   std::cout << "Running profile: " << profile << std::endl;
 
-  JointSpaceTrajectoryPlanner pl = JointSpaceTrajectoryPlanner();
   std::vector<Eigen::Vector3d> joint;
   std::vector<double> time_v;
   double t = t0;
 
   ros::Rate r(freq);
-  while (ros::ok() && t < tf)
+  while (ros::ok() && t <= tf+0.0001)
   {
-    if (profile.compare("poly3") == 0) {
-      joint.push_back(pl.poly3(theta0, thetaf, tf, t0, t));
-    }
-    else if (profile.compare("poly3c") == 0) {
-      joint.push_back(pl.poly3c(theta0, thetaf, theta0_d, thetaf_d, tf, t0, t));
-    }
-    else if (profile.compare("poly5c") == 0) {
-      joint.push_back(pl.poly5c(theta0, thetaf, theta0_d, thetaf_d, theta0_dd, thetaf_dd, tf, t0, t));
-    }  
+    if (profile.compare("poly3") == 0)
+      joint.push_back(JointSpaceTrajectoryPlanner::poly3(theta0, thetaf, t0, tf, t));
+    else if (profile.compare("poly3c") == 0)
+      joint.push_back(JointSpaceTrajectoryPlanner::poly3c(theta0, thetaf, theta0_d, thetaf_d, t0, tf, t));
+    else if (profile.compare("poly3c_vias") == 0)
+      joint.push_back(JointSpaceTrajectoryPlanner::poly3c_vias(thetas, times, t));
+    else if (profile.compare("poly5c") == 0)
+      joint.push_back(JointSpaceTrajectoryPlanner::poly5c(theta0, thetaf, theta0_d, thetaf_d, theta0_dd, thetaf_dd, t0, tf, t));
+    else if (profile.compare("lspb") == 0)
+      joint.push_back(JointSpaceTrajectoryPlanner::lspb(theta0, thetaf, thetab_dd, t0, tf, t));
+    else if (profile.compare("lspb_vias") == 0)
+      joint.push_back(JointSpaceTrajectoryPlanner::lspb_vias(thetas, times, thetab_dd, t));
+
     time_v.push_back(t);
     t += 1/freq;
     r.sleep();

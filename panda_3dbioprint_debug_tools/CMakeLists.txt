@@ -106,7 +106,7 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
+ INCLUDE_DIRS include
 #  LIBRARIES panda_3dbioprint_debug_tools
  CATKIN_DEPENDS geometry_msgs roscpp rospy trajectory_planner
 #  DEPENDS system_lib
@@ -119,7 +119,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
   ${EIGEN_INCLUDE_DIRS}
 )
@@ -139,6 +139,7 @@ link_directories(${EIGEN_LIBRARY_DIRS})
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(joint_trajectory_profiles_plot src/joint_trajectory_profiles_plot.cpp)
+add_executable(cartesian_trajectory_profiles_plot src/cartesian_trajectory_profiles_plot.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -148,10 +149,12 @@ add_executable(joint_trajectory_profiles_plot src/joint_trajectory_profiles_plot
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
-add_dependencies(joint_trajectory_profiles_plot trajectory_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(joint_trajectory_profiles_plot trajectory_planner_joint_space ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(cartesian_trajectory_profiles_plot trajectory_planner_cartesian_space ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(joint_trajectory_profiles_plot trajectory_planner ${catkin_LIBRARIES})
+target_link_libraries(joint_trajectory_profiles_plot trajectory_planner_joint_space ${catkin_LIBRARIES})
+target_link_libraries(cartesian_trajectory_profiles_plot trajectory_planner_cartesian_space ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -165,6 +168,7 @@ target_link_libraries(joint_trajectory_profiles_plot trajectory_planner ${catkin
 install(
   PROGRAMS scripts/controller_error_plot.py
   PROGRAMS scripts/show_joint_trajectory_profiles_plot.sh
+  PROGRAMS scripts/show_cartesian_trajectory_profiles_plot.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

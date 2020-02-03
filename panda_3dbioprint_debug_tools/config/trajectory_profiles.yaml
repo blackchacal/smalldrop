@@ -1,30 +1,160 @@
+---
 joint_space:
   # Only one method can be active at a time. If two or more are defined as active, the first one
   # will be the one used.
   poly3:
     active: false
-    theta0: 0
-    thetaf: 3.1415
-    t0: 0
-    tf: 5
+    theta0: 3.0
+    thetaf: 1.4
+    t0: 1
+    tf: 2
     frequency: 10
   poly3c:
     active: false
-    theta0: 0
-    thetaf: 3.1415
-    theta0_d: 2
-    thetaf_d: 50
+    theta0: 3.0
+    thetaf: 1.4
+    theta0_d: 0
+    thetaf_d: 0
     t0: 0
-    tf: 5
+    tf: 1
+    frequency: 10
+  poly3c_vias:
+    active: false
+    thetas:
+      - 0.0
+      - 3.0
+      - 1.4
+      - 2.2
+      - 3.1415
+    times:
+      - 0.0
+      - 5.0
+      - 10.0
+      - 15.0
+      - 20.0
     frequency: 10
   poly5c:
-    active: true
+    active: false
+    theta0: 0
+    thetaf: 1
+    theta0_d: 0.5
+    thetaf_d: 0
+    theta0_dd: 0
+    thetaf_dd: 0
+    t0: 0
+    tf: 50
+    frequency: 10
+  lspb:
+    active: false
     theta0: 0
     thetaf: 3.1415
-    theta0_d: 0
-    thetaf_d: 2
-    theta0_dd: 2
-    thetaf_dd: -0.75
+    thetab_dd: 5
     t0: 0
-    tf: 5
+    tf: 2
+    frequency: 50
+  lspb_vias:
+    active: false
+    thetas:
+      - 0.0
+      - 3.0
+      - 1.4
+      - 2.2
+      - 3.1415
+    times:
+      - 0.0
+      - 2.0
+      - 4.0
+      - 6.0
+      - 8.0
+    thetab_dd: 5
     frequency: 10
+
+cartesian_space:
+  # Only one method can be active at a time. If two or more are defined as active, the first one
+  # will be the one used.
+  poly3:
+    active: false
+    pose0:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+    posef: 
+      - 5
+      - 3
+      - 10
+      - 0
+      - 1
+      - 0
+      - 0
+    t0: 0
+    tf: 2
+    frequency: 10
+  poly3c:
+    active: false
+    pose0:
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 0
+      - 1
+    posef: 
+      - 5
+      - 3
+      - 10
+      - 0
+      - 1
+      - 0
+      - 0
+    velocity0:
+      - 0.5
+      - 0
+      - 0
+    velocityf:
+      - 2
+      - 0
+      - 0
+    t0: 0
+    tf: 2
+    frequency: 10
+  poly3c_vias:
+    active: false
+    poses:
+      x: [0, 2, 8, 5, 0]
+      y: [0, 0, 0, 0, 0]
+      z: [0, 0, 0, 0, 0]
+    times: 
+      - 0
+      - 2
+      - 4
+      - 6
+      - 8
+    frequency: 10
+  lspb:
+    active: true
+    pose0:
+      - 0 # x
+      - 0 # y
+      - 0 # z
+      - 0 # rx
+      - 0 # ry
+      - 0 # rz
+      - 1 #rw
+    posef: 
+      - 3.1415 # x
+      - 5 # y
+      - 4 # z
+      - 0 # rx
+      - 1 # ry
+      - 0 # rz
+      - 0 # rw
+    acceleration: 8
+    t0: 0
+    tf: 2
+    frequency: 10
+...
