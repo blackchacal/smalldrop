@@ -105,7 +105,7 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES ${PROJECT_NAME}_joint_space ${PROJECT_NAME}_cartesian_space
+ LIBRARIES ${PROJECT_NAME}_joint_space ${PROJECT_NAME}_cartesian_space path_planner
  CATKIN_DEPENDS geometry_msgs roscpp trajectory_msgs
 #  DEPENDS system_lib
 )
@@ -127,12 +127,14 @@ link_directories(${EIGEN_LIBRARY_DIRS})
 ## Declare a C++ library
 add_library(${PROJECT_NAME}_joint_space src/${PROJECT_NAME}/joint_space_trajectory_planner.cpp)
 add_library(${PROJECT_NAME}_cartesian_space src/${PROJECT_NAME}/cartesian_space_trajectory_planner.cpp)
+add_library(path_planner src/${PROJECT_NAME}/path_planner.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 add_dependencies(${PROJECT_NAME}_joint_space ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(${PROJECT_NAME}_cartesian_space ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(path_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -152,6 +154,7 @@ add_dependencies(${PROJECT_NAME}_cartesian_space ${${PROJECT_NAME}_EXPORTED_TARG
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME}_joint_space ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 target_link_libraries(${PROJECT_NAME}_cartesian_space ${catkin_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(path_planner ${catkin_LIBRARIES} ${Boost_LIBRARIES})
 
 #############
 ## Install ##

@@ -4,25 +4,30 @@
 
 namespace trajectory_planner
 {
+
+/**************************************************************************************************
+ * Private methods
+ *************************************************************************************************/
+
 // 3rd order polynomial with zero initial and final speeds
-std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::poly3(const std::vector<double> pose0,
-                                                                        const std::vector<double> posef,
+std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3(const std::vector<double> pose_i,
+                                                                        const std::vector<double> pose_f,
                                                                         const double t0, const double tf,
                                                                         const double t)
 {
-  std::vector<double> a0 = { pose0[0], pose0[1], pose0[2] };
+  std::vector<double> a0 = { pose_i[0], pose_i[1], pose_i[2] };
   std::vector<double> a1 = { 0, 0, 0 };
-  std::vector<double> a2 = { (3 / pow(tf - t0, 2)) * (posef[0] - pose0[0]),
-                             (3 / pow(tf - t0, 2)) * (posef[1] - pose0[1]),
-                             (3 / pow(tf - t0, 2)) * (posef[2] - pose0[2]) };
-  std::vector<double> a3 = { -(2 / pow(tf - t0, 3)) * (posef[0] - pose0[0]),
-                             -(2 / pow(tf - t0, 3)) * (posef[1] - pose0[1]),
-                             -(2 / pow(tf - t0, 3)) * (posef[2] - pose0[2]) };
+  std::vector<double> a2 = { (3 / pow(tf - t0, 2)) * (pose_f[0] - pose_i[0]),
+                             (3 / pow(tf - t0, 2)) * (pose_f[1] - pose_i[1]),
+                             (3 / pow(tf - t0, 2)) * (pose_f[2] - pose_i[2]) };
+  std::vector<double> a3 = { -(2 / pow(tf - t0, 3)) * (pose_f[0] - pose_i[0]),
+                             -(2 / pow(tf - t0, 3)) * (pose_f[1] - pose_i[1]),
+                             -(2 / pow(tf - t0, 3)) * (pose_f[2] - pose_i[2]) };
 
   // Apply slerp
   Eigen::Quaterniond qres;
-  Eigen::Quaterniond q0(pose0[6], pose0[3], pose0[4], pose0[5]);
-  Eigen::Quaterniond qf(posef[6], posef[3], posef[4], posef[5]);
+  Eigen::Quaterniond q0(pose_i[6], pose_i[3], pose_i[4], pose_i[5]);
+  Eigen::Quaterniond qf(pose_f[6], pose_f[3], pose_f[4], pose_f[5]);
   qres = q0.slerp(t, qf);
 
   std::vector<double> poses = { a0[0] + a1[0] * (t - t0) + a2[0] * pow(t - t0, 2) + a3[0] * pow(t - t0, 3),
@@ -52,27 +57,27 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::poly3(const st
 }
 
 // 3rd order polynomial with non-zero initial and final speeds
-std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::poly3c(
-    const std::vector<double> pose0, const std::vector<double> posef, const std::vector<double> velocity0,
+std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3c(
+    const std::vector<double> pose_i, const std::vector<double> pose_f, const std::vector<double> velocity0,
     const std::vector<double> velocityf, const double t0, const double tf, const double t)
 {
-  std::vector<double> a0 = { pose0[0], pose0[1], pose0[2] };
+  std::vector<double> a0 = { pose_i[0], pose_i[1], pose_i[2] };
   std::vector<double> a1 = { velocity0[0], velocity0[1], velocity0[2] };
   std::vector<double> a2 = {
-    (3 / pow(tf - t0, 2)) * (posef[0] - pose0[0]) - (2 / (tf - t0)) * velocity0[0] - (1 / (tf - t0)) * velocityf[0],
-    (3 / pow(tf - t0, 2)) * (posef[1] - pose0[1]) - (2 / (tf - t0)) * velocity0[1] - (1 / (tf - t0)) * velocityf[1],
-    (3 / pow(tf - t0, 2)) * (posef[2] - pose0[2]) - (2 / (tf - t0)) * velocity0[2] - (1 / (tf - t0)) * velocityf[2]
+    (3 / pow(tf - t0, 2)) * (pose_f[0] - pose_i[0]) - (2 / (tf - t0)) * velocity0[0] - (1 / (tf - t0)) * velocityf[0],
+    (3 / pow(tf - t0, 2)) * (pose_f[1] - pose_i[1]) - (2 / (tf - t0)) * velocity0[1] - (1 / (tf - t0)) * velocityf[1],
+    (3 / pow(tf - t0, 2)) * (pose_f[2] - pose_i[2]) - (2 / (tf - t0)) * velocity0[2] - (1 / (tf - t0)) * velocityf[2]
   };
   std::vector<double> a3 = {
-    -(2 / pow(tf - t0, 3)) * (posef[0] - pose0[0]) + (1 / pow(tf - t0, 2)) * (velocityf[0] + velocity0[0]),
-    -(2 / pow(tf - t0, 3)) * (posef[1] - pose0[1]) + (1 / pow(tf - t0, 2)) * (velocityf[1] + velocity0[1]),
-    -(2 / pow(tf - t0, 3)) * (posef[2] - pose0[2]) + (1 / pow(tf - t0, 2)) * (velocityf[2] + velocity0[2])
+    -(2 / pow(tf - t0, 3)) * (pose_f[0] - pose_i[0]) + (1 / pow(tf - t0, 2)) * (velocityf[0] + velocity0[0]),
+    -(2 / pow(tf - t0, 3)) * (pose_f[1] - pose_i[1]) + (1 / pow(tf - t0, 2)) * (velocityf[1] + velocity0[1]),
+    -(2 / pow(tf - t0, 3)) * (pose_f[2] - pose_i[2]) + (1 / pow(tf - t0, 2)) * (velocityf[2] + velocity0[2])
   };
 
   // Apply slerp
   Eigen::Quaterniond qres;
-  Eigen::Quaterniond q0(pose0[6], pose0[3], pose0[4], pose0[5]);
-  Eigen::Quaterniond qf(posef[6], posef[3], posef[4], posef[5]);
+  Eigen::Quaterniond q0(pose_i[6], pose_i[3], pose_i[4], pose_i[5]);
+  Eigen::Quaterniond qf(pose_f[6], pose_f[3], pose_f[4], pose_f[5]);
   qres = q0.slerp(t, qf);
 
   std::vector<double> poses = { a0[0] + a1[0] * (t - t0) + a2[0] * pow(t - t0, 2) + a3[0] * pow(t - t0, 3),
@@ -102,7 +107,7 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::poly3c(
 }
 
 // Calculate via velocity based on heuristic
-double CartesianSpaceTrajectoryPlanner::via_velocity(const double pos_before, const double pos, const double pos_after,
+double TaskTrajectoryPlanner::via_velocity(const double pos_before, const double pos, const double pos_after,
                                                      const double t_before, const double t, const double t_after)
 {
   double velocity_i, velocity_ii;
@@ -117,18 +122,12 @@ double CartesianSpaceTrajectoryPlanner::via_velocity(const double pos_before, co
 }
 
 // 3rd order polynomial with via points and velocity heuristics
-std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::poly3c_vias(
+std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3c_vias(
     const std::vector<std::vector<double>> poses, const std::vector<double> times, const double t)
 {
   if (poses[0].size() != times.size())
   {
-    ROS_ERROR("The poses vector should be the same size as times vector.");
-    std::vector<std::vector<double>> trajectory;
-    trajectory.resize(3);
-    trajectory[0] = { -1, -1, -1 };
-    trajectory[1] = { -1, -1, -1 };
-    trajectory[2] = { -1, -1, -1 };
-    return trajectory;
+    throw std::runtime_error("The poses vector should be the same size as times vector.");
   }
 
   std::vector<double> velocity0;
@@ -143,42 +142,42 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::poly3c_vias(
       if (i == 1)
       {
         // velocity0 is already {0, 0, 0}
-        velocityf[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[0][i - 1], poses[0][i], poses[0][i + 1], times[i - 1], times[i], times[i + 1]);
-        velocityf[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[1][i - 1], poses[1][i], poses[1][i + 1], times[i - 1], times[i], times[i + 1]);
-        velocityf[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[2][i - 1], poses[2][i], poses[2][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocityf[0] = TaskTrajectoryPlanner::via_velocity(poses[0][i - 1], poses[0][i], poses[0][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocityf[1] = TaskTrajectoryPlanner::via_velocity(poses[1][i - 1], poses[1][i], poses[1][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocityf[2] = TaskTrajectoryPlanner::via_velocity(poses[2][i - 1], poses[2][i], poses[2][i + 1], times[i - 1], times[i], times[i + 1]);
       }
       else if (i == times.size() - 1)
       {
-        velocity0[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[0][i - 1], poses[0][i], poses[0][i + 1], times[i - 1], times[i], times[i + 1]);
-        velocity0[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[1][i - 1], poses[1][i], poses[1][i + 1], times[i - 1], times[i], times[i + 1]);
-        velocity0[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[2][i - 1], poses[2][i], poses[2][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocity0[0] = TaskTrajectoryPlanner::via_velocity(poses[0][i - 1], poses[0][i], poses[0][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocity0[1] = TaskTrajectoryPlanner::via_velocity(poses[1][i - 1], poses[1][i], poses[1][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocity0[2] = TaskTrajectoryPlanner::via_velocity(poses[2][i - 1], poses[2][i], poses[2][i + 1], times[i - 1], times[i], times[i + 1]);
         // velocityf is already {0, 0, 0}
       }
       else
       {
-        velocity0[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[0][i - 2], poses[0][i - 1], poses[0][i], times[i - 2], times[i - 1], times[i]);
-        velocity0[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[1][i - 2], poses[1][i - 1], poses[1][i], times[i - 2], times[i - 1], times[i]);
-        velocity0[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[2][i - 2], poses[2][i - 1], poses[2][i], times[i - 2], times[i - 1], times[i]);
+        velocity0[0] = TaskTrajectoryPlanner::via_velocity(poses[0][i - 2], poses[0][i - 1], poses[0][i], times[i - 2], times[i - 1], times[i]);
+        velocity0[1] = TaskTrajectoryPlanner::via_velocity(poses[1][i - 2], poses[1][i - 1], poses[1][i], times[i - 2], times[i - 1], times[i]);
+        velocity0[2] = TaskTrajectoryPlanner::via_velocity(poses[2][i - 2], poses[2][i - 1], poses[2][i], times[i - 2], times[i - 1], times[i]);
     
-        velocityf[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[0][i - 1], poses[0][i], poses[0][i + 1], times[i - 1], times[i], times[i + 1]);
-        velocityf[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[1][i - 1], poses[1][i], poses[1][i + 1], times[i - 1], times[i], times[i + 1]);
-        velocityf[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[2][i - 1], poses[2][i], poses[2][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocityf[0] = TaskTrajectoryPlanner::via_velocity(poses[0][i - 1], poses[0][i], poses[0][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocityf[1] = TaskTrajectoryPlanner::via_velocity(poses[1][i - 1], poses[1][i], poses[1][i + 1], times[i - 1], times[i], times[i + 1]);
+        velocityf[2] = TaskTrajectoryPlanner::via_velocity(poses[2][i - 1], poses[2][i], poses[2][i + 1], times[i - 1], times[i], times[i + 1]);
       }
 
-      std::vector<double> pose0 = {poses[0][i - 1], poses[1][i - 1], poses[2][i - 1]};
-      std::vector<double> posef = {poses[0][i], poses[1][i], poses[2][i]};
+      std::vector<double> pose_i = {poses[0][i - 1], poses[1][i - 1], poses[2][i - 1]};
+      std::vector<double> pose_f = {poses[0][i], poses[1][i], poses[2][i]};
             
-      return CartesianSpaceTrajectoryPlanner::poly3c(pose0, posef, velocity0, velocityf, times[i - 1], times[i], t);
+      return TaskTrajectoryPlanner::poly3c(pose_i, pose_f, velocity0, velocityf, times[i - 1], times[i], t);
     }
 }
 
 // Linear segment with parabolic blends
-std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::lspb(const std::vector<double> pose0, const std::vector<double> posef, const double accel, const double t0,
+std::vector<std::vector<double>> TaskTrajectoryPlanner::lspb(const std::vector<double> pose_i, const std::vector<double> pose_f, const double accel, const double t0,
                                                                        const double tf, const double t)
 {
-  if (abs(accel) < (4 * abs(posef[0] - pose0[0])) / pow(tf - t0, 2) ||
-    abs(accel) < (4 * abs(posef[1] - pose0[1])) / pow(tf - t0, 2) ||
-    abs(accel) < (4 * abs(posef[2] - pose0[2])) / pow(tf - t0, 2))
+  if (abs(accel) < (4 * abs(pose_f[0] - pose_i[0])) / pow(tf - t0, 2) ||
+    abs(accel) < (4 * abs(pose_f[1] - pose_i[1])) / pow(tf - t0, 2) ||
+    abs(accel) < (4 * abs(pose_f[2] - pose_i[2])) / pow(tf - t0, 2))
   {
     ROS_ERROR("Invalid acceleration! The value needs to be larger.");
     std::vector<std::vector<double>> trajectory;
@@ -195,9 +194,9 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::lspb(const std
   acceleration.resize(7, 0);
   std::vector<double> delta_tb;
   delta_tb.resize(3, 0);
-  delta_tb[0] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(posef[0] - pose0[0]) / abs(accel));
-  delta_tb[1] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(posef[1] - pose0[1]) / abs(accel));
-  delta_tb[2] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(posef[2] - pose0[2]) / abs(accel));
+  delta_tb[0] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(pose_f[0] - pose_i[0]) / abs(accel));
+  delta_tb[1] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(pose_f[1] - pose_i[1]) / abs(accel));
+  delta_tb[2] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(pose_f[2] - pose_i[2]) / abs(accel));
   std::vector<double> tb;
   tb.resize(3, 0);
   tb[0] = t0 + delta_tb[0];
@@ -210,9 +209,9 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::lspb(const std
   velocity_b[2] = accel * delta_tb[2];
   std::vector<double> poseb;
   poseb.resize(3, 0);
-  poseb[0] = pose0[0] + 0.5 * accel * pow(delta_tb[0], 2);
-  poseb[1] = pose0[1] + 0.5 * accel * pow(delta_tb[1], 2);
-  poseb[2] = pose0[2] + 0.5 * accel * pow(delta_tb[2], 2);
+  poseb[0] = pose_i[0] + 0.5 * accel * pow(delta_tb[0], 2);
+  poseb[1] = pose_i[1] + 0.5 * accel * pow(delta_tb[1], 2);
+  poseb[2] = pose_i[2] + 0.5 * accel * pow(delta_tb[2], 2);
   std::vector<double> posebf;
   posebf.resize(3, 0);
   posebf[0] = poseb[0] + velocity_b[0] * ((tf - t0) - 2 * delta_tb[0]);
@@ -221,8 +220,8 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::lspb(const std
 
   // Apply slerp
   Eigen::Quaterniond qres;
-  Eigen::Quaterniond q0(pose0[6], pose0[3], pose0[4], pose0[5]);
-  Eigen::Quaterniond qf(posef[6], posef[3], posef[4], posef[5]);
+  Eigen::Quaterniond q0(pose_i[6], pose_i[3], pose_i[4], pose_i[5]);
+  Eigen::Quaterniond qf(pose_f[6], pose_f[3], pose_f[4], pose_f[5]);
   qres = q0.slerp(t, qf);
   pose[3] = qres.x();
   pose[4] = qres.y();
@@ -235,7 +234,7 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::lspb(const std
     {
       acceleration[i] = accel;
       velocity[i] = accel * (t - t0);
-      pose[i] = pose0[i] + 0.5 * acceleration[i] * pow(t - t0, 2);
+      pose[i] = pose_i[i] + 0.5 * acceleration[i] * pow(t - t0, 2);
     }
     else if (t >= (tf - delta_tb[i]) && t <= tf + 0.0001)
     {
@@ -259,23 +258,23 @@ std::vector<std::vector<double>> CartesianSpaceTrajectoryPlanner::lspb(const std
   return trajectory;
 }
 
-geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::poly3p(const geometry_msgs::Pose pose0,
-                                                            const geometry_msgs::Pose posef, const double t0,
+geometry_msgs::Pose TaskTrajectoryPlanner::poly3p(const geometry_msgs::Pose pose_i,
+                                                            const geometry_msgs::Pose pose_f, const double t0,
                                                             const double tf, const double t)
 {
-  std::vector<double> a0 = { pose0.position.x, pose0.position.y, pose0.position.z };
+  std::vector<double> a0 = { pose_i.position.x, pose_i.position.y, pose_i.position.z };
   std::vector<double> a1 = { 0, 0, 0 };
-  std::vector<double> a2 = { (3 / pow(tf - t0, 2)) * (posef.position.x - pose0.position.x),
-                             (3 / pow(tf - t0, 2)) * (posef.position.y - pose0.position.y),
-                             (3 / pow(tf - t0, 2)) * (posef.position.z - pose0.position.z) };
-  std::vector<double> a3 = { -(2 / pow(tf - t0, 3)) * (posef.position.x - pose0.position.x),
-                             -(2 / pow(tf - t0, 3)) * (posef.position.y - pose0.position.y),
-                             -(2 / pow(tf - t0, 3)) * (posef.position.z - pose0.position.z) };
+  std::vector<double> a2 = { (3 / pow(tf - t0, 2)) * (pose_f.position.x - pose_i.position.x),
+                             (3 / pow(tf - t0, 2)) * (pose_f.position.y - pose_i.position.y),
+                             (3 / pow(tf - t0, 2)) * (pose_f.position.z - pose_i.position.z) };
+  std::vector<double> a3 = { -(2 / pow(tf - t0, 3)) * (pose_f.position.x - pose_i.position.x),
+                             -(2 / pow(tf - t0, 3)) * (pose_f.position.y - pose_i.position.y),
+                             -(2 / pow(tf - t0, 3)) * (pose_f.position.z - pose_i.position.z) };
 
   // Apply slerp
   Eigen::Quaterniond qres;
-  Eigen::Quaterniond q0(pose0.orientation.w, pose0.orientation.x, pose0.orientation.y, pose0.orientation.z);
-  Eigen::Quaterniond qf(posef.orientation.w, posef.orientation.x, posef.orientation.y, posef.orientation.z);
+  Eigen::Quaterniond q0(pose_i.orientation.w, pose_i.orientation.x, pose_i.orientation.y, pose_i.orientation.z);
+  Eigen::Quaterniond qf(pose_f.orientation.w, pose_f.orientation.x, pose_f.orientation.y, pose_f.orientation.z);
   qres = q0.slerp(t, qf);
 
   geometry_msgs::Pose pose;
@@ -291,29 +290,29 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::poly3p(const geometry_msgs:
 }
 
 // 3rd order polynomial with non-zero initial and final velocities, that uses geometry_msgs::Pose
-geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::poly3pc(const geometry_msgs::Pose pose0,
-                                                             const geometry_msgs::Pose posef,
+geometry_msgs::Pose TaskTrajectoryPlanner::poly3pc(const geometry_msgs::Pose pose_i,
+                                                             const geometry_msgs::Pose pose_f,
                                                              const std::vector<double> velocity0,
                                                              const std::vector<double> velocityf, const double t0,
                                                              const double tf, const double t)
 {
-  std::vector<double> a0 = { pose0.position.x, pose0.position.y, pose0.position.z };
+  std::vector<double> a0 = { pose_i.position.x, pose_i.position.y, pose_i.position.z };
   std::vector<double> a1 = { velocity0[0], velocity0[1], velocity0[2] };
   std::vector<double> a2 = {
-    (3 / pow(tf - t0, 2)) * (posef.position.x - pose0.position.x) - (2 / (tf - t0)) * velocity0[0] - (1 / (tf - t0)) * velocityf[0],
-    (3 / pow(tf - t0, 2)) * (posef.position.y - pose0.position.y) - (2 / (tf - t0)) * velocity0[1] - (1 / (tf - t0)) * velocityf[1],
-    (3 / pow(tf - t0, 2)) * (posef.position.z - pose0.position.z) - (2 / (tf - t0)) * velocity0[2] - (1 / (tf - t0)) * velocityf[2]
+    (3 / pow(tf - t0, 2)) * (pose_f.position.x - pose_i.position.x) - (2 / (tf - t0)) * velocity0[0] - (1 / (tf - t0)) * velocityf[0],
+    (3 / pow(tf - t0, 2)) * (pose_f.position.y - pose_i.position.y) - (2 / (tf - t0)) * velocity0[1] - (1 / (tf - t0)) * velocityf[1],
+    (3 / pow(tf - t0, 2)) * (pose_f.position.z - pose_i.position.z) - (2 / (tf - t0)) * velocity0[2] - (1 / (tf - t0)) * velocityf[2]
   };
   std::vector<double> a3 = {
-    -(2 / pow(tf - t0, 3)) * (posef.position.x - pose0.position.x) + (1 / pow(tf - t0, 2)) * (velocityf[0] + velocity0[0]),
-    -(2 / pow(tf - t0, 3)) * (posef.position.y - pose0.position.y) + (1 / pow(tf - t0, 2)) * (velocityf[1] + velocity0[1]),
-    -(2 / pow(tf - t0, 3)) * (posef.position.z - pose0.position.z) + (1 / pow(tf - t0, 2)) * (velocityf[2] + velocity0[2])
+    -(2 / pow(tf - t0, 3)) * (pose_f.position.x - pose_i.position.x) + (1 / pow(tf - t0, 2)) * (velocityf[0] + velocity0[0]),
+    -(2 / pow(tf - t0, 3)) * (pose_f.position.y - pose_i.position.y) + (1 / pow(tf - t0, 2)) * (velocityf[1] + velocity0[1]),
+    -(2 / pow(tf - t0, 3)) * (pose_f.position.z - pose_i.position.z) + (1 / pow(tf - t0, 2)) * (velocityf[2] + velocity0[2])
   };
 
   // Apply slerp
   Eigen::Quaterniond qres;
-  Eigen::Quaterniond q0(pose0.orientation.w, pose0.orientation.x, pose0.orientation.y, pose0.orientation.z);
-  Eigen::Quaterniond qf(posef.orientation.w, posef.orientation.x, posef.orientation.y, posef.orientation.z);
+  Eigen::Quaterniond q0(pose_i.orientation.w, pose_i.orientation.x, pose_i.orientation.y, pose_i.orientation.z);
+  Eigen::Quaterniond qf(pose_f.orientation.w, pose_f.orientation.x, pose_f.orientation.y, pose_f.orientation.z);
   qres = q0.slerp(t, qf);
 
   geometry_msgs::Pose pose;
@@ -329,21 +328,12 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::poly3pc(const geometry_msgs
 }
 
 // 3rd order polynomial with via points and velocity heuristics, that uses geometry_msgs::Pose
-geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::poly3pc_vias(const std::vector<geometry_msgs::Pose> poses,
+geometry_msgs::Pose TaskTrajectoryPlanner::poly3pc_vias(const std::vector<geometry_msgs::Pose> poses,
                                                       const std::vector<double> times, const double t)
 {
   if (poses.size() != times.size())
   {
-    ROS_ERROR("The poses vector should be the same size as times vector.");
-    geometry_msgs::Pose pose;
-    pose.position.x = -1;
-    pose.position.y = -1;
-    pose.position.z = -1;
-    pose.orientation.x = 0;
-    pose.orientation.y = 0;
-    pose.orientation.z = 0;
-    pose.orientation.w = 1;
-    return pose;
+    throw std::runtime_error("The poses vector should be the same size as times vector.");
   }
 
   std::vector<double> velocity0;
@@ -357,60 +347,51 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::poly3pc_vias(const std::vec
       if (i == 1)
       {
         // velocity0 is already {0, 0, 0}
-        velocityf[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.x, poses[i].position.x, poses[i + 1].position.x, times[i - 1], times[i], times[i + 1]);
-        velocityf[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.y, poses[i].position.y, poses[i + 1].position.y, times[i - 1], times[i], times[i + 1]);
-        velocityf[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.z, poses[i].position.z, poses[i + 1].position.z, times[i - 1], times[i], times[i + 1]);
+        velocityf[0] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.x, poses[i].position.x, poses[i + 1].position.x, times[i - 1], times[i], times[i + 1]);
+        velocityf[1] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.y, poses[i].position.y, poses[i + 1].position.y, times[i - 1], times[i], times[i + 1]);
+        velocityf[2] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.z, poses[i].position.z, poses[i + 1].position.z, times[i - 1], times[i], times[i + 1]);
       }
       else if (i == times.size() - 1)
       {
-        velocity0[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.x, poses[i].position.x, poses[i + 1].position.x, times[i - 1], times[i], times[i + 1]);
-        velocity0[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.y, poses[i].position.y, poses[i + 1].position.y, times[i - 1], times[i], times[i + 1]);
-        velocity0[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.z, poses[i].position.z, poses[i + 1].position.z, times[i - 1], times[i], times[i + 1]);
+        velocity0[0] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.x, poses[i].position.x, poses[i + 1].position.x, times[i - 1], times[i], times[i + 1]);
+        velocity0[1] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.y, poses[i].position.y, poses[i + 1].position.y, times[i - 1], times[i], times[i + 1]);
+        velocity0[2] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.z, poses[i].position.z, poses[i + 1].position.z, times[i - 1], times[i], times[i + 1]);
         // velocityf is already {0, 0, 0}
       }
       else
       {
-        velocity0[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 2].position.x, poses[i - 1].position.x, poses[i].position.x, times[i - 1], times[i], times[i + 1]);
-        velocity0[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 2].position.y, poses[i - 1].position.y, poses[i].position.y, times[i - 1], times[i], times[i + 1]);
-        velocity0[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 2].position.z, poses[i - 1].position.z, poses[i].position.z, times[i - 1], times[i], times[i + 1]);
+        velocity0[0] = TaskTrajectoryPlanner::via_velocity(poses[i - 2].position.x, poses[i - 1].position.x, poses[i].position.x, times[i - 1], times[i], times[i + 1]);
+        velocity0[1] = TaskTrajectoryPlanner::via_velocity(poses[i - 2].position.y, poses[i - 1].position.y, poses[i].position.y, times[i - 1], times[i], times[i + 1]);
+        velocity0[2] = TaskTrajectoryPlanner::via_velocity(poses[i - 2].position.z, poses[i - 1].position.z, poses[i].position.z, times[i - 1], times[i], times[i + 1]);
     
-        velocityf[0] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.x, poses[i].position.x, poses[i + 1].position.x, times[i - 1], times[i], times[i + 1]);
-        velocityf[1] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.y, poses[i].position.y, poses[i + 1].position.y, times[i - 1], times[i], times[i + 1]);
-        velocityf[2] = CartesianSpaceTrajectoryPlanner::via_velocity(poses[i - 1].position.z, poses[i].position.z, poses[i + 1].position.z, times[i - 1], times[i], times[i + 1]);
+        velocityf[0] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.x, poses[i].position.x, poses[i + 1].position.x, times[i - 1], times[i], times[i + 1]);
+        velocityf[1] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.y, poses[i].position.y, poses[i + 1].position.y, times[i - 1], times[i], times[i + 1]);
+        velocityf[2] = TaskTrajectoryPlanner::via_velocity(poses[i - 1].position.z, poses[i].position.z, poses[i + 1].position.z, times[i - 1], times[i], times[i + 1]);
       }
             
-      return CartesianSpaceTrajectoryPlanner::poly3pc(poses[i - 1], poses[i], velocity0, velocityf, times[i - 1], times[i], t);
+      return TaskTrajectoryPlanner::poly3pc(poses[i - 1], poses[i], velocity0, velocityf, times[i - 1], times[i], t);
     }
 }
 
 // Linear segment with parabolic blends, that uses geometry_msgs::Pose
-geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::lspbp(const geometry_msgs::Pose pose0, const geometry_msgs::Pose posef, const double accel, const double t0,
+geometry_msgs::Pose TaskTrajectoryPlanner::lspbp(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f, const double accel, const double t0,
                                                            const double tf, const double t)
 {
   // It is assumed that accel param is always positive
 
-  if (accel < (4 * abs(posef.position.x - pose0.position.x)) / pow(tf - t0, 2) ||
-    accel < (4 * abs(posef.position.y - pose0.position.y)) / pow(tf - t0, 2) ||
-    accel < (4 * abs(posef.position.z - pose0.position.z)) / pow(tf - t0, 2))
+  if (accel < (4 * abs(pose_f.position.x - pose_i.position.x)) / pow(tf - t0, 2) ||
+    accel < (4 * abs(pose_f.position.y - pose_i.position.y)) / pow(tf - t0, 2) ||
+    accel < (4 * abs(pose_f.position.z - pose_i.position.z)) / pow(tf - t0, 2))
   {
-    ROS_ERROR("Invalid acceleration! The value needs to be larger.");
-    geometry_msgs::Pose pose;
-    pose.position.x = -1;
-    pose.position.y = -1;
-    pose.position.z = -1;
-    pose.orientation.x = 0;
-    pose.orientation.y = 0;
-    pose.orientation.z = 0;
-    pose.orientation.w = 1;
-    return pose;
+    throw std::runtime_error("Invalid acceleration! The value needs to be larger.");
   }
 
   // Change accel sign depending on growth direction of position (eg. x0 > xf => accel0 < 0)
   std::vector<double> accel_vec;
   accel_vec.resize(3, 0);
-  accel_vec[0] = (pose0.position.x > posef.position.x) ? -accel : accel;
-  accel_vec[1] = (pose0.position.y > posef.position.y) ? -accel : accel;
-  accel_vec[2] = (pose0.position.z > posef.position.z) ? -accel : accel;
+  accel_vec[0] = (pose_i.position.x > pose_f.position.x) ? -accel : accel;
+  accel_vec[1] = (pose_i.position.y > pose_f.position.y) ? -accel : accel;
+  accel_vec[2] = (pose_i.position.z > pose_f.position.z) ? -accel : accel;
 
   geometry_msgs::Pose pose;
   std::vector<double> velocity, acceleration;
@@ -418,9 +399,9 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::lspbp(const geometry_msgs::
   acceleration.resize(3, 0);
   std::vector<double> delta_tb;
   delta_tb.resize(3, 0);
-  delta_tb[0] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(posef.position.x - pose0.position.x) / abs(accel_vec[0]));
-  delta_tb[1] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(posef.position.y - pose0.position.y) / abs(accel_vec[1]));
-  delta_tb[2] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(posef.position.z - pose0.position.z) / abs(accel_vec[2]));
+  delta_tb[0] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(pose_f.position.x - pose_i.position.x) / abs(accel_vec[0]));
+  delta_tb[1] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(pose_f.position.y - pose_i.position.y) / abs(accel_vec[1]));
+  delta_tb[2] = (tf - t0) / 2 - sqrt(pow(tf - t0, 2) / 4 - abs(pose_f.position.z - pose_i.position.z) / abs(accel_vec[2]));
   std::vector<double> tb;
   tb.resize(3, 0);
   tb[0] = t0 + delta_tb[0];
@@ -433,9 +414,9 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::lspbp(const geometry_msgs::
   velocity_b[2] = accel_vec[2] * delta_tb[2];
   std::vector<double> poseb;
   poseb.resize(3, 0);
-  poseb[0] = pose0.position.x + 0.5 * accel_vec[0] * pow(delta_tb[0], 2);
-  poseb[1] = pose0.position.y + 0.5 * accel_vec[1] * pow(delta_tb[1], 2);
-  poseb[2] = pose0.position.z + 0.5 * accel_vec[2] * pow(delta_tb[2], 2);
+  poseb[0] = pose_i.position.x + 0.5 * accel_vec[0] * pow(delta_tb[0], 2);
+  poseb[1] = pose_i.position.y + 0.5 * accel_vec[1] * pow(delta_tb[1], 2);
+  poseb[2] = pose_i.position.z + 0.5 * accel_vec[2] * pow(delta_tb[2], 2);
   std::vector<double> posebf;
   posebf.resize(3, 0);
   posebf[0] = poseb[0] + velocity_b[0] * ((tf - t0) - 2 * delta_tb[0]);
@@ -444,8 +425,8 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::lspbp(const geometry_msgs::
 
   // Apply slerp
   Eigen::Quaterniond qres;
-  Eigen::Quaterniond q0(pose0.orientation.w, pose0.orientation.x, pose0.orientation.y, pose0.orientation.z);
-  Eigen::Quaterniond qf(posef.orientation.w, posef.orientation.x, posef.orientation.y, posef.orientation.z);
+  Eigen::Quaterniond q0(pose_i.orientation.w, pose_i.orientation.x, pose_i.orientation.y, pose_i.orientation.z);
+  Eigen::Quaterniond qf(pose_f.orientation.w, pose_f.orientation.x, pose_f.orientation.y, pose_f.orientation.z);
   qres = q0.slerp(t, qf);
   pose.orientation.x = qres.x();
   pose.orientation.y = qres.y();
@@ -461,13 +442,13 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::lspbp(const geometry_msgs::
       switch (i)
       {
         case 1:
-          pose.position.y = pose0.position.y + 0.5 * acceleration[i] * pow(t - t0, 2);
+          pose.position.y = pose_i.position.y + 0.5 * acceleration[i] * pow(t - t0, 2);
           break;
         case 2:
-          pose.position.z = pose0.position.z + 0.5 * acceleration[i] * pow(t - t0, 2);
+          pose.position.z = pose_i.position.z + 0.5 * acceleration[i] * pow(t - t0, 2);
           break;
         default:
-          pose.position.x = pose0.position.x + 0.5 * acceleration[i] * pow(t - t0, 2);
+          pose.position.x = pose_i.position.x + 0.5 * acceleration[i] * pow(t - t0, 2);
           break;
       }
     }
@@ -509,5 +490,76 @@ geometry_msgs::Pose CartesianSpaceTrajectoryPlanner::lspbp(const geometry_msgs::
   
   return pose;
 }
+
+// General trajectory planner for all the paths
+std::vector<geometry_msgs::Pose> TaskTrajectoryPlanner::plan_trajectory(std::vector<geometry_msgs::Pose> path, 
+                                                                                  const double duration, 
+                                                                                  const double frequency, const PLAN_MODE mode)
+{
+  std::vector<geometry_msgs::Pose> trajectory;
+  unsigned int npoints = path.size();
+  double t_interval = duration / (double)npoints;
+
+  for (size_t i = 0; i < npoints - 1; i++)
+  {
+    double t = 0;
+    while (t <= t_interval + 0.0001)
+    {
+      switch (mode)
+      {
+      case PLAN_MODE::LSPB:
+        trajectory.push_back(TaskTrajectoryPlanner::lspbp(path[i], path[i+1], TaskTrajectoryPlanner::lspb_accel, 0, t_interval, t));
+        break;
+      default: // PLAN_MODE::POLY3
+        trajectory.push_back(TaskTrajectoryPlanner::poly3p(path[i], path[i+1], 0, t_interval, t));
+        break;
+      }
+      t += 1/frequency;
+    }
+  }
+  return trajectory;
+}
+
+/**************************************************************************************************
+ * Public methods
+ *************************************************************************************************/
+
+// Plans a linear path trajectory with a certain duration, frequency and planning mode.
+std::vector<geometry_msgs::Pose> TaskTrajectoryPlanner::linear_trajectory(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f,
+                                                                      const double duration, const double frequency,
+                                                                      const PLAN_MODE mode)
+{
+  // Plan the line path, i.e., get the n poses that compose the line path
+  std::vector<geometry_msgs::Pose> path = PathPlanner::line_path(pose_i, pose_f, TaskTrajectoryPlanner::line_npoints);
+  
+  return TaskTrajectoryPlanner::plan_trajectory(path, duration, frequency, mode);
+}
+
+// Plans a circular path trajectory with a certain duration, frequency and planning mode.
+std::vector<geometry_msgs::Pose> TaskTrajectoryPlanner::circular_trajectory(const geometry_msgs::Pose pose_i,
+                                                              const geometry_msgs::Pose center, const double radius,
+                                                              const double duration, const double frequency,
+                                                              const unsigned int loops,
+                                                              const PATH_PLANE plane,
+                                                              const PLAN_MODE mode)
+{
+  // Plan the circular path, i.e., get the n poses that compose the circular path
+  std::vector<geometry_msgs::Pose> path = PathPlanner::circle_path(pose_i, center, radius, TaskTrajectoryPlanner::circle_npoints, loops, plane);
+
+  return TaskTrajectoryPlanner::plan_trajectory(path, loops*duration, frequency, mode);
+} 
+
+// Plans a circular spiral path trajectory with a certain duration, frequency and planning mode.
+std::vector<geometry_msgs::Pose> TaskTrajectoryPlanner::circular_spiral_trajectory(const geometry_msgs::Pose pose_i,
+                                                                     const double eradius, const double iradius,
+                                                                     const double duration, const double frequency,
+                                                                     const unsigned int loops, const PATH_PLANE plane,
+                                                                     const PLAN_MODE mode)
+{
+  // Plan the circular spiral path, i.e., get the n poses that compose the circular spiral path
+  std::vector<geometry_msgs::Pose> path = PathPlanner::circular_spiral_path(pose_i, eradius, iradius, loops, TaskTrajectoryPlanner::spiral_npoints, plane);
+
+  return TaskTrajectoryPlanner::plan_trajectory(path, duration, frequency, mode);
+}                                                                     
 
 }  // namespace trajectory_planner

@@ -6,7 +6,7 @@
 
 namespace trajectory_planner
 {
-class JointSpaceTrajectoryPlanner
+class JointTrajectoryPlanner
 {
 private:
   // Calculate via velocity based on heuristic

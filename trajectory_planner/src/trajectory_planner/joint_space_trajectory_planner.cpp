@@ -5,7 +5,7 @@
 namespace trajectory_planner
 {
 // 3rd order polynomial with zero initial and final joints speeds
-Eigen::Vector3d JointSpaceTrajectoryPlanner::poly3(const double theta0, const double thetaf, const double t0,
+Eigen::Vector3d JointTrajectoryPlanner::poly3(const double theta0, const double thetaf, const double t0,
                                                    const double tf, const double t)
 {
   double a0 = theta0;
@@ -21,7 +21,7 @@ Eigen::Vector3d JointSpaceTrajectoryPlanner::poly3(const double theta0, const do
 }
 
 // 3rd order polynomial with zero initial and final joints speeds
-Eigen::Vector3d JointSpaceTrajectoryPlanner::poly3c(const double theta0, const double thetaf, const double theta0_d,
+Eigen::Vector3d JointTrajectoryPlanner::poly3c(const double theta0, const double thetaf, const double theta0_d,
                                                     const double thetaf_d, const double t0, const double tf,
                                                     const double t)
 {
@@ -38,7 +38,7 @@ Eigen::Vector3d JointSpaceTrajectoryPlanner::poly3c(const double theta0, const d
 }
 
 // Calculate via velocity based on heuristic
-double JointSpaceTrajectoryPlanner::via_velocity(const double theta_before, const double theta,
+double JointTrajectoryPlanner::via_velocity(const double theta_before, const double theta,
                                                  const double theta_after, const double t_before, const double t,
                                                  const double t_after)
 {
@@ -54,7 +54,7 @@ double JointSpaceTrajectoryPlanner::via_velocity(const double theta_before, cons
 }
 
 // 3rd order polynomial with via points and velocity heuristics
-Eigen::Vector3d JointSpaceTrajectoryPlanner::poly3c_vias(const std::vector<double> thetas,
+Eigen::Vector3d JointTrajectoryPlanner::poly3c_vias(const std::vector<double> thetas,
                                                          const std::vector<double> times, const double t)
 {
   if (thetas.size() != times.size())
@@ -71,25 +71,25 @@ Eigen::Vector3d JointSpaceTrajectoryPlanner::poly3c_vias(const std::vector<doubl
       if (i == 1)
       {
         theta0_d = 0.0;
-        thetaf_d = JointSpaceTrajectoryPlanner::via_velocity(thetas[i - 1], thetas[i], thetas[i + 1], times[i - 1], times[i], times[i + 1]);
+        thetaf_d = JointTrajectoryPlanner::via_velocity(thetas[i - 1], thetas[i], thetas[i + 1], times[i - 1], times[i], times[i + 1]);
       }
       else if (i == times.size() - 1)
       {
-        theta0_d = JointSpaceTrajectoryPlanner::via_velocity(thetas[i - 1], thetas[i], thetas[i + 1], times[i - 1], times[i], times[i + 1]);
+        theta0_d = JointTrajectoryPlanner::via_velocity(thetas[i - 1], thetas[i], thetas[i + 1], times[i - 1], times[i], times[i + 1]);
         thetaf_d = 0.0;
       }
       else
       {
-        theta0_d = JointSpaceTrajectoryPlanner::via_velocity(thetas[i - 2], thetas[i - 1], thetas[i], times[i - 2], times[i - 1], times[i]);
-        thetaf_d = JointSpaceTrajectoryPlanner::via_velocity(thetas[i - 1], thetas[i], thetas[i + 1], times[i - 1], times[i], times[i + 1]);
+        theta0_d = JointTrajectoryPlanner::via_velocity(thetas[i - 2], thetas[i - 1], thetas[i], times[i - 2], times[i - 1], times[i]);
+        thetaf_d = JointTrajectoryPlanner::via_velocity(thetas[i - 1], thetas[i], thetas[i + 1], times[i - 1], times[i], times[i + 1]);
       }
 
-      return JointSpaceTrajectoryPlanner::poly3c(thetas[i - 1], thetas[i], theta0_d, thetaf_d, times[i - 1], times[i], t);
+      return JointTrajectoryPlanner::poly3c(thetas[i - 1], thetas[i], theta0_d, thetaf_d, times[i - 1], times[i], t);
     }
 }
 
 // 5th order polynomial with non-zero initial and final joints velocities and accelerations
-Eigen::Vector3d JointSpaceTrajectoryPlanner::poly5c(const double theta0, const double thetaf, const double theta0_d,
+Eigen::Vector3d JointTrajectoryPlanner::poly5c(const double theta0, const double thetaf, const double theta0_d,
                                                     const double thetaf_d, const double theta0_dd,
                                                     const double thetaf_dd, const double t0, const double tf,
                                                     const double t)
@@ -116,7 +116,7 @@ Eigen::Vector3d JointSpaceTrajectoryPlanner::poly5c(const double theta0, const d
 }
 
 // Linear segment with parabolic blends
-Eigen::Vector3d JointSpaceTrajectoryPlanner::lspb(const double theta0, const double thetaf, const double thetab_dd,
+Eigen::Vector3d JointTrajectoryPlanner::lspb(const double theta0, const double thetaf, const double thetab_dd,
                                                   const double t0, const double tf, const double t)
 {
   if (abs(thetab_dd) < (4 * abs(thetaf - theta0)) / pow(tf - t0, 2))
@@ -159,7 +159,7 @@ Eigen::Vector3d JointSpaceTrajectoryPlanner::lspb(const double theta0, const dou
 }
 
 // Linear segment with parabolic blends and via points
-Eigen::Vector3d JointSpaceTrajectoryPlanner::lspb_vias(const std::vector<double> thetas,
+Eigen::Vector3d JointTrajectoryPlanner::lspb_vias(const std::vector<double> thetas,
                                                        const std::vector<double> times, const double thetab_dd,
                                                        const double t)
 {
@@ -192,7 +192,7 @@ Eigen::Vector3d JointSpaceTrajectoryPlanner::lspb_vias(const std::vector<double>
           theta_dd = -thetab_dd;
       }
 
-      return JointSpaceTrajectoryPlanner::lspb(thetas[i - 1], thetas[i], theta_dd, times[i - 1], times[i], t);
+      return JointTrajectoryPlanner::lspb(thetas[i - 1], thetas[i], theta_dd, times[i - 1], times[i], t);
     }
 }
 }  // namespace trajectory_planner
