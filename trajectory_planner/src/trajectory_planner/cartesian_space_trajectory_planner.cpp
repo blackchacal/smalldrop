@@ -9,6 +9,25 @@ namespace trajectory_planner
  * Private methods
  *************************************************************************************************/
 
+// Calculate via velocity based on heuristic
+double TaskTrajectoryPlanner::via_velocity(const double pos_before, const double pos, const double pos_after,
+                                                     const double t_before, const double t, const double t_after)
+{
+  double velocity_i, velocity_ii;
+
+  velocity_i = (pos - pos_before) / (t - t_before);  // Mean velocity before via point
+  velocity_ii = (pos_after - pos) / (t_after - t);   // Mean velocity after via point
+
+  if ((velocity_i * velocity_ii) < 0)  // Mean velocities change signal at via point
+    return 0.0;                        // Velocity at via point is zero
+  else
+    return 0.5 * (velocity_ii + velocity_i);  // Velocity at via point is the average of the mean velocities
+}
+
+/**************************************************************************************************
+ * Public methods
+ *************************************************************************************************/
+
 // 3rd order polynomial with zero initial and final speeds
 std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3(const std::vector<double> pose_i,
                                                                         const std::vector<double> pose_f,
@@ -106,20 +125,7 @@ std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3c(
   return trajectory;
 }
 
-// Calculate via velocity based on heuristic
-double TaskTrajectoryPlanner::via_velocity(const double pos_before, const double pos, const double pos_after,
-                                                     const double t_before, const double t, const double t_after)
-{
-  double velocity_i, velocity_ii;
 
-  velocity_i = (pos - pos_before) / (t - t_before);  // Mean velocity before via point
-  velocity_ii = (pos_after - pos) / (t_after - t);   // Mean velocity after via point
-
-  if ((velocity_i * velocity_ii) < 0)  // Mean velocities change signal at via point
-    return 0.0;                        // Velocity at via point is zero
-  else
-    return 0.5 * (velocity_ii + velocity_i);  // Velocity at via point is the average of the mean velocities
-}
 
 // 3rd order polynomial with via points and velocity heuristics
 std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3c_vias(
@@ -519,10 +525,6 @@ std::vector<geometry_msgs::Pose> TaskTrajectoryPlanner::plan_trajectory(std::vec
   }
   return trajectory;
 }
-
-/**************************************************************************************************
- * Public methods
- *************************************************************************************************/
 
 // Plans a linear path trajectory with a certain duration, frequency and planning mode.
 std::vector<geometry_msgs::Pose> TaskTrajectoryPlanner::linear_trajectory(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f,

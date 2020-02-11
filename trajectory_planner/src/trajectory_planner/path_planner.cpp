@@ -10,7 +10,7 @@ namespace trajectory_planner
     std::vector<geometry_msgs::Pose> path;
     double t = 0;
     double step = 1 / (double)n;
-    while (t <= 1.0001)
+    while (t <= 0.9999)
     {
       geometry_msgs::Pose pose;
       pose.position.x = (1-t) * pose_i.position.x + t * pose_f.position.x;

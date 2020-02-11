@@ -1,5 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+import sys
 import rospy
 import matplotlib
 matplotlib.use('Qt4Agg')
@@ -13,6 +14,14 @@ pos_data = [0, 0, 0]
 orient_data = [0, 0, 0, 0]
 pos_data_d = [0, 0, 0]
 orient_data_d = [0, 0, 0, 0]
+x_err = np.array([])
+y_err = np.array([])
+z_err = np.array([])
+rx_err = np.array([])
+ry_err = np.array([])
+rz_err = np.array([])
+rw_err = np.array([])
+has_pose = False
 
 ###############################################################################
 # Classes
@@ -74,14 +83,19 @@ class Plotter():
 ###############################################################################
 
 def current_pose_callback(msg):
-  global pos_data, orient_data
+  global pos_data, orient_data, pos_data_d, orient_data_d, has_pose
   pos_data = [msg.position.x, msg.position.y, msg.position.z]
   orient_data = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
+
+  if not has_pose:
+    pos_data_d = [msg.position.x, msg.position.y, msg.position.z]
+    orient_data_d = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
   
 def desired_pose_callback(msg):
-  global pos_data_d, orient_data_d
+  global pos_data_d, orient_data_d, has_pose
   pos_data_d = [msg.position.x, msg.position.y, msg.position.z]
   orient_data_d = [msg.orientation.x, msg.orientation.y, msg.orientation.z, msg.orientation.w]
+  has_pose = True
 
 ###############################################################################
 # General functions
@@ -160,7 +174,7 @@ def set_visibility(str):
 ###############################################################################
 
 def node():
-  global pos_data, orient_data
+  global pos_data, orient_data, x_err, y_err, z_err, rx_err, ry_err, rz_err, rw_err
 
   rospy.init_node("controller_error_plot")
 
@@ -186,10 +200,28 @@ def node():
   r = rospy.Rate(freq)
   while not rospy.is_shutdown():
     p.update([pos_data+pos_data_d, orient_data+orient_data_d])
+    print(f"Pose error: x: {pos_data_d[0]-pos_data[0]:.4f}, y: {pos_data_d[1]-pos_data[1]:.4f}, z: {pos_data_d[2]-pos_data[2]:.4f}, rx: {orient_data_d[0]-orient_data[0]:.4f}, ry: {orient_data_d[1]-orient_data[1]:.4f}, rz: {orient_data_d[2]-orient_data[2]:.4f}, rw: {orient_data_d[3]-orient_data[3]:.4f}", end="\r", flush=True)
+    x_err = np.append(np.abs(pos_data_d[0]-pos_data[0]), x_err)
+    y_err = np.append(np.abs(pos_data_d[1]-pos_data[1]), y_err)
+    z_err = np.append(np.abs(pos_data_d[2]-pos_data[2]), z_err)
+    rx_err = np.append(np.abs(orient_data_d[0]-orient_data[0]), rx_err)
+    ry_err = np.append(np.abs(orient_data_d[1]-orient_data[1]), ry_err)
+    rz_err = np.append(np.abs(orient_data_d[2]-orient_data[2]), rz_err)
+    rw_err = np.append(np.abs(orient_data_d[3]-orient_data[3]), rw_err)
+
     r.sleep()
 
 if __name__ == '__main__':
   try:
     node()
   except rospy.ROSInterruptException:
-    print "Program interrupted before completion."
+    x_err = x_err[x_err != 0]
+    y_err = y_err[y_err != 0]
+    z_err = z_err[z_err != 0]
+    rx_err = rx_err[rx_err != 0]
+    ry_err = ry_err[ry_err != 0]
+    rz_err = rz_err[rz_err != 0]
+    rw_err = rw_err[rw_err != 0]
+    print(f"Mean error: x: {np.mean(x_err):.4f}, y: {np.mean(y_err):.4f}, z: {np.mean(z_err):.4f}, rx: {np.mean(rx_err):.4f}, ry: {np.mean(ry_err):.4f}, rz: {np.mean(rz_err):.4f}, rw: {np.mean(rw_err):.4f}", end="\n", flush=True)
+    print("Program interrupted before completion.")
+    sys.exit()

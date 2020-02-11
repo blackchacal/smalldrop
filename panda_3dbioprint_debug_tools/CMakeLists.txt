@@ -12,6 +12,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   trajectory_planner
+  tf
+  std_srvs
 )
 
 ## System dependencies are found with CMake's conventions
@@ -108,7 +110,7 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES panda_3dbioprint_debug_tools
- CATKIN_DEPENDS geometry_msgs roscpp rospy trajectory_planner
+ CATKIN_DEPENDS geometry_msgs roscpp rospy trajectory_planner tf std_srvs
 #  DEPENDS system_lib
 )
 
@@ -140,6 +142,9 @@ link_directories(${EIGEN_LIBRARY_DIRS})
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(joint_trajectory_profiles_plot src/joint_trajectory_profiles_plot.cpp)
 add_executable(cartesian_trajectory_profiles_plot src/cartesian_trajectory_profiles_plot.cpp)
+add_executable(send2start src/send_start_node.cpp)
+add_executable(send_trajectory src/send_trajectory_node.cpp)
+add_executable(send_torque2robot src/srv_torque_to_robot_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -151,10 +156,14 @@ add_executable(cartesian_trajectory_profiles_plot src/cartesian_trajectory_profi
 ## same as for the library above
 add_dependencies(joint_trajectory_profiles_plot trajectory_planner_joint_space ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(cartesian_trajectory_profiles_plot trajectory_planner_cartesian_space ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(send_torque2robot std_srvs_gencpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(joint_trajectory_profiles_plot trajectory_planner_joint_space ${catkin_LIBRARIES})
 target_link_libraries(cartesian_trajectory_profiles_plot trajectory_planner_cartesian_space ${catkin_LIBRARIES})
+target_link_libraries(send2start trajectory_planner_cartesian_space ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(send_trajectory trajectory_planner_cartesian_space ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(send_torque2robot ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -167,6 +176,10 @@ target_link_libraries(cartesian_trajectory_profiles_plot trajectory_planner_cart
 ## in contrast to setup.py, you can choose the destination
 install(
   PROGRAMS scripts/controller_error_plot.py
+  PROGRAMS scripts/trajectory_tracking.py
+  PROGRAMS scripts/debug_data.py
+  PROGRAMS scripts/trajectory_tracking_plot.sh
+  PROGRAMS scripts/trajectory_tracking_errors_plot.sh
   PROGRAMS scripts/show_joint_trajectory_profiles_plot.sh
   PROGRAMS scripts/show_cartesian_trajectory_profiles_plot.sh
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}

@@ -18,7 +18,7 @@ enum class PLAN_MODE
 class TaskTrajectoryPlanner
 {
 private:
-  static const unsigned int line_npoints = 2;
+  static const unsigned int line_npoints = 10;
   static const unsigned int circle_npoints = 20;
   static const unsigned int ellipse_npoints = 10;
   static const unsigned int spiral_npoints = 20;
@@ -28,6 +28,7 @@ private:
   static double via_velocity(const double pos_before, const double pos, const double pos_after, const double t_before,
                              const double t, const double t_after);
 
+public:
   // 3rd order polynomial with zero initial and final velocities
   static std::vector<std::vector<double>> poly3(const std::vector<double> pose_i, const std::vector<double> pose_f,
                                                 const double t0, const double tf, const double t);
@@ -59,8 +60,7 @@ private:
   // General trajectory planner for all the paths
   static std::vector<geometry_msgs::Pose> plan_trajectory(std::vector<geometry_msgs::Pose> path, const double duration,
                                                           const double frequency, const PLAN_MODE mode);
-
-public:
+  
   // Plans a linear path trajectory with a certain duration, frequency and planning mode.
   static std::vector<geometry_msgs::Pose> linear_trajectory(const geometry_msgs::Pose pose_i,
                                                             const geometry_msgs::Pose pose_f, const double duration,
@@ -77,7 +77,7 @@ public:
   static std::vector<geometry_msgs::Pose> circular_spiral_trajectory(const geometry_msgs::Pose pose_i,
                                                                      const double eradius, const double iradius,
                                                                      const double duration, const double frequency,
-                                                                     const unsigned int loops, const PATH_PLANE plane  = PATH_PLANE::XY,
+                                                                     const unsigned int loops = 2, const PATH_PLANE plane = PATH_PLANE::XY,
                                                                      const PLAN_MODE mode = PLAN_MODE::POLY3);
 };
 }  // namespace trajectory_planner

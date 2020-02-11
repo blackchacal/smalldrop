@@ -120,17 +120,17 @@ int main(int argc, char **argv)
   while (ros::ok() && t <= tf+0.0001)
   {
     if (profile.compare("poly3") == 0)
-      joint.push_back(JointSpaceTrajectoryPlanner::poly3(theta0, thetaf, t0, tf, t));
+      joint.push_back(JointTrajectoryPlanner::poly3(theta0, thetaf, t0, tf, t));
     else if (profile.compare("poly3c") == 0)
-      joint.push_back(JointSpaceTrajectoryPlanner::poly3c(theta0, thetaf, theta0_d, thetaf_d, t0, tf, t));
+      joint.push_back(JointTrajectoryPlanner::poly3c(theta0, thetaf, theta0_d, thetaf_d, t0, tf, t));
     else if (profile.compare("poly3c_vias") == 0)
-      joint.push_back(JointSpaceTrajectoryPlanner::poly3c_vias(thetas, times, t));
+      joint.push_back(JointTrajectoryPlanner::poly3c_vias(thetas, times, t));
     else if (profile.compare("poly5c") == 0)
-      joint.push_back(JointSpaceTrajectoryPlanner::poly5c(theta0, thetaf, theta0_d, thetaf_d, theta0_dd, thetaf_dd, t0, tf, t));
+      joint.push_back(JointTrajectoryPlanner::poly5c(theta0, thetaf, theta0_d, thetaf_d, theta0_dd, thetaf_dd, t0, tf, t));
     else if (profile.compare("lspb") == 0)
-      joint.push_back(JointSpaceTrajectoryPlanner::lspb(theta0, thetaf, thetab_dd, t0, tf, t));
+      joint.push_back(JointTrajectoryPlanner::lspb(theta0, thetaf, thetab_dd, t0, tf, t));
     else if (profile.compare("lspb_vias") == 0)
-      joint.push_back(JointSpaceTrajectoryPlanner::lspb_vias(thetas, times, thetab_dd, t));
+      joint.push_back(JointTrajectoryPlanner::lspb_vias(thetas, times, thetab_dd, t));
 
     time_v.push_back(t);
     t += 1/freq;

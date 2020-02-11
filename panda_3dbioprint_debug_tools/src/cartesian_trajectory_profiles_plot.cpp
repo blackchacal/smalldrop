@@ -104,13 +104,13 @@ int main(int argc, char **argv)
   while (ros::ok() && t <= tf + 0.0001)
   {
     if (profile.compare("poly3") == 0)
-      cartesian.push_back(CartesianSpaceTrajectoryPlanner::poly3(pose0, posef, t0, tf, t));
+      cartesian.push_back(TaskTrajectoryPlanner::poly3(pose0, posef, t0, tf, t));
     else if (profile.compare("poly3c") == 0)
-      cartesian.push_back(CartesianSpaceTrajectoryPlanner::poly3c(pose0, posef, velocity0, velocityf, t0, tf, t));
+      cartesian.push_back(TaskTrajectoryPlanner::poly3c(pose0, posef, velocity0, velocityf, t0, tf, t));
     else if (profile.compare("poly3c_vias") == 0)
-      cartesian.push_back(CartesianSpaceTrajectoryPlanner::poly3c_vias(poses, times, t));
+      cartesian.push_back(TaskTrajectoryPlanner::poly3c_vias(poses, times, t));
     else if (profile.compare("lspb") == 0)
-      cartesian.push_back(CartesianSpaceTrajectoryPlanner::lspb(pose0, posef, acceleration, t0, tf, t));
+      cartesian.push_back(TaskTrajectoryPlanner::lspb(pose0, posef, acceleration, t0, tf, t));
 
     time_v.push_back(t);
     t += 1 / freq;
