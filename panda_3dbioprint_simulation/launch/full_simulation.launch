@@ -48,4 +48,7 @@
     <param name="robot_state_topic" type="str" value="/cartesian_impedance_controller/current_pose" />
     <param name="robot_state_topic_type" type="str" value="geometry_msgs::Pose" />
   </node>
+
+  <!-- Send robot to start position -->
+  <node name="start_hand_pose" pkg="panda_3dbioprint_debug_tools" type="send2start" required="false"/>
 </launch>

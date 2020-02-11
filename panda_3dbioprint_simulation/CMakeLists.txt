@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   dynamic_reconfigure
   geometry_msgs
+  std_msgs
   joint_state_controller
   kdl_parser
   robot_state_publisher
@@ -19,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   tf
   gazebo_ros
   message_generation
+  trajectory_planner
 )
 
 ## System dependencies are found with CMake's conventions
@@ -59,6 +61,7 @@ find_package(gazebo REQUIRED)
 add_message_files(
   FILES
   Tau.msg
+  TrackingError.msg
 )
 
 ## Generate services in the 'srv' folder
@@ -78,6 +81,7 @@ add_message_files(
 ## Generate added messages and services with any dependencies listed here
 generate_messages(
   DEPENDENCIES
+  std_msgs
 )
 
 ################################################
@@ -120,6 +124,8 @@ catkin_package(
     tf
     gazebo_ros
     message_runtime
+    std_msgs
+    trajectory_planner
 )
 
 ###########
@@ -147,13 +153,12 @@ add_library(3dp_create_sim_world SHARED src/gazebo_plugins/create_sim_world.cc)
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(3dp_send_pose src/nodes/send_pose_node.cpp)
-add_executable(3dp_send_trajectory src/nodes/send_trajectory_node.cpp)
 add_executable(3dp_gazebo_models_to_rviz src/nodes/gazebo_models_to_rviz_node.cpp)
 
 ## Rename C++ executable without prefix
@@ -169,7 +174,6 @@ add_executable(3dp_gazebo_models_to_rviz src/nodes/gazebo_models_to_rviz_node.cp
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
 target_link_libraries(3dp_send_pose ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
-target_link_libraries(3dp_send_trajectory ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(3dp_gazebo_models_to_rviz ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(3dp_create_sim_world ${GAZEBO_LIBRARIES})
 

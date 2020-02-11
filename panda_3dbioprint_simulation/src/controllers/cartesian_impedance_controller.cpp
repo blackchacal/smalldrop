@@ -60,7 +60,7 @@ bool CartesianImpedanceController::init(hardware_interface::RobotHW *robot_hw, r
   }
 
   // Get chain from kdl tree
-  if (!k_tree.getChain("panda_link0", "panda_hand", k_chain))
+  if (!k_tree.getChain("panda_link0", "panda_EE", k_chain))
   {
     ROS_ERROR("Failed to get chain from kdl tree!");
   }
@@ -86,6 +86,9 @@ bool CartesianImpedanceController::init(hardware_interface::RobotHW *robot_hw, r
   poseSub = controller_nh.subscribe("/cartesian_impedance_controller/desired_pose", 10, &CartesianImpedanceController::updatePoseCallback, this);
   posePub = controller_nh.advertise<geometry_msgs::Pose>("/cartesian_impedance_controller/current_pose", 10);
   tauPub = controller_nh.advertise<panda_3dbioprint_simulation::Tau>("/cartesian_impedance_controller/tau", 10);
+  wrenchPub = controller_nh.advertise<geometry_msgs::Wrench>("/cartesian_impedance_controller/wrench", 10);
+  errorPub = controller_nh.advertise<panda_3dbioprint_simulation::TrackingError>("/cartesian_impedance_controller/error", 10);
+  controlSrv = controller_nh.advertiseService("send_torques_to_robot", &CartesianImpedanceController::sendTorquesToRobot, this);
 
   // ---------------------------------------------------------------------------
   // Init Values
@@ -94,12 +97,20 @@ bool CartesianImpedanceController::init(hardware_interface::RobotHW *robot_hw, r
   T0ee.setZero();
   cart_K.setZero();
   cart_D.setZero();
+  cart_I.setZero();
   null_K.setZero();
-  X_d.setZero();
-  R_d.setZero();
+  X0ee_d.setZero();
+  X0ee_d_prev.setZero();
+  R0ee_d.setZero();
+  orient_d.coeffs() << 0.0, 0.0, 0.0, 1.0;
+  orient_d_target.coeffs() << 0.0, 0.0, 0.0, 1.0;
   error.setZero();
+  error_prev.setZero();
+  error_accum.setZero();
   vel_d.setZero();
   vel_error.setZero();
+  tau.setZero();
+  tau_initial.setZero();
   maxJointLimits << robot_joints[joint_handles[0].getName()].get()->limits.get()->upper,
                     robot_joints[joint_handles[1].getName()].get()->limits.get()->upper,
                     robot_joints[joint_handles[2].getName()].get()->limits.get()->upper,
@@ -129,11 +140,15 @@ void CartesianImpedanceController::starting(const ros::Time &time)
     ROS_ERROR("Cannot get forward kinematics.");
 
   Eigen::Affine3d transform(T0ee_d);
-  X_d = transform.translation();
-  R_d = transform.rotation();
+  X0ee_d = transform.translation();
+  R0ee_d = transform.rotation();
 
-  X_d_target = X_d;
-  orient_d_target = R_d;
+  X0ee_d_target = X0ee_d;
+
+  orient_d = Eigen::Quaterniond(transform.linear());
+  orient_d.normalize();
+  orient_d_target = Eigen::Quaterniond(transform.linear());
+  orient_d_target.normalize();
 }
 
 void CartesianImpedanceController::update(const ros::Time &time, const ros::Duration &period)
@@ -143,6 +158,10 @@ void CartesianImpedanceController::update(const ros::Time &time, const ros::Dura
   {
     q(i) = joint_handles[i].getPosition();
     qdot(i) = joint_handles[i].getVelocity();
+    tau(i) = joint_handles[i].getEffort();
+
+    if (time.toSec() <= 15) 
+      tau_initial = tau;
   }
 
   // Calculate X = f(q) using forward kinematics (FK)
@@ -150,15 +169,15 @@ void CartesianImpedanceController::update(const ros::Time &time, const ros::Dura
     ROS_ERROR("Cannot get forward kinematics.");
     
   Eigen::Affine3d transform(T0ee);
-  Eigen::Vector3d X(transform.translation());
-  Eigen::Matrix3d R(transform.rotation());
+  Eigen::Vector3d X0ee(transform.translation());
+  Eigen::Matrix3d R0ee(transform.rotation());
 
   // Publish current pose
   geometry_msgs::Pose msg;
-  msg.position.x = X[0];
-  msg.position.y = X[1];
-  msg.position.z = X[2];
-  Eigen::Quaterniond quat(R);
+  msg.position.x = X0ee[0];
+  msg.position.y = X0ee[1];
+  msg.position.z = X0ee[2];
+  Eigen::Quaterniond quat(R0ee);
   msg.orientation.x = quat.x();
   msg.orientation.y = quat.y();
   msg.orientation.z = quat.z();
@@ -191,12 +210,17 @@ void CartesianImpedanceController::update(const ros::Time &time, const ros::Dura
   Dp_d = filter_param * Dp_d_target + (1.0 - filter_param) * Dp_d;
   Ko_d = filter_param * Ko_d_target + (1.0 - filter_param) * Ko_d;
   Do_d = filter_param * Do_d_target + (1.0 - filter_param) * Do_d;
+  Ip_d = filter_param * Ip_d_target + (1.0 - filter_param) * Ip_d;
+  Io_d = filter_param * Io_d_target + (1.0 - filter_param) * Io_d;
+  null_K_d = filter_param * null_K_d_target + (1.0 - filter_param) * null_K_d;
 
   // Change from end-effector frame to base frame
-  Eigen::Matrix3d Kp(R_d * Kp_d * R_d.transpose());  // cartesian position stiffness
-  Eigen::Matrix3d Dp(R_d * Dp_d * R_d.transpose());  // cartesian position damping
-  Eigen::Matrix3d Ko(R_d * Ko_d * R_d.transpose());  // cartesian orientation stiffness
-  Eigen::Matrix3d Do(R_d * Do_d * R_d.transpose());  // cartesian orientation damping
+  Eigen::Matrix3d Kp(R0ee_d * Kp_d * R0ee_d.transpose());  // cartesian position stiffness
+  Eigen::Matrix3d Dp(R0ee_d * Dp_d * R0ee_d.transpose());  // cartesian position damping
+  Eigen::Matrix3d Ip(R0ee_d * Ip_d * R0ee_d.transpose());  // cartesian position integral
+  Eigen::Matrix3d Ko(R0ee_d * Ko_d * R0ee_d.transpose());  // cartesian orientation stiffness
+  Eigen::Matrix3d Do(R0ee_d * Do_d * R0ee_d.transpose());  // cartesian orientation damping
+  Eigen::Matrix3d Io(R0ee_d * Io_d * R0ee_d.transpose());  // cartesian orientation integral
 
   cart_K.setIdentity();
   cart_K.topLeftCorner(3, 3) << Kp;
@@ -206,27 +230,31 @@ void CartesianImpedanceController::update(const ros::Time &time, const ros::Dura
   cart_D.topLeftCorner(3, 3) << Dp;
   cart_D.bottomRightCorner(3, 3) << Do;
 
+  cart_I.setIdentity();
+  cart_I.topLeftCorner(3, 3) << Ip;
+  cart_I.bottomRightCorner(3, 3) << Io;
+
+  null_K.setIdentity();
+  null_K = null_K_d;
+
   // ---------------------------------------------------------------------------
   // compute error
   // ---------------------------------------------------------------------------
-    
-  // Get position and orientation from topic
-  X_d = X_d_target;
-  R_d = orient_d_target.toRotationMatrix();
+
   // Calculate vel = J*qdot (velocity of end-effector)
   Eigen::Matrix<double, 6, 1> vel(J * qdot);
 
   // Calculate position error
-  error.head(3) << X_d - X;
+  error.head(3) << X0ee_d - X0ee;
 
   // Calculate orientation error
-  // Eigen::Matrix3d Rcd(R_d * R.transpose()); // old (also works)
-  Eigen::Matrix3d cRcd(R.transpose() * R_d);
-  Eigen::Matrix3d Rcd(R * cRcd * R.transpose());
+  Eigen::Matrix3d Rcd(R0ee_d * R0ee.transpose());
   error.tail(3) << R2r(Rcd);
 
   // Calculate velocity error
+  vel_d.head(3) <<  X0ee_d - X0ee_d_prev; // desired velocity is derivative of desired position
   vel_error << vel_d - vel;
+  X0ee_d_prev = X0ee_d;
 
   // ---------------------------------------------------------------------------
   // compute control
@@ -244,15 +272,46 @@ void CartesianImpedanceController::update(const ros::Time &time, const ros::Dura
   // Calculate nullspace torque (tau_null)
   tau_null << (Eigen::MatrixXd::Identity(7,7) - J.transpose() * Jhash.transpose()) * tau_o;
 
+  // Calculate error accumulated
+  error_accum.head(3) = error_prev.head(3) + error.head(3); // position
+  if (error.tail(3).transpose()*error.tail(3) < 0.00001) // orientation
+    error_accum.tail(3) = error.tail(3);
+  else
+    error_accum.tail(3) = ( error_prev.tail(3).transpose() * (error.tail(3)/error.tail(3).norm()) * (error.tail(3)/error.tail(3).norm()) ) + error.tail(3);
+
+  // Saturate integral error
+  for (size_t i = 0; i < 3; i++) // position error
+  {
+    if (error_accum[i] > i_clamp_p)
+      error_accum[i] = i_clamp_p;
+    else if (error_accum[i] < -i_clamp_p)
+      error_accum[i] = -i_clamp_p;
+  }
+  for (size_t i = 3; i < 6; i++) // orientation error
+  {
+    if (error_accum[i] > i_clamp_o)
+      error_accum[i] = i_clamp_o;
+    else if (error_accum[i] < -i_clamp_o)
+      error_accum[i] = -i_clamp_o;
+  }
+
   // Calculate task torque (tau_task)
-  tau_task << J.transpose() * ( cart_D * vel_error + cart_K * error);
+  tau_task << J.transpose() * ( cart_D * vel_error + cart_K * error + cart_I * error_accum);
+
+  error_prev = error_accum;
 
   // Calculate final torque
   tau_d << tau_task + tau_null + C + g;
 
   // Publish desired torques
   panda_3dbioprint_simulation::Tau tau_msg;
+  geometry_msgs::Wrench wrench_msg;
+  panda_3dbioprint_simulation::TrackingError error_msg;
+
   tau_msg.joint_name.resize(joint_handles.size());
+  error_msg.error.resize(6);
+
+  // Prepare Tau msg
   for (size_t i = 0; i < joint_handles.size(); i++)
     tau_msg.joint_name[i] = joint_handles[i].getName();
 
@@ -262,13 +321,42 @@ void CartesianImpedanceController::update(const ros::Time &time, const ros::Dura
   Eigen::VectorXd::Map(&tau_msg.tau_d[0], tau_d.size()) = tau_d;
   Eigen::VectorXd::Map(&tau_msg.tau_task[0], tau_task.size()) = tau_task;
   Eigen::VectorXd::Map(&tau_msg.tau_null[0], tau_null.size()) = tau_null;
+
+  // Prepare force msg
+  Eigen::VectorXd wrench = Eigen::VectorXd(6);
+  wrench = Jhash.transpose() * (tau - tau_initial);
+  wrench_msg.force.x = wrench[0]; 
+  wrench_msg.force.y = wrench[1]; 
+  wrench_msg.force.z = wrench[2];
+  wrench_msg.torque.x = wrench[3]; 
+  wrench_msg.torque.y = wrench[4]; 
+  wrench_msg.torque.z = wrench[5]; 
+
+  // Prepare tracking error msg
+  Eigen::VectorXd::Map(&error_msg.error[0], error.size()) = error;
+
+  // Publish the messages
   tauPub.publish(tau_msg);
+  wrenchPub.publish(wrench_msg);
+  errorPub.publish(error_msg);
 
   // Set desired torque to each joint
+  if (!torques_2_robot) 
+  {
+    tau_d << 0, 0, 0, 0, 0, 0, 0;
+  }
+
   for (size_t i = 0; i < 7; ++i)
   {
     joint_handles[i].setCommand(tau_d(i));
   }
+
+  // filter position (removes accuracy)
+  X0ee_d = filter_param * X0ee_d_target + (1.0 - filter_param) * X0ee_d;
+  // filter orientation
+  orient_d = orient_d.slerp(filter_param, orient_d_target);
+  orient_d.normalize();
+  R0ee_d = orient_d.toRotationMatrix();
 }
 
 bool CartesianImpedanceController::calcJacobian(KDL::Jacobian &Jac, const Eigen::Matrix<double, 7, 1> &q_in)
@@ -393,13 +481,26 @@ void CartesianImpedanceController::DesiredGainsParamCallback(panda_3dbioprint_si
   Kox = config.Kox;
   Koy = config.Koy;
   Koz = config.Koz;
+
   Dpx = config.Dpx;
   Dpy = config.Dpy;
   Dpz = config.Dpz;
   Dox = config.Dox;
   Doy = config.Doy;
   Doz = config.Doz;
+
+  Ipx = config.Ipx;
+  Ipy = config.Ipy;
+  Ipz = config.Ipz;
+  Iox = config.Iox;
+  Ioy = config.Ioy;
+  Ioz = config.Ioz;
+
   Kpn = config.Kpn;
+
+  // Saturation limits
+  i_clamp_p = config.Ip_clamp;
+  i_clamp_o = config.Io_clamp;
 
   // position stiffness in desired frame
   Kp_d_target << Kpx,   0,   0,
@@ -421,18 +522,35 @@ void CartesianImpedanceController::DesiredGainsParamCallback(panda_3dbioprint_si
                    0, Doy,   0,
                    0,   0, Doz;
 
+  // position integral in desired frame
+  Ip_d_target << Ipx,   0,   0,
+                   0, Ipy,   0,
+                   0,   0, Ipz;
+
+  // orientation integral in desired frame
+  Io_d_target << Iox,   0,   0,
+                   0, Ioy,   0,
+                   0,   0, Ioz;
+
   // nullspace Gains
-  null_K = Kpn * null_K.setIdentity();
+  null_K_d_target = Kpn * null_K_d_target.setIdentity();
 }
 
 void CartesianImpedanceController::updatePoseCallback(const geometry_msgs::PoseConstPtr &msg)
 {
-  X_d_target << msg->position.x, msg->position.y, msg->position.z;
+  X0ee_d_target << msg->position.x, msg->position.y, msg->position.z;
 
   Eigen::Quaterniond last_orient_d_target(orient_d_target);
   orient_d_target.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
   if (last_orient_d_target.coeffs().dot(orient_d_target.coeffs()) < 0.0)
     orient_d_target.coeffs() << -orient_d_target.coeffs();
+}
+
+bool CartesianImpedanceController::sendTorquesToRobot(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+{
+  torques_2_robot = req.data;
+  res.success = true;
+  return true;
 }
 
 double CartesianImpedanceController::derivative_computation( const double q_i, const double maxJointLimit_i, const double minJointLimit_i){
