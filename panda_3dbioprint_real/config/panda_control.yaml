@@ -28,3 +28,20 @@
         goal_time: 2.0
 
       state_publish_rate: 25
+
+    gravity_compensation_controller:
+      type: panda_3dbioprint_real/GravityCompensationController
+      arm_id: panda
+      joints:
+        - panda_joint1
+        - panda_joint2
+        - panda_joint3
+        - panda_joint4
+        - panda_joint5
+        - panda_joint6
+        - panda_joint7
+
+      constraints:
+        goal_time: 2.0
+
+      state_publish_rate: 25

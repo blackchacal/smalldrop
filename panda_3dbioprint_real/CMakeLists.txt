@@ -142,14 +142,14 @@ include_directories(
 )
 
 ## Declare a C++ library
-add_library(${PROJECT_NAME}
-  src/controllers/cartesian_impedance_controller.cpp
-)
+add_library(${PROJECT_NAME}_cartesian_impedance src/controllers/cartesian_impedance_controller.cpp)
+add_library(${PROJECT_NAME}_gravity_compensation src/controllers/gravity_compensation_controller.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_cartesian_impedance ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(${PROJECT_NAME}_gravity_compensation ${PROJECT_NAME}_generate_messages_cpp)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -168,7 +168,8 @@ add_executable(recover_from_error src/nodes/error_recovery_node.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_cartesian_impedance ${catkin_LIBRARIES})
+target_link_libraries(${PROJECT_NAME}_gravity_compensation ${catkin_LIBRARIES})
 # target_link_libraries(3dp_real_send_trajectory_node ${PROJECT_NAME} trajectory_planner_cartesian_space ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(recover_from_error ${catkin_LIBRARIES})
 

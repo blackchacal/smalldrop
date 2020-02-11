@@ -1,9 +1,18 @@
-<library path="lib/libpanda_3dbioprint_real">
+<library path="lib/libpanda_3dbioprint_real_cartesian_impedance">
   <class name="panda_3dbioprint_real/CartesianImpedanceController"
          type="panda_3dbioprint_real::CartesianImpedanceController"
          base_class_type="controller_interface::ControllerBase">
     <description>
       Interaction control - Cartesian Impedance controller architecture.
+    </description>
+  </class>
+</library>
+<library path="lib/libpanda_3dbioprint_real_gravity_compensation">
+  <class name="panda_3dbioprint_real/GravityCompensationController"
+         type="panda_3dbioprint_real::GravityCompensationController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Interaction control - Gravity Compensation controller architecture.
     </description>
   </class>
 </library>
