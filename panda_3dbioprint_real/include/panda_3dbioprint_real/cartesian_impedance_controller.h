@@ -13,10 +13,15 @@
 
 #include <dynamic_reconfigure/server.h>
 #include <geometry_msgs/Pose.h>
+#include <geometry_msgs/Wrench.h>
+#include <panda_3dbioprint_simulation/Tau.h>
+#include <panda_3dbioprint_simulation/TrackingError.h>
 #include <urdf/model.h>
 
 #include "franka_hw/franka_model_interface.h"
 #include "franka_hw/franka_state_interface.h"
+
+#include "std_srvs/SetBool.h"
 
 namespace panda_3dbioprint_real
 {
@@ -26,8 +31,12 @@ namespace panda_3dbioprint_real
                                                     franka_hw::FrankaModelInterface>
   {
   private:
+    bool torques_2_robot = true;
+
     float filter_param = 0.01;
     const double delta_tau_max = 1.0;
+    double i_clamp_p = 150;
+    double i_clamp_o = 100;
     
     // Robot general variables
     unsigned int n_joints;
@@ -38,11 +47,11 @@ namespace panda_3dbioprint_real
 
     // Robot Kinematics variables
     Eigen::Matrix4d T0ee, T0ee_d;
-    Eigen::Matrix<double, 7, 1> q, qdot, tau;
-    Eigen::Vector3d X_d, X_d_target;
-    Eigen::Matrix3d R_d, R_d_target;
+    Eigen::Matrix<double, 7, 1> q, qdot;
+    Eigen::Vector3d X0ee_d, X0ee_d_target, X0ee_d_prev;
+    Eigen::Matrix3d R0ee_d, R0ee_d_target;
     Eigen::Quaterniond orient_d, orient_d_target;
-    Eigen::Matrix<double, 6, 1> vel_d, error, vel_error;
+    Eigen::Matrix<double, 6, 1> vel_d, error, error_prev, error_accum, vel_error;
 
     // Robot Dynamics variables
     Eigen::Matrix<double, 6, 7> J;   // Jacobian
@@ -52,10 +61,11 @@ namespace panda_3dbioprint_real
     Eigen::Matrix<double, 7, 1> g;  // gravity
     Eigen::Matrix<double, 6, 6> cart_K; // cartesian stiffness
     Eigen::Matrix<double, 6, 6> cart_D; // cartesian damping
-    Eigen::Matrix<double, 7, 7> null_K; // nullspace stiffness
-    Eigen::Matrix3d Kp_d, Dp_d, Kp_d_target, Dp_d_target; // position stiffness and damping in desired frame
-    Eigen::Matrix3d Ko_d, Do_d, Ko_d_target, Do_d_target; // orientation stiffness and damping in desired frame
-    double Kpx, Kpy, Kpz, Kox, Koy, Koz, Dpx, Dpy, Dpz, Dox, Doy, Doz, Kpn;
+    Eigen::Matrix<double, 6, 6> cart_I; // cartesian integral
+    Eigen::Matrix<double, 7, 7> null_K, null_K_d, null_K_d_target; // nullspace stiffness
+    Eigen::Matrix3d Kp_d, Dp_d, Ip_d, Kp_d_target, Dp_d_target, Ip_d_target;  // position stiffness, damping and integral in desired frame
+    Eigen::Matrix3d Ko_d, Do_d, Io_d, Ko_d_target, Do_d_target, Io_d_target;  // orientation stiffness, damping and integral in desired frame
+    double Kpx, Kpy, Kpz, Kox, Koy, Koz, Dpx, Dpy, Dpz, Dox, Doy, Doz, Ipx, Ipy, Ipz, Iox, Ioy, Ioz, Kpn;
 
     // Dynamic reconfigure
     std::unique_ptr<dynamic_reconfigure::Server<panda_3dbioprint_real::CartesianImpedanceControllerConfig>> dyn_config_gains_param;
@@ -64,6 +74,12 @@ namespace panda_3dbioprint_real
     // Publisher/Subscriber
     ros::Publisher posePub;
     ros::Subscriber poseSub;
+    ros::Publisher tauPub;
+    ros::Publisher wrenchPub;
+    ros::Publisher errorPub;
+
+    // Services
+    ros::ServiceServer controlSrv;
 
     // File handlers
     std::ifstream fh_gains;
@@ -75,6 +91,7 @@ namespace panda_3dbioprint_real
     // Callback Methods
     void DesiredGainsParamCallback(panda_3dbioprint_real::CartesianImpedanceControllerConfig &config, uint32_t level);
     void updatePoseCallback(const geometry_msgs::PoseConstPtr &msg);
+    bool sendTorquesToRobot(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res);
 
     // posture optimization ----------------------------------------------------
     Eigen::Matrix<double, 7, 1> maxJointLimits;

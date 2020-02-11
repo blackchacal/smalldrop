@@ -11,12 +11,15 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   dynamic_reconfigure
   geometry_msgs
+  std_msgs
   joint_state_controller
   robot_state_publisher
   roscpp
   rospy
   franka_hw
   tf
+  message_generation
+  trajectory_planner
 )
 
 ## System dependencies are found with CMake's conventions
@@ -54,11 +57,10 @@ find_package(Eigen3 REQUIRED)
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+  FILES
+  Tau.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -75,10 +77,10 @@ find_package(Eigen3 REQUIRED)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -111,7 +113,19 @@ generate_dynamic_reconfigure_options(
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES ${PROJECT_NAME}
- CATKIN_DEPENDS franka_hw controller_manager dynamic_reconfigure geometry_msgs joint_state_controller robot_state_publisher roscpp rospy tf
+ CATKIN_DEPENDS 
+  franka_hw 
+  controller_manager 
+  dynamic_reconfigure 
+  geometry_msgs 
+  std_msgs
+  joint_state_controller 
+  robot_state_publisher 
+  roscpp 
+  rospy 
+  tf 
+  message_runtime
+  trajectory_planner
 )
 
 ###########
@@ -135,12 +149,13 @@ add_library(${PROJECT_NAME}
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
-add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg)
+add_dependencies(${PROJECT_NAME} ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(3dp_real_send_trajectory_node src/nodes/send_trajectory_node.cpp)
+# add_executable(3dp_real_send_trajectory_node src/nodes/send_trajectory_node.cpp)
+add_executable(recover_from_error src/nodes/error_recovery_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -154,7 +169,8 @@ add_executable(3dp_real_send_trajectory_node src/nodes/send_trajectory_node.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES})
-target_link_libraries(3dp_real_send_trajectory_node ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+# target_link_libraries(3dp_real_send_trajectory_node ${PROJECT_NAME} trajectory_planner_cartesian_space ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(recover_from_error ${catkin_LIBRARIES})
 
 #############
 ## Install ##

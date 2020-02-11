@@ -1,7 +1,10 @@
 #include <ros/ros.h>
 #include <tf/transform_broadcaster.h>
 #include <geometry_msgs/Pose.h>
+#include <trajectory_planner/cartesian_space_trajectory_planner.h>
 #include <Eigen/Dense>
+
+using namespace trajectory_planner;
 
 void line_trajectory(ros::Publisher pub, double duration, float frequency, geometry_msgs::Pose pose_a, geometry_msgs::Pose pose_b, bool cyclic = false);
 void polynomial_trajectory(ros::Publisher pub, double duration, float frequency, geometry_msgs::Pose pose_a, geometry_msgs::Pose pose_b, bool cyclic = false);
@@ -19,15 +22,6 @@ int main(int argc, char **argv)
   ros::Publisher pub = nh.advertise<geometry_msgs::Pose>("/cartesian_impedance_controller/desired_pose", 10);
   ros::Subscriber sub = nh.subscribe("/cartesian_impedance_controller/current_pose", 10, currentPoseCallback);
 
-  geometry_msgs::Pose final_pose;
-  final_pose.position.x = 0.555;
-  final_pose.position.y = 0.0;
-  final_pose.position.z = 0.419;
-  final_pose.orientation.x = 0.9239;
-  final_pose.orientation.y = 0.3827;
-  final_pose.orientation.z = 0.0;
-  final_pose.orientation.w = 0.0;
-
   // Process current pose callback
   ros::Rate r(10);
   while (ros::ok() && !has_pose)
@@ -35,11 +29,22 @@ int main(int argc, char **argv)
     ros::spinOnce();
     r.sleep();
   }
+
+  geometry_msgs::Pose final_pose;
+  final_pose.position.x = initial_pose.position.x;
+  final_pose.position.y = initial_pose.position.y;
+  final_pose.position.z = initial_pose.position.z - 0.15;
+  final_pose.orientation.x = initial_pose.orientation.x;
+  final_pose.orientation.y = initial_pose.orientation.y;
+  final_pose.orientation.z = initial_pose.orientation.z;
+  final_pose.orientation.w = initial_pose.orientation.w;
+
+  // std::cout << final_pose.position.x << " " << final_pose.position.y << " " << final_pose.position.z << std::endl;
   
   int freq = 100; // 100 Hz
   int ttime = 5; // Trajectory duration in seconds
 
-  line_trajectory(pub, ttime, freq, initial_pose, final_pose, true);
+  line_trajectory(pub, ttime, freq, initial_pose, final_pose, false);
 
   // Move to edge of arc first
   // geometry_msgs::Pose arc_start;
@@ -61,28 +66,36 @@ void line_trajectory(ros::Publisher pub, double duration, float frequency, geome
   static tf::TransformBroadcaster br;
 
   // Calculate direction vector
-  Eigen::Vector3d u;
-  Eigen::Vector3d pA;
-  pA << pose_a.position.x, pose_a.position.y, pose_a.position.z;
-  Eigen::Vector3d pB;
-  pB << pose_b.position.x, pose_b.position.y, pose_b.position.z;
+  // Eigen::Vector3d u;
+  // Eigen::Vector3d pA;
+  // pA << pose_a.position.x, pose_a.position.y, pose_a.position.z;
+  // Eigen::Vector3d pB;
+  // pB << pose_b.position.x, pose_b.position.y, pose_b.position.z;
 
-  u = pB - pA;
+  // u = pB - pA;
 
   // t varies from 0 to 1
   float t = 0;
   ros::Rate r(frequency);
-  while (ros::ok() && t <= 1)
+  // while (ros::ok() && t <= 1)
+  while (ros::ok() && t <= duration + 0.0001)
   {
-    Eigen::Vector3d p;
-    p = pA + t * u;
+    // Eigen::Vector3d p;
+    // p = pA + t * u;
+    geometry_msgs::Pose p;
+    p = TaskTrajectoryPlanner::poly3p(pose_a, pose_b, 0, duration, t);
 
     // Broadcast tf of trajectory points
+    // tf::Transform transform;
+    // transform.setOrigin( tf::Vector3(p[0], p[1], p[2]) );
+    // tf::Quaternion q(pose_a.orientation.x, pose_a.orientation.y, pose_a.orientation.z, pose_a.orientation.w);
+    // transform.setRotation(q);
+    // br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "trajectory"));
     tf::Transform transform;
-    transform.setOrigin( tf::Vector3(p[0], p[1], p[2]) );
-    tf::Quaternion q(pose_a.orientation.x, pose_a.orientation.y, pose_a.orientation.z, pose_a.orientation.w);
+    transform.setOrigin( tf::Vector3(p.position.x, p.position.y, p.position.z) );
+    tf::Quaternion q(p.orientation.x, p.orientation.y, p.orientation.z, p.orientation.w);
     transform.setRotation(q);
-    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "world", "trajectory"));
+    br.sendTransform(tf::StampedTransform(transform, ros::Time::now(), "panda_link0", "trajectory"));
 
     // geometry_msgs::Pose msg;
     // msg.position.x = p[0];
@@ -92,9 +105,11 @@ void line_trajectory(ros::Publisher pub, double duration, float frequency, geome
     // msg.orientation.y = 0.3827;
     // msg.orientation.z = 0.0;
     // msg.orientation.w = 0.0;
-
     // pub.publish(msg);
-    t += 1/(duration*frequency);
+    pub.publish(p);
+
+    t += 1/(frequency);
+    std::cout << t << std::endl;
 
     ros::spinOnce();
     r.sleep();

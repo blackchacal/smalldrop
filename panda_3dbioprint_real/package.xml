@@ -57,6 +57,10 @@
   <build_depend>roscpp</build_depend>
   <build_depend>rospy</build_depend>
   <build_depend>tf</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>trajectory_planner</build_depend>
+  
   <build_export_depend>controller_manager</build_export_depend>
   <build_export_depend>dynamic_reconfigure</build_export_depend>
   <build_export_depend>geometry_msgs</build_export_depend>
@@ -64,6 +68,9 @@
   <build_export_depend>robot_state_publisher</build_export_depend>
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
+  <build_export_depend>trajectory_planner</build_export_depend>
+  <build_export_depend>message_runtime</build_export_depend>
+
   <exec_depend>controller_manager</exec_depend>
   <exec_depend>dynamic_reconfigure</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
@@ -72,6 +79,9 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>
   <exec_depend>tf</exec_depend>
+  <exec_depend>message_runtime</exec_depend>
+  <exec_depend>trajectory_planner</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
 
   <depend>franka_hw</depend>
   <depend>controller_interface</depend>
