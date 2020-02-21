@@ -42,7 +42,8 @@
   <group if="$(arg spacenav)">
     <node name="spacenav" pkg="spacenav_node" type="spacenav_node"/>
     <arg name="sensitivity" default="0"/>
-    <node name="spacenav_control" pkg="spacenav_control" type="spacenav_control_node" args="-s $(arg sensitivity)" output="screen" respawn="true">
+    <arg name="is_robot" default="0"/>
+    <node name="spacenav_control" pkg="spacenav_control" type="spacenav_control_node" args="-s $(arg sensitivity) -r $(arg is_robot)" output="screen" respawn="true">
       <param name="controller_topic" type="str" value="/cartesian_impedance_controller/desired_pose" />
       <param name="controller_topic_type" type="str" value="geometry_msgs::Pose" />
       <param name="robot_state_topic" type="str" value="/cartesian_impedance_controller/current_pose" />
