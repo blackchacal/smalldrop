@@ -14,4 +14,17 @@
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="gravity_compensation_controller"/>
 
   <node if="$(arg rviz)" pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find panda_3dbioprint_simulation)/rviz/config_tests.rviz"/>
+
+  <group if="$(arg spacenav)">
+    <node name="spacenav" pkg="spacenav_node" type="spacenav_node"/>
+    <arg name="sensitivity" default="0"/>
+    <arg name="is_robot" default="1"/>
+    <arg name="active_modes" default="3"/>
+    <node name="spacenav_control" pkg="spacenav_control" type="spacenav_control_node" args="-s $(arg sensitivity) -r $(arg is_robot) -m $(arg active_modes)" output="screen" respawn="true">
+      <param name="controller_topic" type="str" value="/cartesian_impedance_controller/desired_pose" />
+      <param name="controller_topic_type" type="str" value="geometry_msgs::Pose" />
+      <param name="robot_state_topic" type="str" value="/cartesian_impedance_controller/current_pose" />
+      <param name="robot_state_topic_type" type="str" value="geometry_msgs::Pose" />
+    </node>
+  </group>
 </launch>

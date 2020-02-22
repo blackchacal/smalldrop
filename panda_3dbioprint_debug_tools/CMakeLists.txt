@@ -178,6 +178,7 @@ install(
   PROGRAMS scripts/controller_error_plot.py
   PROGRAMS scripts/trajectory_tracking.py
   PROGRAMS scripts/debug_data.py
+  PROGRAMS scripts/segmentation_points_plot.py
   PROGRAMS scripts/trajectory_tracking_plot.sh
   PROGRAMS scripts/trajectory_tracking_errors_plot.sh
   PROGRAMS scripts/show_joint_trajectory_profiles_plot.sh
