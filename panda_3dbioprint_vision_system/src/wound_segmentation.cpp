@@ -98,7 +98,7 @@ std::vector<cv::Point> WoundSegmentation::getPointsList(std::string filepath)
 
 /**
  * \brief Default class constructor.
- */
+ *---------------------------------------------------------------------------------------*/
 WoundSegmentation::WoundSegmentation() {}
 
 /**
@@ -109,7 +109,7 @@ WoundSegmentation::WoundSegmentation() {}
  * \param xmax Robot coordinates maximum x limit
  * \param ymin Robot coordinates minimum y limit
  * \param ymax Robot coordinates maximum y limit
- */
+ *---------------------------------------------------------------------------------------*/
 WoundSegmentation::WoundSegmentation(unsigned int imWidth, unsigned int imHeight, double xmin, double xmax, double ymin, double ymax)
 {
   imageWidth = imWidth;

@@ -125,11 +125,13 @@ include_directories(
 
 ## Declare a C++ library
 add_library(wound_segmentation src/wound_segmentation.cpp)
+add_library(spatial_2d_processor src/spatial_2d_processor.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 add_dependencies(wound_segmentation ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(spatial_2d_processor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
@@ -148,7 +150,7 @@ add_dependencies(test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(wound_segmentation ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-target_link_libraries(test_node wound_segmentation ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(test_node wound_segmentation spatial_2d_processor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##
