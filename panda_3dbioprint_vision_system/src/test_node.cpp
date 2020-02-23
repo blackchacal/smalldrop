@@ -11,7 +11,7 @@ int main( int argc, char** argv )
   ros::NodeHandle nh;
 
   std::string filepath = "/home/rtonet/ROS/tese/src/panda_3dbioprint_debug_tools/data/segmentation_points_convexhull.dat";
-  WoundSegmentation wseg = WoundSegmentation();
+  WoundSegmentation wseg = WoundSegmentation(800, 800, 0.4, 0.7, -0.15, 0.15);
   wseg.plotWoundConvexHull(filepath);
 
   ros::Rate r(10);

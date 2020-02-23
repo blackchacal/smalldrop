@@ -29,12 +29,14 @@ namespace vision_system
 class WoundSegmentation
 {
   private:
-    // Constants
-    const unsigned int imageWidth = 500; /** \var Image width in px. */ 
-    const unsigned int imageHeight = 500; /** \var Image height in px. */
-    const double yCoordLimit = 0.5; /** \var robot coordinates maximum y limit. */
 
     // Vars
+    unsigned int imageWidth = 500; /** \var Image width in px. */ 
+    unsigned int imageHeight = 500; /** \var Image height in px. */
+    double xCoordMinLimit = 0.0; /** \var robot coordinates minimum x limit. */
+    double xCoordMaxLimit = 1.0; /** \var robot coordinates maximum x limit. */
+    double yCoordMinLimit = -0.5; /** \var robot coordinates minimum y limit. */
+    double yCoordMaxLimit = 0.5; /** \var robot coordinates maximum y limit. */
     std::fstream fh; /** \var file handler. *
 
     /**
@@ -59,6 +61,22 @@ class WoundSegmentation
     std::vector<cv::Point> getPointsList(std::string filepath);
 
   public:
+    /**
+     * \brief Default class constructor.
+     */
+    WoundSegmentation();
+
+    /**
+     * \brief Class constructor where robot and image limits are defined.
+     * \param imWidth Image width in pixels
+     * \param imHeight Image height in pixels
+     * \param xmin Robot coordinates minimum x limit
+     * \param xmax Robot coordinates maximum x limit
+     * \param ymin Robot coordinates minimum y limit
+     * \param ymax Robot coordinates maximum y limit
+     */
+    WoundSegmentation(unsigned int imWidth, unsigned int imHeight, double xmin, double xmax, double ymin, double ymax);
+
     /**
      * \fn std::vector<geometry_msgs::Pose> getWoundConvexHullPoses(std::string filepath)
      * \brief Select all the wound segmentation poses that form a convex hull.

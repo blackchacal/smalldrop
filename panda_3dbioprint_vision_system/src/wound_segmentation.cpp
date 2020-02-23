@@ -61,8 +61,8 @@ std::vector<geometry_msgs::Pose> WoundSegmentation::loadWoundSegmentationPoints(
 cv::Point WoundSegmentation::convPoseToPoint(geometry_msgs::Pose pose)
 {
   cv::Point pt;
-  pt.x = round(imageHeight * pose.position.y + (imageHeight * yCoordLimit));
-  pt.y = round(imageWidth * pose.position.x);
+  pt.x = round( (imageWidth / (yCoordMaxLimit - yCoordMinLimit)) * (pose.position.y - yCoordMinLimit) );
+  pt.y = round( (imageHeight / (xCoordMaxLimit - xCoordMinLimit)) * (pose.position.x - xCoordMinLimit) );
   return pt;
 }
 
@@ -95,6 +95,30 @@ std::vector<cv::Point> WoundSegmentation::getPointsList(std::string filepath)
  * 
  *----------------------------------------------------------------------------------------
  *---------------------------------------------------------------------------------------*/
+
+/**
+ * \brief Default class constructor.
+ */
+WoundSegmentation::WoundSegmentation() {}
+
+/**
+ * \brief Class constructor where robot and image limits are defined.
+ * \param imWidth Image width in pixels
+ * \param imHeight Image height in pixels
+ * \param xmin Robot coordinates minimum x limit
+ * \param xmax Robot coordinates maximum x limit
+ * \param ymin Robot coordinates minimum y limit
+ * \param ymax Robot coordinates maximum y limit
+ */
+WoundSegmentation::WoundSegmentation(unsigned int imWidth, unsigned int imHeight, double xmin, double xmax, double ymin, double ymax)
+{
+  imageWidth = imWidth;
+  imageHeight = imHeight;
+  xCoordMinLimit = xmin;
+  xCoordMaxLimit = xmax;
+  yCoordMinLimit = ymin;
+  yCoordMaxLimit = ymax; 
+}
 
 /**
  * \fn std::vector<geometry_msgs::Pose> getWoundConvexHullPoses(std::string filepath)
