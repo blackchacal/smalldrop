@@ -25,6 +25,7 @@
       <param name="controller_topic_type" type="str" value="geometry_msgs::Pose" />
       <param name="robot_state_topic" type="str" value="/cartesian_impedance_controller/current_pose" />
       <param name="robot_state_topic_type" type="str" value="geometry_msgs::Pose" />
+      <param name="markers_topic" type="str" value="/panda_3dbioprint_vision_system/wound_segmentation_markers" />
     </node>
   </group>
 </launch>

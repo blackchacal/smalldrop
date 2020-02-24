@@ -139,6 +139,14 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        doctor_1:
+          Value: true
+        doctor_2:
+          Value: true
+        emergency_console:
+          Value: true
+        hospital_bed:
+          Value: true
         panda_EE:
           Value: true
         panda_hand:
@@ -165,7 +173,13 @@ Visualization Manager:
           Value: false
         panda_rightfinger:
           Value: false
-        trajectory:
+        patient:
+          Value: true
+        serum_support:
+          Value: true
+        service_cart:
+          Value: true
+        support_table:
           Value: true
         world:
           Value: true
@@ -176,6 +190,14 @@ Visualization Manager:
       Show Names: true
       Tree:
         world:
+          doctor_1:
+            {}
+          doctor_2:
+            {}
+          emergency_console:
+            {}
+          hospital_bed:
+            {}
           panda_link0:
             panda_link1:
               panda_link2:
@@ -192,8 +214,14 @@ Visualization Manager:
                                 {}
                               panda_rightfinger:
                                 {}
-            trajectory:
-              {}
+          patient:
+            {}
+          serum_support:
+            {}
+          service_cart:
+            {}
+          support_table:
+            {}
       Update Interval: 0
       Value: true
     - Class: rviz/Marker
@@ -201,12 +229,12 @@ Visualization Manager:
       Marker Topic: /panda_3dbioprint_simulation/gazebo_rviz_markers
       Name: Marker
       Namespaces:
-        {}
+        panda_3dbioprint_simulation: true
       Queue Size: 10
       Value: true
     - Alpha: 0.5
       Class: rviz/Effort
-      Enabled: false
+      Enabled: true
       History Length: 1
       Joints:
         panda_joint1:
@@ -227,9 +255,9 @@ Visualization Manager:
       Robot Description: robot_description
       Scale: 1
       TF Prefix: ""
-      Topic: /joint_states
+      Topic: /joint_states_desired
       Unreliable: true
-      Value: false
+      Value: true
       Width: 0.019999999552965164
     - Class: rviz/Marker
       Enabled: true
@@ -238,6 +266,14 @@ Visualization Manager:
       Namespaces:
         {}
       Queue Size: 10
+      Value: true
+    - Class: rviz/Marker
+      Enabled: true
+      Marker Topic: /panda_3dbioprint_vision_system/wound_segmentation_markers
+      Name: Marker
+      Namespaces:
+        {}
+      Queue Size: 100
       Value: true
   Enabled: true
   Global Options:
@@ -267,25 +303,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.6149850487709045
+      Distance: 1.6808440685272217
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.274585485458374
-        Y: 0.2474779635667801
-        Z: 1.6638671159744263
+        X: 0.013043191283941269
+        Y: 0.20144253969192505
+        Z: 1.5466185808181763
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.1003978252410889
+      Pitch: 0.6303978562355042
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.400394082069397
+      Yaw: 1.9703930616378784
     Saved: ~
 Window Geometry:
   Displays:
