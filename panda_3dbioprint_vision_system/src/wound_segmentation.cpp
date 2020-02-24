@@ -66,24 +66,6 @@ cv::Point WoundSegmentation::convPoseToPoint(geometry_msgs::Pose pose)
   return pt;
 }
 
-/**
- * \fn std::vector<cv::Point> getPointsList(std::string filepath)
- * \brief Creates list of opencv points from wound segmentation points on file
- * \param filepath The path to the file with wound segmentation poses data.
- *---------------------------------------------------------------------------------------*/
-std::vector<cv::Point> WoundSegmentation::getPointsList(std::string filepath)
-{
-  std::vector<geometry_msgs::Pose> poses = loadWoundSegmentationPoints(filepath);
-  std::vector<cv::Point> points;
-
-  for(size_t i = 0; i < poses.size(); i++)
-  {
-    cv::Point pt = convPoseToPoint(poses[i]);
-    points.push_back(pt);
-  }
-  return points;
-}
-
 
 
 
@@ -121,6 +103,24 @@ WoundSegmentation::WoundSegmentation(unsigned int imWidth, unsigned int imHeight
 }
 
 /**
+ * \fn std::vector<cv::Point> getPointsList(std::string filepath)
+ * \brief Creates list of opencv points from wound segmentation points on file
+ * \param filepath The path to the file with wound segmentation poses data.
+ *---------------------------------------------------------------------------------------*/
+std::vector<cv::Point> WoundSegmentation::getPointsList(std::string filepath)
+{
+  std::vector<geometry_msgs::Pose> poses = loadWoundSegmentationPoints(filepath);
+  std::vector<cv::Point> points;
+
+  for(size_t i = 0; i < poses.size(); i++)
+  {
+    cv::Point pt = convPoseToPoint(poses[i]);
+    points.push_back(pt);
+  }
+  return points;
+}
+
+/**
  * \fn std::vector<geometry_msgs::Pose> getWoundConvexHullPoses(std::string filepath)
  * \brief Select all the wound segmentation poses that form a convex hull.
  * \param filepath The path to the file with wound segmentation poses data.
@@ -131,12 +131,15 @@ std::vector<geometry_msgs::Pose> WoundSegmentation::getWoundConvexHullPoses(std:
   std::vector<geometry_msgs::Pose> poses = loadWoundSegmentationPoints(filepath);
   std::vector<cv::Point> points = getPointsList(filepath);
   
-  std::vector<int> hull;
-  cv::convexHull(cv::Mat(points), hull, true);
-
-  for (size_t i = 0; i < hull.size(); i++)
+  if (points.size() > 0) 
   {
-    hull_poses.push_back(poses[hull[i]]);
+    std::vector<int> hull;
+    cv::convexHull(cv::Mat(points), hull, true);
+
+    for (size_t i = 0; i < hull.size(); i++)
+    {
+      hull_poses.push_back(poses[hull[i]]);
+    }
   }
 
   return hull_poses;
@@ -152,7 +155,8 @@ std::vector<cv::Point> WoundSegmentation::getWoundConvexHullPoints(std::string f
   std::vector<cv::Point> points = getPointsList(filepath);
   std::vector<cv::Point> hull;
 
-  cv::convexHull(cv::Mat(points), hull, true);
+  if (points.size() > 0) 
+    cv::convexHull(cv::Mat(points), hull, true);
 
   return hull;
 }
@@ -169,7 +173,7 @@ void WoundSegmentation::plotWoundConvexHull(std::string filepath)
 
   cv::Mat img(imageWidth, imageHeight, CV_8UC3);
 
-  for (;;)
+  if (points.size() > 0)
   {
     img = cv::Scalar::all(0);
 
@@ -180,17 +184,18 @@ void WoundSegmentation::plotWoundConvexHull(std::string filepath)
       cv::circle(img, pt, 1, cv::Scalar(0, 0, 255), cv::FILLED, cv::LINE_AA);
     }
 
-    // Plot hull on image
-    std::vector<std::vector<cv::Point>> contours;
-    contours.push_back(hull);
-    cv::drawContours(img, contours, -1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+    if (hull.size() > 0)
+    {
+      // Plot hull on image
+      std::vector<std::vector<cv::Point>> contours;
+      contours.push_back(hull);
+      cv::drawContours(img, contours, -1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+    }
 
     // Show the image
     cv::imshow("hull", img);
 
-    char key = (char)cv::waitKey();
-    if( key == 27 || key == 'q' || key == 'Q' ) // 'ESC'
-      break;
+    cv::waitKey(30);
   }
 }
 

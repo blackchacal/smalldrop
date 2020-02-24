@@ -76,7 +76,10 @@ Spatial2DProcessor::Spatial2DProcessor(unsigned int imWidth, unsigned int imHeig
  *---------------------------------------------------------------------------------------*/
 double Spatial2DProcessor::calcWoundContourArea(std::vector<cv::Point> contour)
 {
-  return cv::contourArea(contour) * convPxSq2MeterSq();
+  if (contour.size() > 3)
+    return cv::contourArea(contour) * convPxSq2MeterSq();
+  else
+    return 0;
 }
 
 /**
@@ -88,7 +91,10 @@ double Spatial2DProcessor::calcWoundContourArea(std::vector<cv::Point> contour)
 double Spatial2DProcessor::calcWoundContourPerimeter(std::vector<cv::Point> contour)
 {
   std::vector<double> pxDim = convPx2Meter();
-  return cv::arcLength(contour, true) * pxDim[0];
+  if (contour.size() > 1)
+    return cv::arcLength(contour, true) * pxDim[0];
+  else
+    return 0;
 }
 
 }

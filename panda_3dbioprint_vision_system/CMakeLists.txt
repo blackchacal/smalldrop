@@ -12,8 +12,10 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  cv_bridge
+  image_transport
 )
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4 REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -107,7 +109,7 @@ find_package(OpenCV REQUIRED)
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES panda_3dbioprint_vision_system
- CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs
+ CATKIN_DEPENDS geometry_msgs roscpp rospy std_msgs cv_bridge image_transport
 #  DEPENDS system_lib
 )
 
@@ -136,7 +138,8 @@ add_dependencies(spatial_2d_processor ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catk
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(test_node src/test_node.cpp)
+add_executable(test_node src/nodes/test_node.cpp)
+add_executable(wound_segmentation_node src/nodes/wound_segmentation_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -147,10 +150,13 @@ add_executable(test_node src/test_node.cpp)
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 add_dependencies(test_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(wound_segmentation_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(wound_segmentation ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(spatial_2d_processor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(test_node wound_segmentation spatial_2d_processor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(wound_segmentation_node wound_segmentation spatial_2d_processor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##

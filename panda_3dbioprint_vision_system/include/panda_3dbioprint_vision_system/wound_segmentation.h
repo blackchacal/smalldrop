@@ -7,6 +7,7 @@
 #define _WOUND_SEGMENTATION
 
 #include <ros/ros.h>
+#include <cv_bridge/cv_bridge.h>
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
 #include <iostream>
@@ -37,7 +38,7 @@ class WoundSegmentation
     double xCoordMaxLimit = 1.0; /** \var robot coordinates maximum x limit. */
     double yCoordMinLimit = -0.5; /** \var robot coordinates minimum y limit. */
     double yCoordMaxLimit = 0.5; /** \var robot coordinates maximum y limit. */
-    std::fstream fh; /** \var file handler. *
+    std::ifstream fh; /** \var file handler. *
 
     /**
      * \fn std::vector<geometry_msgs::Pose> loadWoundSegmentationPoints(std::string filepath)
@@ -52,13 +53,6 @@ class WoundSegmentation
      * \param pose A geometry_msgs::Pose that is going to be converted to cv::Point.
      */
     cv::Point convPoseToPoint(geometry_msgs::Pose pose);
-
-    /**
-     * \fn std::vector<cv::Point> getPointsList(std::string filepath)
-     * \brief Creates list of opencv points from wound segmentation points on file
-     * \param filepath The path to the file with wound segmentation poses data.
-     */
-    std::vector<cv::Point> getPointsList(std::string filepath);
 
   public:
     /**
@@ -76,6 +70,13 @@ class WoundSegmentation
      * \param ymax Robot coordinates maximum y limit
      */
     WoundSegmentation(unsigned int imWidth, unsigned int imHeight, double xmin, double xmax, double ymin, double ymax);
+    
+    /**
+     * \fn std::vector<cv::Point> getPointsList(std::string filepath)
+     * \brief Creates list of opencv points from wound segmentation points on file
+     * \param filepath The path to the file with wound segmentation poses data.
+     */
+    std::vector<cv::Point> getPointsList(std::string filepath);
 
     /**
      * \fn std::vector<geometry_msgs::Pose> getWoundConvexHullPoses(std::string filepath)

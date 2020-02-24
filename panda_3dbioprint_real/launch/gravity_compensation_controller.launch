@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <launch>
   <!-- Robot test arguments -->
-  <arg name="rviz" default="false" />
+  <arg name="rviz" default="true" />
 
   <arg name="robot_ip" />
   <arg name="load_gripper" default="true" />
@@ -28,4 +28,7 @@
       <param name="markers_topic" type="str" value="/panda_3dbioprint_vision_system/wound_segmentation_markers" />
     </node>
   </group>
+
+  <!-- Show wound segmentation image on rviz -->
+  <node name="show_wound_segmentation" pkg="panda_3dbioprint_vision_system" type="wound_segmentation_node" required="false" output="screen" />
 </launch>
