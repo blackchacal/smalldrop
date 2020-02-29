@@ -25,10 +25,10 @@ sensor_msgs::ImagePtr getImageForPublication(WoundSegmentation& wseg, std::strin
 
   if (contour.size() > 0)
   {
-  // Plot hull on image
-  std::vector<std::vector<cv::Point>> contours;
-  contours.push_back(contour);
-  cv::drawContours(img, contours, -1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
+    // Plot hull on image
+    std::vector<std::vector<cv::Point>> contours;
+    contours.push_back(contour);
+    cv::drawContours(img, contours, -1, cv::Scalar(0,255,0), 1, cv::LINE_AA);
   }
   
   sensor_msgs::ImagePtr msg = cv_bridge::CvImage(std_msgs::Header(), "bgr8", img).toImageMsg();

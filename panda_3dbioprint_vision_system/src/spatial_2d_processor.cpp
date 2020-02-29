@@ -70,7 +70,7 @@ Spatial2DProcessor::Spatial2DProcessor(unsigned int imWidth, unsigned int imHeig
 }
 
 /**
- * \fn double calcWoundContourArea(std::vector<points> contour)
+ * \fn double calcWoundContourArea(std::vector<cv::Point> contour)
  * \brief Calculates the wound contour area in real world dimensions.
  * \param contour List of opencv points that form a wound contour.
  *---------------------------------------------------------------------------------------*/
@@ -83,7 +83,7 @@ double Spatial2DProcessor::calcWoundContourArea(std::vector<cv::Point> contour)
 }
 
 /**
- * \fn double calcWoundContourPerimeter(std::vector<points> contour)
+ * \fn double calcWoundContourPerimeter(std::vector<cv::Point> contour)
  * \brief Calculates the wound contour perimeter in real world dimensions.
  *        It assumes the pixel is square.
  * \param contour List of opencv points that form a wound contour.
