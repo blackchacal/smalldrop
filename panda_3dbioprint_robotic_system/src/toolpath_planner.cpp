@@ -83,7 +83,10 @@ void ToolpathPlanner::getComplexContours(const std::vector<cv::Point> contour,
 /**
  * \brief Default class constructor.
  *---------------------------------------------------------------------------------------*/
-ToolpathPlanner::ToolpathPlanner() {}
+ToolpathPlanner::ToolpathPlanner() 
+{
+  spc = vision_system::Spatial2DProcessor(imageWidth, imageHeight, xCoordMinLimit, xCoordMaxLimit, yCoordMinLimit, yCoordMaxLimit);
+}
 
 /**
  * \brief Class constructor where robot and image limits are defined.
@@ -101,7 +104,8 @@ ToolpathPlanner::ToolpathPlanner(unsigned int imWidth, unsigned int imHeight, do
   xCoordMinLimit = xmin;
   xCoordMaxLimit = xmax;
   yCoordMinLimit = ymin;
-  yCoordMaxLimit = ymax; 
+  yCoordMaxLimit = ymax;
+  spc = vision_system::Spatial2DProcessor(imWidth, imHeight, xmin, xmax, ymin, ymax);
 }
 
 /**
@@ -209,11 +213,38 @@ std::vector<cv::Point> ToolpathPlanner::genToolpathGrid(std::vector<cv::Point> c
   std::vector<cv::Point> path_y = genToolpathParallelLines(contour, offset_y, IMAGE_AXIS::Y);
   std::reverse(std::begin(path_y), std::end(path_y));
 
+  // Create new vector by concatenation
   final_path.reserve(path_x.size() + path_y.size());
   final_path.insert(final_path.end(), path_x.begin(), path_x.end());
   final_path.insert(final_path.end(), path_y.begin(), path_y.end());
 
   return final_path;
+}
+
+/**
+ * \fn std::vector<geometry_msgs::Pose> convPathPoint2Pose(std::vector<cv::Point> path, double pose_z)
+ * \brief Returns a wound filling as robot poses instead of opencv points.
+ * \param path List of opencv points that form a wound filling path.
+ * \param pose_z Z axis coordinate for the robot path execution.
+ */
+std::vector<geometry_msgs::Pose> ToolpathPlanner::convPathPoint2Pose(std::vector<cv::Point> path, double pose_z)
+{
+  std::vector<geometry_msgs::Pose> new_path;
+  std::vector<double> pxDim = spc.convPx2Meter(); // pixel dimensions in m
+
+  for (size_t i = 0; i < path.size(); i++)
+  {
+    geometry_msgs::Pose pose;
+    pose.position.x = xCoordMinLimit + path[i].y * pxDim[1];
+    pose.position.y = yCoordMinLimit + path[i].x * pxDim[0];
+    pose.position.z = pose_z;
+    pose.orientation.x = 1.0;
+    pose.orientation.y = 0;
+    pose.orientation.z = 0;
+    pose.orientation.w = 0;
+    new_path.push_back(pose);
+  }
+  return new_path;
 }
 
 }

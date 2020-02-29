@@ -156,7 +156,7 @@ add_executable(test_path src/nodes/test_path.cpp)
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(toolpath_planner wound_segmentation ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(toolpath_planner wound_segmentation spatial_2d_processor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(test_path toolpath_planner ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #############

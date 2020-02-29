@@ -11,31 +11,6 @@ namespace vision_system
  *----------------------------------------------------------------------------------------
  *---------------------------------------------------------------------------------------*/
 
-/**
- * \fn double convPx2Meter(void)
- * \brief Convert the pixel size to meters
- */
-std::vector<double> Spatial2DProcessor::convPx2Meter(void)
-{
-  double pxW = (yCoordMaxLimit - yCoordMinLimit) / imageWidth;
-  double pxH = (xCoordMaxLimit - xCoordMinLimit) / imageHeight;
-  std::vector<double> pxDim;
-  pxDim.push_back(pxW);
-  pxDim.push_back(pxH);
-  return pxDim;
-}
-
-/**
- * \fn double convPxSq2MeterSq(void)
- * \brief Convert the pixel squared area to meter squared.
- */
-double Spatial2DProcessor::convPxSq2MeterSq(void)
-{
-  std::vector<double> pxDim = convPx2Meter();
-  return pxDim[0]*pxDim[1];
-}
-
-
 
 /*----------------------------------------------------------------------------------------
  *----------------------------------------------------------------------------------------
@@ -67,6 +42,30 @@ Spatial2DProcessor::Spatial2DProcessor(unsigned int imWidth, unsigned int imHeig
   xCoordMaxLimit = xmax;
   yCoordMinLimit = ymin;
   yCoordMaxLimit = ymax; 
+}
+
+/**
+ * \fn double convPx2Meter(void)
+ * \brief Convert the pixel size to meters
+ */
+std::vector<double> Spatial2DProcessor::convPx2Meter(void)
+{
+  double pxW = (yCoordMaxLimit - yCoordMinLimit) / imageWidth;
+  double pxH = (xCoordMaxLimit - xCoordMinLimit) / imageHeight;
+  std::vector<double> pxDim;
+  pxDim.push_back(pxW);
+  pxDim.push_back(pxH);
+  return pxDim;
+}
+
+/**
+ * \fn double convPxSq2MeterSq(void)
+ * \brief Convert the pixel squared area to meter squared.
+ */
+double Spatial2DProcessor::convPxSq2MeterSq(void)
+{
+  std::vector<double> pxDim = convPx2Meter();
+  return pxDim[0]*pxDim[1];
 }
 
 /**

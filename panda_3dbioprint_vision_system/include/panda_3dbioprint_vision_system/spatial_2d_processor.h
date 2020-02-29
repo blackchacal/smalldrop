@@ -3,8 +3,8 @@
  * \brief Header file for Spatial2DProcessor class. 
  */
 
-#ifndef _SPATIAL_2D_PROCESSOR
-#define _SPATIAL_2D_PROCESSOR
+#ifndef _SPATIAL_2D_PROCESSOR_H
+#define _SPATIAL_2D_PROCESSOR_H
 
 #include <ros/ros.h>
 #include "opencv2/imgproc.hpp"
@@ -33,18 +33,6 @@ class Spatial2DProcessor
     double yCoordMinLimit = -0.5; /** \var robot coordinates minimum y limit. */
     double yCoordMaxLimit = 0.5; /** \var robot coordinates maximum y limit. */
 
-    /**
-     * \fn double convPx2Meter(void)
-     * \brief Convert the pixel size to meters
-     */
-    std::vector<double> convPx2Meter(void);
-
-    /**
-     * \fn double convPxSq2MeterSq(void)
-     * \brief Convert the pixel squared area to meter squared.
-     */
-    double convPxSq2MeterSq(void);
-
   public:
     /**
      * \brief Default class constructor.
@@ -61,6 +49,18 @@ class Spatial2DProcessor
      * \param ymax Robot coordinates maximum y limit
      */
     Spatial2DProcessor(unsigned int imWidth, unsigned int imHeight, double xmin, double xmax, double ymin, double ymax);
+
+    /**
+     * \fn double convPx2Meter(void)
+     * \brief Convert the pixel size to meters
+     */
+    std::vector<double> convPx2Meter(void);
+
+    /**
+     * \fn double convPxSq2MeterSq(void)
+     * \brief Convert the pixel squared area to meter squared.
+     */
+    double convPxSq2MeterSq(void);
 
     /**
      * \fn double calcWoundContourArea(std::vector<cv::Point> contour)
@@ -80,4 +80,4 @@ class Spatial2DProcessor
 
 }
 
-#endif // _SPATIAL_2D_PROCESSOR
+#endif // _SPATIAL_2D_PROCESSOR_H

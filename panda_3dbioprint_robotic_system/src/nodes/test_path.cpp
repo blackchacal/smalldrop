@@ -18,8 +18,20 @@ int main( int argc, char** argv )
   ToolpathPlanner pl = ToolpathPlanner(imageWidth, imageHeight, 0.4, 0.7, -0.15, 0.15);
   std::vector<cv::Point> contour = wseg.getWoundConvexHullPoints(filepath);
   // std::vector<cv::Point> path = pl.genToolpathZigZag(contour, 5, IMAGE_AXIS::Y);
-  // std::vector<cv::Point> path = pl.genToolpathParallelLines(contour, 2, IMAGE_AXIS::Y);
-  std::vector<cv::Point> path = pl.genToolpathGrid(contour, 10, 5);
+  std::vector<cv::Point> path = pl.genToolpathParallelLines(contour, 5, IMAGE_AXIS::Y);
+  // std::vector<cv::Point> path = pl.genToolpathGrid(contour, 10, 5);
+  std::vector<geometry_msgs::Pose> new_path = pl.convPathPoint2Pose(path, 0.4);
+
+  std::cout << "Size path points: " << path.size() << std::endl;
+  std::cout << "Size path pose: " << new_path.size() << std::endl;
+
+  for (size_t k = 0; k < new_path.size(); k++)
+  {
+    std::cout << "Pose: " << new_path[k].position.x << " " << new_path[k].position.y \
+    << " " << new_path[k].position.z << " " << new_path[k].orientation.x << " " << new_path[k].orientation.y \
+    << " " << new_path[k].orientation.z << " " << new_path[k].orientation.w << std::endl;
+  }
+  
 
   cv::Mat img(imageWidth, imageHeight, CV_8UC3);
   img = cv::Scalar::all(0);

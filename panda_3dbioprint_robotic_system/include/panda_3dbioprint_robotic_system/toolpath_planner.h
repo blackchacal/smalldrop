@@ -3,13 +3,13 @@
  * \brief Header file for ToolpathPlanner class. 
  */
 
-#ifndef _TOOLPATH_PLANNER
-#define _TOOLPATH_PLANNER
+#ifndef _TOOLPATH_PLANNER_H
+#define _TOOLPATH_PLANNER_H
 
 #include <ros/ros.h>
 #include "opencv2/imgproc.hpp"
 #include <panda_3dbioprint_vision_system/wound_segmentation.h>
-#include <trajectory_planner/path_planner.h>
+#include <panda_3dbioprint_vision_system/spatial_2d_processor.h>
 #include <iostream>
 #include <cmath>
 
@@ -45,6 +45,7 @@ class ToolpathPlanner
     double xCoordMaxLimit = 1.0; /** \var robot coordinates maximum x limit. */
     double yCoordMinLimit = -0.5; /** \var robot coordinates minimum y limit. */
     double yCoordMaxLimit = 0.5; /** \var robot coordinates maximum y limit. */
+    vision_system::Spatial2DProcessor spc; /** \var 2D spatial processor */
 
     /**
      * \fn std::vector<std::vector<cv::Point>> getGridLines(cv::Rect bounding_box, unsigned int offset, IMAGE_AXIS axis = IMAGE_AXIS::X)
@@ -107,8 +108,16 @@ class ToolpathPlanner
      * \param offset_y Distance between grid lines parallel to y axis.
      */
     std::vector<cv::Point> genToolpathGrid(std::vector<cv::Point> contour, unsigned int offset_x, unsigned int offset_y);
+
+    /**
+     * \fn std::vector<geometry_msgs::Pose> convPathPoint2Pose(std::vector<cv::Point> path, double pose_z)
+     * \brief Returns a wound filling as robot poses instead of opencv points.
+     * \param path List of opencv points that form a wound filling path.
+     * \param pose_z Z axis coordinate for the robot path execution.
+     */
+    std::vector<geometry_msgs::Pose> convPathPoint2Pose(std::vector<cv::Point> path, double pose_z);
 };
 
 }
 
-#endif // _TOOLPATH_PLANNER
+#endif // _TOOLPATH_PLANNER_H
