@@ -38,7 +38,7 @@ sensor_msgs::ImagePtr getImageForPublication(WoundSegmentation& wseg, std::strin
 
 int main( int argc, char** argv )
 {
-  ros::init(argc, argv, "test_node");
+  ros::init(argc, argv, "wound_segmentation_viewer_node");
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
   image_transport::Publisher pub = it.advertise(wound_segmentation_image_topic, 1);

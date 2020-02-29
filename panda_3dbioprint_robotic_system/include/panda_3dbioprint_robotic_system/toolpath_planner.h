@@ -12,6 +12,7 @@
 #include <panda_3dbioprint_vision_system/spatial_2d_processor.h>
 #include <iostream>
 #include <cmath>
+#include <sstream>
 
 /**
  * \namespace robotic_system

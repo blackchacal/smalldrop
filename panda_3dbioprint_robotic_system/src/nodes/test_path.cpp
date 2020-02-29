@@ -53,7 +53,16 @@ int main( int argc, char** argv )
     }
   }
 
-  cv::imshow("hull", img);
+  cv::Rect bounding_box = cv::boundingRect(contour);
+  bounding_box -= cv::Point(10, 10); // Add padding to bounding box
+  bounding_box += cv::Size(20, 20); // Add padding to bounding box
+  cv::Mat crop = img(bounding_box);
+  cv::Mat final_img(imageWidth, imageWidth*((double)bounding_box.width/(double)bounding_box.height), CV_8UC3);
+  final_img = cv::Scalar::all(0);
+  cv::resize(crop, final_img, final_img.size(), 0, 0, cv::INTER_CUBIC);
+  std::cout << "Bounding box: " << bounding_box.width << " " << bounding_box.height << " " << ((double)bounding_box.width/(double)bounding_box.height) << std::endl;
+
+  cv::imshow("hull", final_img);
   cv::waitKey(30);
 
   ros::Rate r(10);

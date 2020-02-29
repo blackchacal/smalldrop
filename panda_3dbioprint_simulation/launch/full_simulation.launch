@@ -55,6 +55,6 @@
   <!-- Send robot to start position -->
   <node name="start_hand_pose" pkg="panda_3dbioprint_debug_tools" type="send2start" required="false"/>
 
-  <!-- Show wound segmentation image on rviz -->
-  <node name="show_wound_segmentation" pkg="panda_3dbioprint_vision_system" type="wound_segmentation_node" required="false" output="screen" />
+  <!-- Show wound segmentation and toolpath image on rviz -->
+  <node name="show_wound_segmentation_toolpath" pkg="panda_3dbioprint_robotic_system" type="toolpath_viewer_node" required="false" output="screen" />
 </launch>
