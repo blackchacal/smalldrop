@@ -4,13 +4,11 @@
 namespace trajectory_planner
 {
   // Plan a linear path between two poses
-  std::vector<geometry_msgs::Pose> PathPlanner::line_path(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f,
-                                                    const unsigned int n)
+  std::vector<geometry_msgs::Pose> PathPlanner::line_path(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f)
   {
     std::vector<geometry_msgs::Pose> path;
     double t = 0;
-    double step = 1 / (double)n;
-    while (t <= 0.9999)
+    while (t < 1.0001)
     {
       geometry_msgs::Pose pose;
       pose.position.x = (1-t) * pose_i.position.x + t * pose_f.position.x;
@@ -25,7 +23,7 @@ namespace trajectory_planner
       pose.orientation.z = qres.z();
       pose.orientation.w = qres.w();
       path.push_back(pose);
-      t += step;
+      t++;
     }
     return path;
   }
@@ -62,7 +60,7 @@ namespace trajectory_planner
     start_pose.orientation.y = pose_i.orientation.y;
     start_pose.orientation.z = pose_i.orientation.z;
     start_pose.orientation.w = pose_i.orientation.w;
-    path = PathPlanner::line_path(pose_i, start_pose, 2);
+    path = PathPlanner::line_path(pose_i, start_pose);
 
     for (size_t i = 0; i < loops; i++)
     {

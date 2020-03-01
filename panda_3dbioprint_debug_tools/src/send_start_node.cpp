@@ -82,7 +82,7 @@ int main(int argc, char **argv)
   final_pose.orientation.w = -0.0;
 
   std::vector<geometry_msgs::Pose> traj;
-  traj = TaskTrajectoryPlanner::linear_trajectory(initial_pose, final_pose, ttime, freq, PLAN_MODE::LSPB);
+  traj = TaskTrajectoryPlanner::linear_trajectory(initial_pose, final_pose, ttime, freq, PLAN_MODE::POLY3);
   ros::Rate r2(freq);
   for (size_t i = 0; i < traj.size(); i++)
   {

@@ -18,7 +18,6 @@ enum class PLAN_MODE
 class TaskTrajectoryPlanner
 {
 private:
-  static const unsigned int line_npoints = 10;
   static const unsigned int circle_npoints = 20;
   static const unsigned int ellipse_npoints = 10;
   static const unsigned int spiral_npoints = 20;

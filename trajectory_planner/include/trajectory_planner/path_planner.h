@@ -31,8 +31,7 @@ private:
   /* data */
 public:
   // Plan a linear path between two poses
-  static std::vector<geometry_msgs::Pose> line_path(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f,
-                                                    const unsigned int n);
+  static std::vector<geometry_msgs::Pose> line_path(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f);
   // Plan a circular path centered on a specific point
   static std::vector<geometry_msgs::Pose> circle_path(const geometry_msgs::Pose pose_i,
                                                       const geometry_msgs::Pose center, const double radius,

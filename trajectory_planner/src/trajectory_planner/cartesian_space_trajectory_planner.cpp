@@ -47,7 +47,7 @@ std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3(const std::vector<
   Eigen::Quaterniond qres;
   Eigen::Quaterniond q0(pose_i[6], pose_i[3], pose_i[4], pose_i[5]);
   Eigen::Quaterniond qf(pose_f[6], pose_f[3], pose_f[4], pose_f[5]);
-  qres = q0.slerp(t, qf);
+  qres = q0.slerp((t-t0)/(tf-t0), qf);
 
   std::vector<double> poses = { a0[0] + a1[0] * (t - t0) + a2[0] * pow(t - t0, 2) + a3[0] * pow(t - t0, 3),
                                 a0[1] + a1[1] * (t - t0) + a2[1] * pow(t - t0, 2) + a3[1] * pow(t - t0, 3),
@@ -97,7 +97,7 @@ std::vector<std::vector<double>> TaskTrajectoryPlanner::poly3c(
   Eigen::Quaterniond qres;
   Eigen::Quaterniond q0(pose_i[6], pose_i[3], pose_i[4], pose_i[5]);
   Eigen::Quaterniond qf(pose_f[6], pose_f[3], pose_f[4], pose_f[5]);
-  qres = q0.slerp(t, qf);
+  qres = q0.slerp((t-t0)/(tf-t0), qf);
 
   std::vector<double> poses = { a0[0] + a1[0] * (t - t0) + a2[0] * pow(t - t0, 2) + a3[0] * pow(t - t0, 3),
                                 a0[1] + a1[1] * (t - t0) + a2[1] * pow(t - t0, 2) + a3[1] * pow(t - t0, 3),
@@ -228,7 +228,7 @@ std::vector<std::vector<double>> TaskTrajectoryPlanner::lspb(const std::vector<d
   Eigen::Quaterniond qres;
   Eigen::Quaterniond q0(pose_i[6], pose_i[3], pose_i[4], pose_i[5]);
   Eigen::Quaterniond qf(pose_f[6], pose_f[3], pose_f[4], pose_f[5]);
-  qres = q0.slerp(t, qf);
+  qres = q0.slerp((t-t0)/(tf-t0), qf);
   pose[3] = qres.x();
   pose[4] = qres.y();
   pose[5] = qres.z();
@@ -281,8 +281,8 @@ geometry_msgs::Pose TaskTrajectoryPlanner::poly3p(const geometry_msgs::Pose pose
   Eigen::Quaterniond qres;
   Eigen::Quaterniond q0(pose_i.orientation.w, pose_i.orientation.x, pose_i.orientation.y, pose_i.orientation.z);
   Eigen::Quaterniond qf(pose_f.orientation.w, pose_f.orientation.x, pose_f.orientation.y, pose_f.orientation.z);
-  qres = q0.slerp(t, qf);
-
+  qres = q0.slerp((t-t0)/(tf-t0), qf);
+  
   geometry_msgs::Pose pose;
   pose.position.x = a0[0] + a1[0] * (t - t0) + a2[0] * pow(t - t0, 2) + a3[0] * pow(t - t0, 3);
   pose.position.y = a0[1] + a1[1] * (t - t0) + a2[1] * pow(t - t0, 2) + a3[1] * pow(t - t0, 3);
@@ -319,7 +319,7 @@ geometry_msgs::Pose TaskTrajectoryPlanner::poly3pc(const geometry_msgs::Pose pos
   Eigen::Quaterniond qres;
   Eigen::Quaterniond q0(pose_i.orientation.w, pose_i.orientation.x, pose_i.orientation.y, pose_i.orientation.z);
   Eigen::Quaterniond qf(pose_f.orientation.w, pose_f.orientation.x, pose_f.orientation.y, pose_f.orientation.z);
-  qres = q0.slerp(t, qf);
+  qres = q0.slerp((t-t0)/(tf-t0), qf);
 
   geometry_msgs::Pose pose;
   pose.position.x = a0[0] + a1[0] * (t - t0) + a2[0] * pow(t - t0, 2) + a3[0] * pow(t - t0, 3);
@@ -433,7 +433,7 @@ geometry_msgs::Pose TaskTrajectoryPlanner::lspbp(const geometry_msgs::Pose pose_
   Eigen::Quaterniond qres;
   Eigen::Quaterniond q0(pose_i.orientation.w, pose_i.orientation.x, pose_i.orientation.y, pose_i.orientation.z);
   Eigen::Quaterniond qf(pose_f.orientation.w, pose_f.orientation.x, pose_f.orientation.y, pose_f.orientation.z);
-  qres = q0.slerp(t, qf);
+  qres = q0.slerp((t-t0)/(tf-t0), qf);
   pose.orientation.x = qres.x();
   pose.orientation.y = qres.y();
   pose.orientation.z = qres.z();
@@ -532,7 +532,7 @@ std::vector<geometry_msgs::Pose> TaskTrajectoryPlanner::linear_trajectory(const 
                                                                       const PLAN_MODE mode)
 {
   // Plan the line path, i.e., get the n poses that compose the line path
-  std::vector<geometry_msgs::Pose> path = PathPlanner::line_path(pose_i, pose_f, TaskTrajectoryPlanner::line_npoints);
+  std::vector<geometry_msgs::Pose> path = PathPlanner::line_path(pose_i, pose_f);
   
   return TaskTrajectoryPlanner::plan_trajectory(path, duration, frequency, mode);
 }
