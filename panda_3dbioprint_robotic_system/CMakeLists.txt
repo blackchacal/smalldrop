@@ -144,17 +144,20 @@ link_directories(${EIGEN_LIBRARY_DIRS})
 
 ## Declare a C++ library
 add_library(toolpath_planner src/toolpath_planner.cpp)
+add_library(trajectory_planner src/trajectory_planner.cpp)
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
 ## either from message generation or dynamic reconfigure
 add_dependencies(toolpath_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(trajectory_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
 add_executable(test_path src/nodes/test_path.cpp)
 add_executable(toolpath_viewer_node src/nodes/toolpath_viewer_node.cpp)
+add_executable(trajectory_execution_node src/nodes/trajectory_execution_node.cpp)
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
@@ -168,8 +171,10 @@ add_executable(toolpath_viewer_node src/nodes/toolpath_viewer_node.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(toolpath_planner wound_segmentation spatial_2d_processor ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(trajectory_planner toolpath_planner ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(test_path toolpath_planner ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 target_link_libraries(toolpath_viewer_node toolpath_planner ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(trajectory_execution_node trajectory_planner ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##

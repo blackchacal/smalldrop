@@ -32,6 +32,17 @@ enum class IMAGE_AXIS
 };
 
 /**
+ * \enum PATH_TYPE
+ * \brief Enum of the toolpath types
+ */
+enum class PATH_TYPE
+{
+  ZIG_ZAG,
+  PARALLEL_LINES,
+  GRID
+};
+
+/**
  * \class ToolpathPlanner
  * \brief The class is responsible calculating spatial information on 2D wound contours. 
  */
