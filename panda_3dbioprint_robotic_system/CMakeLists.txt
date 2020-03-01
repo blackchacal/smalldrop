@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
-  std_msgs
+  message_generation
   trajectory_planner
   panda_3dbioprint_vision_system
 )
@@ -63,11 +63,11 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 # )
 
 ## Generate services in the 'srv' folder
-# add_service_files(
-#   FILES
-#   Service1.srv
+add_service_files(
+  FILES
+  SetPathType.srv
 #   Service2.srv
-# )
+)
 
 ## Generate actions in the 'action' folder
 # add_action_files(
@@ -77,10 +77,11 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 # )
 
 ## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   geometry_msgs#   std_msgs#   std_msgs
-# )
+generate_messages(
+  DEPENDENCIES
+  # geometry_msgs
+  std_msgs
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -114,7 +115,16 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 catkin_package(
  INCLUDE_DIRS include
 #  LIBRARIES panda_3dbioprint_robotic_system
- CATKIN_DEPENDS cv_bridge geometry_msgs image_transport roscpp rospy std_msgs std_msgs trajectory_planner panda_3dbioprint_vision_system
+ CATKIN_DEPENDS 
+  cv_bridge 
+  geometry_msgs 
+  image_transport 
+  roscpp 
+  rospy 
+  std_msgs 
+  trajectory_planner 
+  panda_3dbioprint_vision_system
+  message_runtime
 #  DEPENDS system_lib
 )
 

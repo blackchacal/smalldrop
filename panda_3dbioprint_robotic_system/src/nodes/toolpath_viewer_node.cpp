@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <panda_3dbioprint_robotic_system/toolpath_planner.h>
+#include <panda_3dbioprint_robotic_system/SetPathType.h>
 #include <image_transport/image_transport.h>
 #include <sstream>
 
@@ -9,7 +10,58 @@ using namespace robotic_system;
 std::string toolpath_image_topic = "/panda_3dbioprint_robotic_system/toolpath_image";
 unsigned int imageWidth = 400;
 unsigned int imageHeight = 400;
+std::string path_type = "zig_zag";
+unsigned int offset_x = 5;
+unsigned int offset_y = 5;
+std::string axis = "x";
 
+/**
+ * \brief Service callback to change the path parameters
+ */
+bool changePathType(panda_3dbioprint_robotic_system::SetPathType::Request &req,
+                    panda_3dbioprint_robotic_system::SetPathType::Response &res)
+
+{
+  path_type = req.path_type;
+  offset_x = req.offset_x;
+  offset_y = req.offset_y;
+  axis = req.axis;
+  res.ack = true;
+  return true;
+}
+
+/**
+ * \brief Generates the tool path based on configuration parameters
+ */
+std::vector<cv::Point> getPath(ToolpathPlanner pl, std::vector<cv::Point> contour, unsigned int offset_x, unsigned int offset_y, std::string axis)
+{
+  std::vector<cv::Point> path;
+
+  if (path_type.compare("parallel_lines") == 0)
+  {
+    if (axis.compare("x") == 0)
+      path = pl.genToolpathParallelLines(contour, offset_x, IMAGE_AXIS::X);
+    else
+      path = pl.genToolpathParallelLines(contour, offset_y, IMAGE_AXIS::Y);
+  }
+  else if (path_type.compare("grid") == 0)
+  {
+    path = pl.genToolpathGrid(contour, offset_x, offset_y);
+  }
+  else // zig_zag
+  {
+    if (axis.compare("x") == 0)
+      path = pl.genToolpathZigZag(contour, offset_x, IMAGE_AXIS::X);
+    else
+      path = pl.genToolpathZigZag(contour, offset_y, IMAGE_AXIS::Y);
+  }
+
+  return path;
+}
+
+/**
+ * \brief Plot the wound segmentation points coordinates on the image
+ */
 void plotText(cv::Mat img, std::vector<cv::Point> contour, cv::Point pt)
 {
   bool top = false, right = false, bottom = false, left = false;
@@ -56,6 +108,9 @@ void plotText(cv::Mat img, std::vector<cv::Point> contour, cv::Point pt)
   cv::putText(img, txt.str(), txt_pos, cv::FONT_HERSHEY_PLAIN, 0.5, cv::Scalar(255,255,255), 1, cv::LINE_AA);
 }
 
+/**
+ * \brief Zoom on the contour bonding box with some padding
+ */
 cv::Mat zoomOnContour(cv::Mat img_src, std::vector<cv::Point> contour, unsigned int box_padding)
 {
   // Crop image on contour
@@ -75,6 +130,9 @@ cv::Mat zoomOnContour(cv::Mat img_src, std::vector<cv::Point> contour, unsigned 
   return crop;
 }
 
+/**
+ * Prepare image to be published for rviz
+ */
 sensor_msgs::ImagePtr getImageForPublication(std::string filepath)
 {
   std::vector<cv::Point> path;
@@ -85,7 +143,7 @@ sensor_msgs::ImagePtr getImageForPublication(std::string filepath)
 
   // Only plot the path if the contour is a closed surface
   if (contour.size() > 2)
-    path = pl.genToolpathParallelLines(contour, 5, IMAGE_AXIS::X);
+    path = getPath(pl, contour, offset_x, offset_y, axis);
 
   cv::Mat img(imageWidth, imageHeight, CV_8UC3);
   img = cv::Scalar::all(0);
@@ -127,6 +185,7 @@ int main( int argc, char** argv )
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
   image_transport::Publisher pub = it.advertise(toolpath_image_topic, 1);
+  ros::ServiceServer service = nh.advertiseService("change_path_type", changePathType);
 
   std::string filepath = "/home/rtonet/ROS/tese/src/panda_3dbioprint_debug_tools/data/segmentation_points.dat";
 

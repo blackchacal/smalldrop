@@ -1,0 +1,6 @@
+string path_type
+uint16 offset_x
+uint16 offset_y
+string axis
+---
+bool ack
