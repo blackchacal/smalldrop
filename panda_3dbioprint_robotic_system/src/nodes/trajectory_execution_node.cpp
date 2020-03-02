@@ -145,9 +145,9 @@ void addTrajectoryMarkers(ros::Publisher pub_markers, geometry_msgs::Pose pose_i
   marker.points = points;
   marker.pose.orientation.w = 1.0;
   marker.scale.x = 0.003;
-  marker.color.r = 1.0;
+  marker.color.r = 0;
   marker.color.g = 0;
-  marker.color.b = 0;
+  marker.color.b = 1.0;
   marker.color.a = 1.0;
   pub_markers.publish(marker);
 }

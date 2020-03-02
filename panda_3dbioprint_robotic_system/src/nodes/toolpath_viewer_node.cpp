@@ -2,6 +2,7 @@
 #include <panda_3dbioprint_robotic_system/toolpath_planner.h>
 #include <panda_3dbioprint_robotic_system/SetPathType.h>
 #include <image_transport/image_transport.h>
+#include <visualization_msgs/Marker.h>
 #include <sstream>
 
 using namespace vision_system;
@@ -14,6 +15,8 @@ std::string path_type = "zig_zag";
 unsigned int offset_x = 5;
 unsigned int offset_y = 5;
 std::string axis = "x";
+unsigned int contour_marker_id = 100;
+unsigned int path_marker_id = 500;
 
 /**
  * \brief Service callback to change the path parameters
@@ -133,11 +136,9 @@ cv::Mat zoomOnContour(cv::Mat img_src, std::vector<cv::Point> contour, unsigned 
 /**
  * Prepare image to be published for rviz
  */
-sensor_msgs::ImagePtr getImageForPublication(std::string filepath)
+sensor_msgs::ImagePtr getImageForPublication(ToolpathPlanner &pl, WoundSegmentation &wseg, std::string filepath)
 {
   std::vector<cv::Point> path;
-  WoundSegmentation wseg = WoundSegmentation(imageWidth, imageHeight, 0, 1, -0.5, 0.5);
-  ToolpathPlanner pl = ToolpathPlanner(imageWidth, imageHeight, 0, 1, -0.5, 0.5);
   std::vector<cv::Point> points = wseg.getPointsList(filepath);
   std::vector<cv::Point> contour = wseg.getWoundConvexHullPoints(filepath);
 
@@ -179,21 +180,202 @@ sensor_msgs::ImagePtr getImageForPublication(std::string filepath)
   return msg;
 }
 
+void publishToolpathMarkers(ros::Publisher pub, std::vector<geometry_msgs::Pose> path)
+{
+  // // Erase previous markers
+  // for (size_t i = 500; i <= path_marker_id; i++)
+  // {
+  //   visualization_msgs::Marker marker;
+  //   marker.header.frame_id = "panda_link0";
+  //   marker.header.stamp = ros::Time();
+  //   marker.ns = "panda_3dbioprint_vision_system";
+  //   marker.id = i;
+  //   marker.action = visualization_msgs::Marker::DELETE;
+  //   pub.publish(marker);
+  // }
+  // path_marker_id = 500;
+
+  if (path.size() > 1)
+  {
+    for (size_t i = 0; i < path.size(); i++)
+    {
+      if (i < path.size() - 1)
+      {
+        std::vector<geometry_msgs::Point> points;
+        geometry_msgs::Point p1;
+        geometry_msgs::Point p2;
+        p1.x = path[i].position.x;
+        p1.y = path[i].position.y;
+        p1.z = 0;
+        p2.x = path[i+1].position.x;
+        p2.y = path[i+1].position.y;
+        p2.z = 0;
+        points.push_back(p1);
+        points.push_back(p2);
+
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "panda_link0";
+        marker.header.stamp = ros::Time();
+        marker.ns = "panda_3dbioprint_vision_system";
+        marker.id = path_marker_id++;
+        marker.type = visualization_msgs::Marker::LINE_STRIP;
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.points = points;
+        marker.pose.orientation.w = 1.0;
+        marker.scale.x = 0.003;
+        marker.color.r = 1.0;
+        marker.color.g = 0;
+        marker.color.b = 0;
+        marker.color.a = 1.0;
+        pub.publish(marker);
+      }
+    }
+  }
+}
+
+void publishWoundSegmentationAreaMarkers(ros::Publisher pub, std::vector<geometry_msgs::Pose> contour)
+{
+  // // Erase previous markers
+  // for (size_t i = 100; i <= contour_marker_id; i++)
+  // {
+  //   visualization_msgs::Marker marker;
+  //   marker.header.frame_id = "panda_link0";
+  //   marker.header.stamp = ros::Time();
+  //   marker.ns = "panda_3dbioprint_vision_system";
+  //   marker.id = i;
+  //   marker.action = visualization_msgs::Marker::DELETE;
+  //   pub.publish(marker);
+  // }
+  // contour_marker_id = 100;
+
+  if (contour.size() > 1)
+  {
+    for (size_t i = 0; i < contour.size(); i++)
+    {
+      if (i < contour.size() - 1)
+      {
+        std::vector<geometry_msgs::Point> points;
+        geometry_msgs::Point p1;
+        geometry_msgs::Point p2;
+        p1.x = contour[i].position.x;
+        p1.y = contour[i].position.y;
+        p1.z = 0;
+        p2.x = contour[i+1].position.x;
+        p2.y = contour[i+1].position.y;
+        p2.z = 0;
+        points.push_back(p1);
+        points.push_back(p2);
+
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "panda_link0";
+        marker.header.stamp = ros::Time();
+        marker.ns = "panda_3dbioprint_vision_system";
+        marker.id = contour_marker_id++;
+        marker.type = visualization_msgs::Marker::LINE_STRIP;
+        marker.action = visualization_msgs::Marker::ADD;
+        marker.points = points;
+        marker.pose.orientation.w = 1.0;
+        marker.scale.x = 0.003;
+        marker.color.r = 1.0;
+        marker.color.g = 1.0;
+        marker.color.b = 0;
+        marker.color.a = 1.0;
+        pub.publish(marker);
+      }
+    }
+
+    // Close the contour
+    std::vector<geometry_msgs::Point> points;
+    geometry_msgs::Point p1;
+    geometry_msgs::Point p2;
+    p1.x = contour.back().position.x;
+    p1.y = contour.back().position.y;
+    p1.z = 0;
+    p2.x = contour.front().position.x;
+    p2.y = contour.front().position.y;
+    p2.z = 0;
+    points.push_back(p1);
+    points.push_back(p2);
+
+    visualization_msgs::Marker marker;
+    marker.header.frame_id = "panda_link0";
+    marker.header.stamp = ros::Time();
+    marker.ns = "panda_3dbioprint_vision_system";
+    marker.id = contour_marker_id++;
+    marker.type = visualization_msgs::Marker::LINE_STRIP;
+    marker.action = visualization_msgs::Marker::ADD;
+    marker.points = points;
+    marker.pose.orientation.w = 1.0;
+    marker.scale.x = 0.003;
+    marker.color.r = 1.0;
+    marker.color.g = 1.0;
+    marker.color.b = 0;
+    marker.color.a = 1.0;
+    pub.publish(marker);
+  }
+}
+
 int main( int argc, char** argv )
 {
   ros::init(argc, argv, "toolpath_viewer_node");
   ros::NodeHandle nh;
   image_transport::ImageTransport it(nh);
   image_transport::Publisher pub = it.advertise(toolpath_image_topic, 1);
+  ros::Publisher marker_pub = nh.advertise<visualization_msgs::Marker>("/panda_3dbioprint_vision_system/wound_segmentation_markers", 10);
   ros::ServiceServer service = nh.advertiseService("change_path_type", changePathType);
 
   std::string filepath = "/home/rtonet/ROS/tese/src/panda_3dbioprint_debug_tools/data/segmentation_points.dat";
 
+  WoundSegmentation wseg = WoundSegmentation(imageWidth, imageHeight, 0, 1, -0.5, 0.5);
+  ToolpathPlanner pl = ToolpathPlanner(imageWidth, imageHeight, 0, 1, -0.5, 0.5);
+
+  int t = 0;
   ros::Rate r(1);
   while (ros::ok())
   {
-    sensor_msgs::ImagePtr msg = getImageForPublication(filepath);
+    sensor_msgs::ImagePtr msg = getImageForPublication(pl, wseg, filepath);
     pub.publish(msg);
+    std::vector<geometry_msgs::Pose> contour_poses = wseg.getWoundConvexHullPoses(filepath);
+    publishWoundSegmentationAreaMarkers(marker_pub, contour_poses);
+
+    // std::vector<cv::Point> contour = wseg.getWoundConvexHullPoints(filepath);
+    // // Only plot the path if the contour is a closed surface
+    // if (contour.size() > 2)
+    // {
+    //   std::vector<cv::Point> path = getPath(pl, contour, offset_x, offset_y, axis);
+    //   std::vector<geometry_msgs::Pose> toolpath = pl.convPathPoint2Pose(path, 0);
+    //   publishToolpathMarkers(marker_pub, toolpath);
+    // }
+
+    if (t == 10)
+    {
+      for (size_t i = contour_marker_id; i >= 100; i--)
+      {
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "panda_link0";
+        marker.header.stamp = ros::Time();
+        marker.ns = "panda_3dbioprint_vision_system";
+        marker.id = i;
+        marker.action = visualization_msgs::Marker::DELETE;
+        marker_pub.publish(marker);
+        contour_marker_id = 100;
+      }
+      for (size_t i = path_marker_id; i >= 500; i--)
+      {
+        visualization_msgs::Marker marker;
+        marker.header.frame_id = "panda_link0";
+        marker.header.stamp = ros::Time();
+        marker.ns = "panda_3dbioprint_vision_system";
+        marker.id = i;
+        marker.action = visualization_msgs::Marker::DELETE;
+        marker_pub.publish(marker);
+        // contour_marker_id = 100;
+        path_marker_id = 500;
+      }
+      t = 0;
+    }
+    t++;
+
     ros::spinOnce();
     r.sleep();
   }
