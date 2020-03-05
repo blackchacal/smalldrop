@@ -1,9 +1,0 @@
-<library path="lib/libpanda_3dbioprint_simulation">
-  <class name="panda_3dbioprint_simulation/CartesianImpedanceController"
-         type="panda_3dbioprint_simulation::CartesianImpedanceController"
-         base_class_type="controller_interface::ControllerBase">
-    <description>
-      Interaction control - Cartesian Impedance controller architecture.
-    </description>
-  </class>
-</library>

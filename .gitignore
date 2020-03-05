@@ -5,3 +5,12 @@
 franka_control_panda
 franka_simulation_helio
 gazebo_ros_demos
+panda_3dbioprint_debug_tools
+panda_3dbioprint_real
+panda_3dbioprint_robotic_system
+panda_3dbioprint_simulation
+panda_3dbioprint_vision_system
+spacenav_control
+trajectory_planner
+realsense-ros
+franka_ros
