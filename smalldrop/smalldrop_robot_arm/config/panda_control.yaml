@@ -1,0 +1,73 @@
+# Copyright (c) 2019-2020 Ricardo Tonet
+# Use of this source code is governed by the MIT license, see LICENSE
+
+# Publish joint states
+joint_state_controller:
+  type: joint_state_controller/JointStateController
+  publish_rate: 50
+
+# Cartesian impedance controller for real robot
+cartesian_impedance_real_controller:
+  type: smalldrop_robot_arm/CartesianImpedanceRealController
+  arm_id: panda
+  joints:
+    - panda_joint1
+    - panda_joint2
+    - panda_joint3
+    - panda_joint4
+    - panda_joint5
+    - panda_joint6
+    - panda_joint7
+
+  constraints:
+    goal_time: 2.0
+
+  state_publish_rate: 25
+
+# Gravity compensation controller for real robot
+gravity_compensation_real_controller:
+  type: smalldrop_robot_arm/GravityCompensationRealController
+  arm_id: panda
+  joints:
+    - panda_joint1
+    - panda_joint2
+    - panda_joint3
+    - panda_joint4
+    - panda_joint5
+    - panda_joint6
+    - panda_joint7
+
+  constraints:
+    goal_time: 2.0
+
+  state_publish_rate: 25
+
+# Cartesian impedance controller for simulation
+cartesian_impedance_sim_controller:
+  type: smalldrop_robot_arm/CartesianImpedanceSimController
+  arm_id: panda
+  joints:
+    - panda_joint1
+    - panda_joint2
+    - panda_joint3
+    - panda_joint4
+    - panda_joint5
+    - panda_joint6
+    - panda_joint7
+
+  constraints:
+    goal_time: 2.0
+
+  state_publish_rate: 25
+
+panda_hand_controller:
+  type: effort_controllers/JointTrajectoryController
+  joints:
+    - panda_finger_joint1
+    - panda_finger_joint2
+
+  gains:
+    panda_finger_joint1: { p: 10000, d: 3.0, i: 0, i_clamp: 1 }
+    panda_finger_joint2: { p: 10000, d: 1.0, i: 0, i_clamp: 1 }
+
+  state_publish_rate: 25

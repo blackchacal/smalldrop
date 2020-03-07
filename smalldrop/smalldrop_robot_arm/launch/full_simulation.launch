@@ -1,0 +1,36 @@
+<launch>
+  <!-- Robot gains setup and test arguments -->
+  <arg name="gains" default="false" />
+
+  <!-- GAZEBO arguments -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="recording" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="verbose" default="true"/>
+
+  <!-- Include simulation world -->
+  <include file="$(find smalldrop_robot_arm)/launch/create_sim_world.launch">
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="paused" value="$(arg paused)"/>
+    <arg name="use_sim_time" value="$(arg use_sim_time)"/>
+    <arg name="recording" value="$(arg recording)"/>
+    <arg name="verbose" value="$(arg verbose)"/>
+  </include>
+
+  <!-- Load joint controller configurations from YAML file to parameter server -->
+  <rosparam file="$(find smalldrop_robot_arm)/config/panda_control.yaml" command="load"/>
+
+  <!-- load the controllers -->
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_impedance_sim_controller joint_state_controller panda_hand_controller" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" respawn="true" output="screen" />
+  <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
+
+  <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
+
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find smalldrop_robot_arm)/rviz/config.rviz" />
+  <!-- Include node to show gazebo models on rviz -->
+  <node name="gazebo_models_rviz" pkg="smalldrop_robot_arm" type="gazebo_models_to_rviz" required="true" output="screen" />
+</launch>

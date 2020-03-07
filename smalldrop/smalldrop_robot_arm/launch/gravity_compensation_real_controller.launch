@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<launch>
+  <!-- Robot test arguments -->
+  <arg name="rviz" default="true" />
+
+  <arg name="robot_ip" default="panda_control" />
+  <arg name="load_gripper" default="true" />
+  <include file="$(find franka_control)/launch/franka_control.launch" >
+    <arg name="robot_ip" value="$(arg robot_ip)" />
+    <arg name="load_gripper" value="$(arg load_gripper)" />
+  </include>
+
+  <rosparam command="load" file="$(find smalldrop_robot_arm)/config/panda_control.yaml" />
+  <node name="controller_spawner_gravity" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="gravity_compensation_real_controller"/>
+  <node name="controller_spawner_cartesian" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="--stopped cartesian_impedance_real_controller"/>
+
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find smalldrop_robot_arm)/rviz/config_tests.rviz"/>
+</launch>

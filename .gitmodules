@@ -1,0 +1,4 @@
+[submodule "smalldrop/dependencies/franka_ros"]
+	path = smalldrop/dependencies/franka_ros
+	url = https://github.com/frankaemika/franka_ros.git
+	branch = melodic-devel
