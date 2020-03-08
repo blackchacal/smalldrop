@@ -46,6 +46,6 @@
       <cast_shadows>0</cast_shadows>
     </light>
 
-    <plugin name="factory" filename="libcreate_sim_world.so"/>
+    <plugin name="factory" filename="libsdrop_create_sim_world.so"/>
   </world>
 </sdf>

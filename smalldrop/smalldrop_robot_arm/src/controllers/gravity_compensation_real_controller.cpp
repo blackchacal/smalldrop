@@ -6,12 +6,16 @@
 namespace smalldrop_robot_arm
 {
 
+/*****************************************************************************************
+ * Public methods
+ *****************************************************************************************/
+
 bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_hw, ros::NodeHandle &nh)
 {
   // Verify robot
   std::cout << "Verifying robot id" << std::endl;
   std::string arm_id;
-  if (!nh.getParam("/cartesian_impedance_controller/arm_id", arm_id))
+  if (!nh.getParam("/gravity_compensation_real_controller/arm_id", arm_id))
   {
     ROS_ERROR("GravityCompensationRealController: Could not read the parameter 'arm_id'.");
     return false;
@@ -20,7 +24,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
   // Verify number of joints
   std::cout << "Verifying number of joints" << std::endl;
   std::vector<std::string> joint_names;
-  if (!nh.getParam("/cartesian_impedance_controller/joints", joint_names) || joint_names.size() != 7)
+  if (!nh.getParam("/gravity_compensation_real_controller/joints", joint_names) || joint_names.size() != 7)
   {
     ROS_ERROR("GravityCompensationRealController: Invalid or no joint_names parameters "
               "provided, aborting controller init!");
@@ -36,7 +40,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
     return false;
   }
   try {
-    model_handle = std::make_unique<franka_hw::FrankaModelHandle>(
+    model_handle_ = std::make_unique<franka_hw::FrankaModelHandle>(
         model_interface->getHandle(arm_id + "_model"));
   } catch (hardware_interface::HardwareInterfaceException& ex) {
     ROS_ERROR_STREAM(
@@ -54,7 +58,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
     return false;
   }
   try {
-    state_handle = std::make_unique<franka_hw::FrankaStateHandle>(
+    state_handle_ = std::make_unique<franka_hw::FrankaStateHandle>(
         state_interface->getHandle(arm_id + "_robot"));
   } catch (hardware_interface::HardwareInterfaceException& ex) {
     ROS_ERROR_STREAM(
@@ -79,7 +83,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
   {
     try
     {
-      joint_handles.push_back(effort_joint_interface->getHandle(joint_names[i]));
+      joint_handles_.push_back(effort_joint_interface->getHandle(joint_names[i]));
     }
     catch (const hardware_interface::HardwareInterfaceException &ex)
     {
@@ -92,34 +96,33 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
   urdf::Model model;
   if (model.initParam("/robot_description"))
   {
-    robot_joints = model.joints_;
+    robot_joints_ = model.joints_;
   }
   else
   {
     ROS_ERROR("Unable to read the robot model from URDF.");
   }
 
-  posePub = nh.advertise<geometry_msgs::Pose>("/cartesian_impedance_controller/current_pose", 10);
-  wrenchPub = nh.advertise<geometry_msgs::Wrench>("/cartesian_impedance_controller/wrench", 10);
+  setupPublishersAndSubscribers(nh);
 
   // ---------------------------------------------------------------------------
   // Init Values
   // ---------------------------------------------------------------------------
-  T0ee.setZero();
-  maxJointLimits << robot_joints[joint_handles[0].getName()].get()->limits.get()->upper,
-                    robot_joints[joint_handles[1].getName()].get()->limits.get()->upper,
-                    robot_joints[joint_handles[2].getName()].get()->limits.get()->upper,
-                    robot_joints[joint_handles[3].getName()].get()->limits.get()->upper,
-                    robot_joints[joint_handles[4].getName()].get()->limits.get()->upper,
-                    robot_joints[joint_handles[5].getName()].get()->limits.get()->upper,
-                    robot_joints[joint_handles[6].getName()].get()->limits.get()->upper;
-  minJointLimits << robot_joints[joint_handles[0].getName()].get()->limits.get()->lower,
-                    robot_joints[joint_handles[1].getName()].get()->limits.get()->lower,
-                    robot_joints[joint_handles[2].getName()].get()->limits.get()->lower,
-                    robot_joints[joint_handles[3].getName()].get()->limits.get()->lower,
-                    robot_joints[joint_handles[4].getName()].get()->limits.get()->lower,
-                    robot_joints[joint_handles[5].getName()].get()->limits.get()->lower,
-                    robot_joints[joint_handles[6].getName()].get()->limits.get()->lower;
+  T0ee_.setZero();
+  max_joint_limits_ << robot_joints_[joint_handles_[0].getName()].get()->limits.get()->upper,
+                    robot_joints_[joint_handles_[1].getName()].get()->limits.get()->upper,
+                    robot_joints_[joint_handles_[2].getName()].get()->limits.get()->upper,
+                    robot_joints_[joint_handles_[3].getName()].get()->limits.get()->upper,
+                    robot_joints_[joint_handles_[4].getName()].get()->limits.get()->upper,
+                    robot_joints_[joint_handles_[5].getName()].get()->limits.get()->upper,
+                    robot_joints_[joint_handles_[6].getName()].get()->limits.get()->upper;
+  min_joint_limits_ << robot_joints_[joint_handles_[0].getName()].get()->limits.get()->lower,
+                    robot_joints_[joint_handles_[1].getName()].get()->limits.get()->lower,
+                    robot_joints_[joint_handles_[2].getName()].get()->limits.get()->lower,
+                    robot_joints_[joint_handles_[3].getName()].get()->limits.get()->lower,
+                    robot_joints_[joint_handles_[4].getName()].get()->limits.get()->lower,
+                    robot_joints_[joint_handles_[5].getName()].get()->limits.get()->lower,
+                    robot_joints_[joint_handles_[6].getName()].get()->limits.get()->lower;
   return true;
 }
 
@@ -130,55 +133,50 @@ void GravityCompensationRealController::starting(const ros::Time &time)
   // to a specified position right away. That can cause bounces and instabillities.
 
   // Read the robot state
-  franka::RobotState initial_state = state_handle->getRobotState();
+  franka::RobotState initial_state = state_handle_->getRobotState();
 
   // Get transformation from end-effector to base T0ee_d
-  T0ee = Eigen::Matrix4d::Map(initial_state.O_T_EE.data());
+  T0ee_ = Eigen::Matrix4d::Map(initial_state.O_T_EE.data());
 
-  Eigen::Affine3d transform(T0ee);
-  X0ee = transform.translation();
-  R0ee = transform.rotation();
+  Eigen::Affine3d transform(T0ee_);
+  Eigen::Vector3d X0ee_ = transform.translation();
+  Eigen::Matrix3d R0ee_ = transform.rotation();
 }
 
 void GravityCompensationRealController::update(const ros::Time &time, const ros::Duration &period)
 {
   // Get robot state
-  franka::RobotState robot_state = state_handle->getRobotState();
+  franka::RobotState robot_state = state_handle_->getRobotState();
 
   // Obtain joint positions (q), velocities (qdot) and efforts (effort) from hardware interface
-  q = Eigen::Matrix<double, 7, 1>::Map(robot_state.q.data());
-  qdot = Eigen::Matrix<double, 7, 1>::Map(robot_state.dq.data());
+  q_ = Eigen::Matrix<double, 7, 1>::Map(robot_state.q.data());
+  qdot_ = Eigen::Matrix<double, 7, 1>::Map(robot_state.dq.data());
 
   // Desired link-side joint torque sensor signals without gravity. Unit: [Nm]
   Eigen::Map<Eigen::Matrix<double, 7, 1>> tau_J_d(robot_state.tau_J_d.data());
 
   // Calculate X = f(q) using forward kinematics (FK)
-  T0ee = Eigen::Matrix4d::Map(robot_state.O_T_EE.data());
+  T0ee_ = Eigen::Matrix4d::Map(robot_state.O_T_EE.data());
     
-  Eigen::Affine3d transform(T0ee);
-  Eigen::Vector3d X0ee(transform.translation());
-  Eigen::Matrix3d R0ee(transform.rotation());
+  Eigen::Affine3d transform(T0ee_);
+  Eigen::Vector3d X0ee_(transform.translation());
+  Eigen::Matrix3d R0ee_(transform.rotation());
 
   // Publish current pose
-  geometry_msgs::Pose msg;
-  msg.position.x = X0ee[0];
-  msg.position.y = X0ee[1];
-  msg.position.z = X0ee[2];
-  Eigen::Quaterniond quat(R0ee);
-  msg.orientation.x = quat.x();
-  msg.orientation.y = quat.y();
-  msg.orientation.z = quat.z();
-  msg.orientation.w = quat.w();
-  posePub.publish(msg);
+  publishCurrentPose(X0ee_, R0ee_);
+
+  // ---------------------------------------------------------------------------
+  // Calculate the dynamic parameters
+  // ---------------------------------------------------------------------------
 
   // Calculate Jacobian
-  std::array<double, 42> jacobian_array = model_handle->getZeroJacobian(franka::Frame::kEndEffector);
+  std::array<double, 42> jacobian_array = model_handle_->getZeroJacobian(franka::Frame::kEndEffector);
   J = Eigen::Matrix<double, 6, 7>::Map(jacobian_array.data());
 
   // Calculate the dynamics: inertia, coriolis and gravity matrices
-  M = Eigen::Matrix<double, 7, 7>::Map(model_handle->getMass().data());
-  C = Eigen::Matrix<double, 7, 1>::Map(model_handle->getCoriolis().data());
-  g = Eigen::Matrix<double, 7, 1>::Map(model_handle->getGravity().data());
+  M = Eigen::Matrix<double, 7, 7>::Map(model_handle_->getMass().data());
+  C = Eigen::Matrix<double, 7, 1>::Map(model_handle_->getCoriolis().data());
+  g = Eigen::Matrix<double, 7, 1>::Map(model_handle_->getGravity().data());
 
   // Calculate Lambda which is the Mass Matrix of the task space
   // Λ(q) = (J * M(q)−1 * JT)−1
@@ -202,11 +200,40 @@ void GravityCompensationRealController::update(const ros::Time &time, const ros:
   // Saturate torque rate to avoid discontinuities
   tau_d << saturateTorqueRate(tau_d, tau_J_d);
 
-  // Publish wrenchs
+  // Publish wrenches and tracking errors
+  publishWrenches();
+  publishTrackingErrors();
+
+  // Set desired torque to each joint
+  for (size_t i = 0; i < 7; ++i)
+    joint_handles_[i].setCommand(tau_d(i));
+}
+
+/**
+ * \brief Clamps the joint torques if they go beyond the defined limits.
+ */
+Eigen::Matrix<double, 7, 1> GravityCompensationRealController::saturateTorqueRate(
+    const Eigen::Matrix<double, 7, 1> &tau_d, const Eigen::Matrix<double, 7, 1> &tau_J_d)
+{
+  Eigen::Matrix<double, 7, 1> tau_d_saturated;
+
+  for (size_t i = 0; i < 7; i++)
+  {
+    double difference = tau_d[i] - tau_J_d[i];
+    tau_d_saturated[i] = tau_J_d[i] + std::max(std::min(difference, delta_tau_max_), -delta_tau_max_);
+  }
+  return tau_d_saturated;
+}
+
+/**
+ * \brief Publishes the robot external wrenches to a topic.
+ */
+void GravityCompensationRealController::publishWrenches(void)
+{
   geometry_msgs::Wrench wrench_msg;
 
   // Prepare force msg
-  franka::RobotState state = state_handle->getRobotState();
+  franka::RobotState state = state_handle_->getRobotState();
   std::array<double, 6> wrench = state.O_F_ext_hat_K;
   wrench_msg.force.x = wrench[0]; 
   wrench_msg.force.y = wrench[1]; 
@@ -215,26 +242,7 @@ void GravityCompensationRealController::update(const ros::Time &time, const ros:
   wrench_msg.torque.y = wrench[4]; 
   wrench_msg.torque.z = wrench[5]; 
 
-  // Publish the messages
-  wrenchPub.publish(wrench_msg);
-
-  // Set desired torque to each joint
-  for (size_t i = 0; i < 7; ++i)
-  {
-    joint_handles[i].setCommand(tau_d(i));
-  }
-}
-
-Eigen::Matrix<double, 7, 1> GravityCompensationRealController::saturateTorqueRate(
-  const Eigen::Matrix<double, 7, 1>& tau_d_calculated,
-  const Eigen::Matrix<double, 7, 1>& tau_J_d) 
-{
-  Eigen::Matrix<double, 7, 1> tau_d_saturated{};
-  for (size_t i = 0; i < 7; i++) {
-    double difference = tau_d_calculated[i] - tau_J_d[i];
-    tau_d_saturated[i] = tau_J_d[i] + std::max(std::min(difference, delta_tau_max), -delta_tau_max);
-  }
-  return tau_d_saturated;
+  wrench_pub_.publish(wrench_msg);
 }
 
 } // namespace smalldrop_robot_arm

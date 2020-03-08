@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smalldrop</name>
-  <version>0.2.0</version>
+  <version>0.2.1</version>
   <description>The smalldrop metapackage.</description>
   <maintainer email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</maintainer>
   <author email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</author>
