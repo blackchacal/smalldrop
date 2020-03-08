@@ -20,9 +20,9 @@ void RobotArmController::setupPublishersAndSubscribers(ros::NodeHandle nh)
 {
   pose_sub_ = nh.subscribe("/smalldrop/robot_arm/desired_pose", 10, &RobotArmController::updatePoseCallback, this);
   pose_pub_ = nh.advertise<geometry_msgs::Pose>("/smalldrop/robot_arm/current_pose", 10);
-  tau_pub_ = nh.advertise<smalldrop_robot_arm::Tau>("/smalldrop/robot_arm/tau", 10);
+  tau_pub_ = nh.advertise<smalldrop_msgs::Tau>("/smalldrop/robot_arm/tau", 10);
   wrench_pub_ = nh.advertise<geometry_msgs::Wrench>("/smalldrop/robot_arm/wrench", 10);
-  error_pub_ = nh.advertise<smalldrop_robot_arm::TrackingError>("/smalldrop/robot_arm/error", 10);
+  error_pub_ = nh.advertise<smalldrop_msgs::TrackingError>("/smalldrop/robot_arm/error", 10);
 }
 
 /**
@@ -67,7 +67,7 @@ void RobotArmController::publishCurrentPose(const Eigen::Vector3d X0ee, const Ei
 void RobotArmController::publishTorques(const Eigen::VectorXd tau_d, const Eigen::VectorXd tau_task,
                                         const Eigen::VectorXd tau_null)
 {
-  smalldrop_robot_arm::Tau tau_msg;
+  smalldrop_msgs::Tau tau_msg;
   tau_msg.joint_name.resize(joint_handles_.size());
 
   // Prepare Tau msg
@@ -109,7 +109,7 @@ void RobotArmController::publishWrenches(void)
  */
 void RobotArmController::publishTrackingErrors(void)
 {
-  smalldrop_robot_arm::TrackingError error_msg;
+  smalldrop_msgs::TrackingError error_msg;
   error_msg.error.resize(6);
   // Prepare tracking error msg
   Eigen::VectorXd::Map(&error_msg.error[0], error_.size()) = error_;

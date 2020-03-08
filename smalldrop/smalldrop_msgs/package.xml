@@ -1,8 +1,11 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>smalldrop</name>
+  <name>smalldrop_msgs</name>
   <version>0.2.2</version>
-  <description>The smalldrop metapackage.</description>
+  <description>
+    Package responsible for declaring all the custom messages, services and actions 
+    used by the SmallDrop project.
+  </description>
   <maintainer email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</maintainer>
   <author email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</author>
   <url type="repository">https://github.com/blackchacal/smalldrop</url>
@@ -10,9 +13,10 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>smalldrop_robot_arm</exec_depend>
+  <depend>roscpp</depend>
+  <depend>std_msgs</depend>
+  <build_depend>message_generation</build_depend>
+  <exec_depend>message_runtime</exec_depend>
 
-  <export>
-    <metapackage />
-  </export>
+  <export></export>
 </package>

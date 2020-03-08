@@ -26,8 +26,8 @@
 // ROS message/service
 #include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
-#include <smalldrop_robot_arm/Tau.h>
-#include <smalldrop_robot_arm/TrackingError.h>
+#include <smalldrop_msgs/Tau.h>
+#include <smalldrop_msgs/TrackingError.h>
 #include "std_srvs/SetBool.h"
 
 // Libraries

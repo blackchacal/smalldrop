@@ -9,9 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   joint_state_controller
   robot_state_publisher
   dynamic_reconfigure
-  message_generation
   geometry_msgs
-  std_msgs
   tf
   kdl_parser
   gazebo_ros
@@ -21,21 +19,6 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(Eigen3 REQUIRED)
 find_package(gazebo REQUIRED)
-
-################################################
-## Declare ROS messages, services and actions ##
-################################################
-
-add_message_files(
-  FILES
-  Tau.msg
-  TrackingError.msg
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -58,9 +41,7 @@ catkin_package(
   joint_state_controller
   robot_state_publisher
   dynamic_reconfigure
-  message_runtime
   geometry_msgs
-  std_msgs
   tf
   kdl_parser
   gazebo_ros
