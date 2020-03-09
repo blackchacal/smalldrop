@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smalldrop_msgs</name>
-  <version>0.2.2</version>
+  <version>0.2.3</version>
   <description>
     Package responsible for declaring all the custom messages, services and actions 
     used by the SmallDrop project.

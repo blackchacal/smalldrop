@@ -1,22 +1,34 @@
 // Copyright (c) 2019-2020 Ricardo Tonet
 // Use of this source code is governed by the MIT license, see LICENSE
 
+/**
+ * \file gazebo_models_to_rviz_node.cpp 
+ * \brief Node to handle publishing of gazebo models to rviz as markers.
+ */
+
 #include <ros/ros.h>
 #include <gazebo_msgs/ModelStates.h>
 #include <visualization_msgs/Marker.h>
 #include <tf/transform_broadcaster.h>
 
 std::string gazebo_modelstates_topic = "/gazebo/model_states";
-std::string rviz_markers_topic = "/smalldrop_robot_arm/gazebo_rviz_markers";
+std::string rviz_markers_topic = "/smalldrop_rviz/gazebo_rviz_markers";
 
 ros::Publisher pub;
 
+/**
+ * \fn void gazeboModelStatesCallback(const gazebo_msgs::ModelStatesConstPtr msg)
+ * \brief Callback function that publishes the gazebo models on rviz.
+ * 
+ * \param msg Gazebo message with the models state.
+ */
 void gazeboModelStatesCallback(const gazebo_msgs::ModelStatesConstPtr msg)
 {
   static tf::TransformBroadcaster br;
 
   unsigned int size = msg->name.size();
   unsigned int id = 0;
+
   for (size_t i = 0; i < size; i++)
   {
     if (msg->name[i].compare("ground_plane") != 0 && 
@@ -33,6 +45,7 @@ void gazeboModelStatesCallback(const gazebo_msgs::ModelStatesConstPtr msg)
       marker.action = visualization_msgs::Marker::ADD;
       marker.pose = msg->pose[i];
 
+      // Adjust color and scale depending on the model
       if (msg->name[i].compare("emergency_console") == 0)
       {
         marker.scale.x = 0.01;

@@ -84,13 +84,10 @@ add_dependencies(sdrop_robot_real_cartesian_impedance ${PROJECT_NAME}_gencfg ${P
 add_dependencies(sdrop_robot_real_gravity_compensation ${PROJECT_NAME}_generate_messages_cpp)
 add_dependencies(sdrop_robot_sim_cartesian_impedance ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
 
-add_executable(gazebo_models_to_rviz src/nodes/gazebo_models_to_rviz_node.cpp)
-
 target_link_libraries(sdrop_robot_real_cartesian_impedance ${catkin_LIBRARIES})
 target_link_libraries(sdrop_robot_real_gravity_compensation ${catkin_LIBRARIES})
 target_link_libraries(sdrop_robot_sim_cartesian_impedance ${catkin_LIBRARIES})
 target_link_libraries(sdrop_create_sim_world ${GAZEBO_LIBRARIES})
-target_link_libraries(gazebo_models_to_rviz ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##

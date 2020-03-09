@@ -16,7 +16,9 @@ This project is composed of several ROS packages that communicate with each othe
 **Main packages**
 
 - **smalldrop:** Project metapackage.
-- **smalldrop_robot_arm:** Is responsible for the robot arm control for the real robot and Gazebo simulation.
+- **smalldrop_robot_arm:** Responsible for the robot arm control for the real robot and Gazebo simulation.
+- **smalldrop_msgs:** Responsible for declaring all messages, services and actions for the project.
+- **smalldrop_rviz:** Responsible for handling rviz configurations and visualisation displays.
 
 **Dependencies (git submodules)**
 

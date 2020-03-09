@@ -1,8 +1,10 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>smalldrop</name>
+  <name>smalldrop_rviz</name>
   <version>0.2.3</version>
-  <description>The smalldrop metapackage.</description>
+  <description>
+    Package responsible for managing everything related with rviz.
+  </description>
   <maintainer email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</maintainer>
   <author email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</author>
   <url type="repository">https://github.com/blackchacal/smalldrop</url>
@@ -10,9 +12,12 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <exec_depend>smalldrop_robot_arm</exec_depend>
+  <depend>roscpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>tf</depend>
+  <depend>gazebo_ros</depend> <!-- For simulation -->
 
-  <export>
-    <metapackage />
-  </export>
+  <doc_depend>doxygen</doc_depend>
+  
+  <export></export>
 </package>

@@ -30,7 +30,7 @@
 
   <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
 
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find smalldrop_robot_arm)/rviz/config.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find smalldrop_rviz)/rviz/config.rviz" />
   <!-- Include node to show gazebo models on rviz -->
-  <node name="gazebo_models_rviz" pkg="smalldrop_robot_arm" type="gazebo_models_to_rviz" required="true" output="screen" />
+  <node name="gazebo_models_rviz" pkg="smalldrop_rviz" type="gazebo_models_to_rviz" required="true" output="screen" />
 </launch>
