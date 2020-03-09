@@ -3,6 +3,8 @@
 
 #include "smalldrop_robot_arm/gravity_compensation_real_controller.h"
 
+namespace smalldrop
+{
 namespace smalldrop_robot_arm
 {
 
@@ -246,5 +248,6 @@ void GravityCompensationRealController::publishWrenches(void)
 }
 
 } // namespace smalldrop_robot_arm
+} // namespace smalldrop
 
-PLUGINLIB_EXPORT_CLASS(smalldrop_robot_arm::GravityCompensationRealController, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(smalldrop::smalldrop_robot_arm::GravityCompensationRealController, controller_interface::ControllerBase)

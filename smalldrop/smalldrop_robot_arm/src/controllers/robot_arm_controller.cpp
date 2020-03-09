@@ -7,6 +7,8 @@
 
 #include <smalldrop_robot_arm/robot_arm_controller.h>
 
+namespace smalldrop
+{
 namespace smalldrop_robot_arm
 {
 /*****************************************************************************************
@@ -301,3 +303,4 @@ void RobotArmController::saturateIntegralError(void)
 }
 
 }  // namespace smalldrop_robot_arm
+}  // namespace smalldrop

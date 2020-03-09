@@ -14,6 +14,8 @@
 #include "franka_hw/franka_model_interface.h"
 #include "franka_hw/franka_state_interface.h"
 
+namespace smalldrop
+{
 namespace smalldrop_robot_arm
 {
 /**
@@ -62,5 +64,6 @@ public:
 };
 
 }  // namespace smalldrop_robot_arm
+}  // namespace smalldrop
 
 #endif  // _GRAVITY_COMPENSATION_REAL_CONTROLLER_H

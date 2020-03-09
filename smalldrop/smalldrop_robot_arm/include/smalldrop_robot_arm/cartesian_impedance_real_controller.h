@@ -17,6 +17,8 @@
 #include "franka_hw/franka_model_interface.h"
 #include "franka_hw/franka_state_interface.h"
 
+namespace smalldrop 
+{
 namespace smalldrop_robot_arm
 {
 /**
@@ -34,7 +36,7 @@ class CartesianImpedanceRealController : public virtual RobotArmController
   std::unique_ptr<franka_hw::FrankaModelHandle> model_handle_;
 
   // Dynamic reconfigure
-  std::unique_ptr<dynamic_reconfigure::Server<smalldrop_robot_arm::CartesianImpedanceRealControllerConfig>>
+  std::unique_ptr<dynamic_reconfigure::Server<::smalldrop_robot_arm::CartesianImpedanceRealControllerConfig>>
       dyn_config_gains_param_;
 
   /**
@@ -58,7 +60,7 @@ class CartesianImpedanceRealController : public virtual RobotArmController
    * \param config Dynamic reconfigure config instance.
    * \param level Dynamic reconfigure level.
    */
-  void updateDynamicConfigGainsCallback(smalldrop_robot_arm::CartesianImpedanceRealControllerConfig &config,
+  void updateDynamicConfigGainsCallback(::smalldrop_robot_arm::CartesianImpedanceRealControllerConfig &config,
                                         uint32_t level);
 
   /**
@@ -78,5 +80,6 @@ public:
 };
 
 }  // namespace smalldrop_robot_arm
+}  // namespace smalldrop
 
 #endif  // _SMALLDROP_CARTESIAN_IMPEDANCE_REAL_CONTROLLER_H

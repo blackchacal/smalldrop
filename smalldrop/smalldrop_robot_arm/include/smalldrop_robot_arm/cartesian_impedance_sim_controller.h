@@ -20,6 +20,8 @@
 #include <kdl/solveri.hpp>
 #include <kdl_parser/kdl_parser.hpp>
 
+namespace smalldrop
+{
 namespace smalldrop_robot_arm
 {
 
@@ -41,7 +43,7 @@ private:
 
   // Dynamic reconfigure
   //-------------------------------------------------------------------------------------
-  std::unique_ptr<dynamic_reconfigure::Server<smalldrop_robot_arm::CartesianImpedanceSimControllerConfig>>
+  std::unique_ptr<dynamic_reconfigure::Server<::smalldrop_robot_arm::CartesianImpedanceSimControllerConfig>>
       dyn_config_gains_param_;
 
   /**
@@ -91,7 +93,7 @@ private:
    * \param config Dynamic reconfigure config instance.
    * \param level Dynamic reconfigure level.
    */
-  void updateDynamicConfigGainsCallback(smalldrop_robot_arm::CartesianImpedanceSimControllerConfig &config, uint32_t level);
+  void updateDynamicConfigGainsCallback(::smalldrop_robot_arm::CartesianImpedanceSimControllerConfig &config, uint32_t level);
 
   /**
    * \fn bool sendTorquesToRobot(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
@@ -113,5 +115,6 @@ public:
 };
 
 }  // namespace smalldrop_robot_arm
+}  // namespace smalldrop
 
 #endif // _SMALLDROP_CARTESIAN_IMPEDANCE_SIM_CONTROLLER_H

@@ -34,6 +34,8 @@
 #include <Eigen/Dense>
 #include <fstream>
 
+namespace smalldrop
+{
 namespace smalldrop_robot_arm
 {
 
@@ -250,5 +252,6 @@ public:
 };
 
 }  // namespace smalldrop_robot_arm
+}  // namespace smalldrop
 
 #endif // _SMALLDROP_ROBOT_ARM_CONTROLLER_H

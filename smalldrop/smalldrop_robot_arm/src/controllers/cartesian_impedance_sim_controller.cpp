@@ -3,15 +3,16 @@
 
 #include <smalldrop_robot_arm/cartesian_impedance_sim_controller.h>
 
+namespace smalldrop
+{
 namespace smalldrop_robot_arm
 {
-
 /*****************************************************************************************
  * Public methods
  *****************************************************************************************/
 
 bool CartesianImpedanceSimController::init(hardware_interface::RobotHW *robot_hw, ros::NodeHandle &root_nh,
-                                  ros::NodeHandle &controller_nh)
+                                           ros::NodeHandle &controller_nh)
 {
   // Verify robot
   std::cout << "Verifying robot id" << std::endl;
@@ -87,11 +88,15 @@ bool CartesianImpedanceSimController::init(hardware_interface::RobotHW *robot_hw
 
   // Setup dynamic reconfigure
   dyn_config_gains_node_ = ros::NodeHandle("cartesian_impedance_controller/gains");
-  dyn_config_gains_param_ = std::make_unique<dynamic_reconfigure::Server<smalldrop_robot_arm::CartesianImpedanceSimControllerConfig>>(dyn_config_gains_node_);
-  dyn_config_gains_param_->setCallback(boost::bind(&CartesianImpedanceSimController::updateDynamicConfigGainsCallback, this, _1, _2));
+  dyn_config_gains_param_ =
+      std::make_unique<dynamic_reconfigure::Server<::smalldrop_robot_arm::CartesianImpedanceSimControllerConfig>>(
+          dyn_config_gains_node_);
+  dyn_config_gains_param_->setCallback(
+      boost::bind(&CartesianImpedanceSimController::updateDynamicConfigGainsCallback, this, _1, _2));
 
   setupPublishersAndSubscribers(controller_nh);
-  control_srv_ = controller_nh.advertiseService("send_torques_to_robot", &CartesianImpedanceSimController::sendTorquesToRobot, this);
+  control_srv_ = controller_nh.advertiseService("send_torques_to_robot",
+                                                &CartesianImpedanceSimController::sendTorquesToRobot, this);
 
   // ---------------------------------------------------------------------------
   // Init Values
@@ -115,19 +120,19 @@ bool CartesianImpedanceSimController::init(hardware_interface::RobotHW *robot_hw
   tau_.setZero();
   tau_initial_.setZero();
   max_joint_limits_ << robot_joints_[joint_handles_[0].getName()].get()->limits.get()->upper,
-                    robot_joints_[joint_handles_[1].getName()].get()->limits.get()->upper,
-                    robot_joints_[joint_handles_[2].getName()].get()->limits.get()->upper,
-                    robot_joints_[joint_handles_[3].getName()].get()->limits.get()->upper,
-                    robot_joints_[joint_handles_[4].getName()].get()->limits.get()->upper,
-                    robot_joints_[joint_handles_[5].getName()].get()->limits.get()->upper,
-                    robot_joints_[joint_handles_[6].getName()].get()->limits.get()->upper;
+      robot_joints_[joint_handles_[1].getName()].get()->limits.get()->upper,
+      robot_joints_[joint_handles_[2].getName()].get()->limits.get()->upper,
+      robot_joints_[joint_handles_[3].getName()].get()->limits.get()->upper,
+      robot_joints_[joint_handles_[4].getName()].get()->limits.get()->upper,
+      robot_joints_[joint_handles_[5].getName()].get()->limits.get()->upper,
+      robot_joints_[joint_handles_[6].getName()].get()->limits.get()->upper;
   min_joint_limits_ << robot_joints_[joint_handles_[0].getName()].get()->limits.get()->lower,
-                    robot_joints_[joint_handles_[1].getName()].get()->limits.get()->lower,
-                    robot_joints_[joint_handles_[2].getName()].get()->limits.get()->lower,
-                    robot_joints_[joint_handles_[3].getName()].get()->limits.get()->lower,
-                    robot_joints_[joint_handles_[4].getName()].get()->limits.get()->lower,
-                    robot_joints_[joint_handles_[5].getName()].get()->limits.get()->lower,
-                    robot_joints_[joint_handles_[6].getName()].get()->limits.get()->lower;
+      robot_joints_[joint_handles_[1].getName()].get()->limits.get()->lower,
+      robot_joints_[joint_handles_[2].getName()].get()->limits.get()->lower,
+      robot_joints_[joint_handles_[3].getName()].get()->limits.get()->lower,
+      robot_joints_[joint_handles_[4].getName()].get()->limits.get()->lower,
+      robot_joints_[joint_handles_[5].getName()].get()->limits.get()->lower,
+      robot_joints_[joint_handles_[6].getName()].get()->limits.get()->lower;
   nullspace_objective_.setZero();
 
   return true;
@@ -138,7 +143,7 @@ void CartesianImpedanceSimController::starting(const ros::Time &time)
   // Set desired end-effector position and euler angles
   Eigen::Matrix<double, 7, 1> qd;
   qd << 0, 0, 0, -M_PI_2, 0, M_PI_2, M_PI_4;
-  
+
   if (!fk(qd, T0ee_d_))
     ROS_ERROR("Cannot get forward kinematics.");
 
@@ -163,14 +168,14 @@ void CartesianImpedanceSimController::update(const ros::Time &time, const ros::D
     qdot_(i) = joint_handles_[i].getVelocity();
     tau_(i) = joint_handles_[i].getEffort();
 
-    if (time.toSec() <= 15) 
+    if (time.toSec() <= 15)
       tau_initial_ = tau_;
   }
 
   // Calculate X = f(q) using forward kinematics (FK)
   if (!fk(q_, T0ee_))
     ROS_ERROR("Cannot get forward kinematics.");
-    
+
   Eigen::Affine3d transform(T0ee_);
   Eigen::Vector3d X0ee(transform.translation());
   Eigen::Matrix3d R0ee(transform.rotation());
@@ -219,7 +224,7 @@ void CartesianImpedanceSimController::update(const ros::Time &time, const ros::D
   error_.tail(3) << R2r(Rcd);
 
   // Calculate velocity error
-  vel_d_.head(3) <<  X0ee_d_ - X0ee_d_prev_; // desired velocity is derivative of desired position
+  vel_d_.head(3) << X0ee_d_ - X0ee_d_prev_;  // desired velocity is derivative of desired position
   vel_error_ << vel_d_ - vel;
   X0ee_d_prev_ = X0ee_d_;
 
@@ -230,15 +235,15 @@ void CartesianImpedanceSimController::update(const ros::Time &time, const ros::D
   // Declare variables
   // tau_task = JT*F
   // tau_null = (I - JT * J#T) * t0
-  // tau_d = tau_task + tau_null 
+  // tau_d = tau_task + tau_null
   Eigen::VectorXd tau_task(7), tau_d(7), tau_null(7);
 
-  // Calculate the null space objective function 
+  // Calculate the null space objective function
   nullSpaceObjectiveFunction(nullspace_objective_);
-  Eigen::Matrix<double, 7, 1>  tau_o(M * null_K * nullspace_objective_);
+  Eigen::Matrix<double, 7, 1> tau_o(M * null_K * nullspace_objective_);
 
   // Calculate nullspace torque (tau_null)
-  tau_null << (Eigen::MatrixXd::Identity(7,7) - J.transpose() * Jhash.transpose()) * tau_o;
+  tau_null << (Eigen::MatrixXd::Identity(7, 7) - J.transpose() * Jhash.transpose()) * tau_o;
 
   // Calculate error accumulated
   calcIntegralError();
@@ -260,7 +265,7 @@ void CartesianImpedanceSimController::update(const ros::Time &time, const ros::D
   publishTrackingErrors();
 
   // Set desired torque to each joint
-  if (!torques_to_robot_) 
+  if (!torques_to_robot_)
     tau_d << 0, 0, 0, 0, 0, 0, 0;
 
   for (size_t i = 0; i < 7; ++i)
@@ -283,11 +288,12 @@ void CartesianImpedanceSimController::update(const ros::Time &time, const ros::D
  */
 bool CartesianImpedanceSimController::calcJacobian(KDL::Jacobian &Jac, const Eigen::Matrix<double, 7, 1> &q_in)
 {
-  if (q_in.size() != n_joints_) return false;
+  if (q_in.size() != n_joints_)
+    return false;
 
   KDL::ChainJntToJacSolver solver(k_chain_);
   KDL::JntArray joint_array(n_joints_);
-  
+
   for (size_t i = 0; i < n_joints_; i++)
     joint_array(i) = q_in(i);
 
@@ -299,8 +305,9 @@ bool CartesianImpedanceSimController::calcJacobian(KDL::Jacobian &Jac, const Eig
 
 /**
  * \brief Transforms the KDL format Jacobian to an Eigen matrix.
- */ 
-bool CartesianImpedanceSimController::jacobian(Eigen::Matrix<double, 6, 7> &J_out, const Eigen::Matrix<double, 7, 1> &q_in)
+ */
+bool CartesianImpedanceSimController::jacobian(Eigen::Matrix<double, 6, 7> &J_out,
+                                               const Eigen::Matrix<double, 7, 1> &q_in)
 {
   KDL::Jacobian Jac(n_joints_);
 
@@ -323,7 +330,8 @@ bool CartesianImpedanceSimController::jacobian(Eigen::Matrix<double, 6, 7> &J_ou
  */
 bool CartesianImpedanceSimController::fk(const Eigen::Matrix<double, 7, 1> &q_in, Eigen::Matrix4d &transf)
 {
-  if (q_in.size() != n_joints_) return false;
+  if (q_in.size() != n_joints_)
+    return false;
 
   KDL::ChainFkSolverPos_recursive solver(k_chain_);
   KDL::Frame end_effector_frame;
@@ -344,16 +352,17 @@ bool CartesianImpedanceSimController::fk(const Eigen::Matrix<double, 7, 1> &q_in
 
 /**
  * \brief Calculate robot dynamics using KDL library. The dynamic class members are updated inside the method.
- */ 
-bool CartesianImpedanceSimController::dynamic(Eigen::Matrix<double, 7, 1>& q, Eigen::Matrix<double, 7, 1>& qdot_)
+ */
+bool CartesianImpedanceSimController::dynamic(Eigen::Matrix<double, 7, 1> &q, Eigen::Matrix<double, 7, 1> &qdot_)
 {
-  if(q.size() != n_joints_ || qdot_.size() != n_joints_){
+  if (q.size() != n_joints_ || qdot_.size() != n_joints_)
+  {
     return false;
   }
 
-  KDL::Vector g_vector = {0.0, 0.0, -9.80665};   // Gravity vector
+  KDL::Vector g_vector = { 0.0, 0.0, -9.80665 };  // Gravity vector
   KDL::ChainDynParam chain_dyn(k_chain_, g_vector);
-  
+
   KDL::JntArray q_jarray(n_joints_);
   KDL::JntArray qdot_jarray(n_joints_);
 
@@ -384,9 +393,11 @@ bool CartesianImpedanceSimController::dynamic(Eigen::Matrix<double, 7, 1>& q, Ei
   if (chain_dyn.JntToGravity(q_jarray, kdl_gravity) != KDL::SolverI::E_NOERROR)
     return false;
 
-  for (size_t i = 0; i < n_joints_; i++){
-    for (size_t j = 0; j < n_joints_; j++){
-      M(i,j) = kdl_inertia(i,j);
+  for (size_t i = 0; i < n_joints_; i++)
+  {
+    for (size_t j = 0; j < n_joints_; j++)
+    {
+      M(i, j) = kdl_inertia(i, j);
       C(i) = kdl_coriolis(i);
       g(i) = kdl_gravity(i);
     }
@@ -397,11 +408,12 @@ bool CartesianImpedanceSimController::dynamic(Eigen::Matrix<double, 7, 1>& q, Ei
 
 /**
  * \brief Updates the impedance gains using the dynamic reconfigure for simulation.
- * 
- * After reading the gains from dynamic reconfigure, it updates the target impedance gain matrices 
+ *
+ * After reading the gains from dynamic reconfigure, it updates the target impedance gain matrices
  * and nullspace stiffness matrix.
  */
-void CartesianImpedanceSimController::updateDynamicConfigGainsCallback(smalldrop_robot_arm::CartesianImpedanceSimControllerConfig &config, uint32_t level)
+void CartesianImpedanceSimController::updateDynamicConfigGainsCallback(
+    ::smalldrop_robot_arm::CartesianImpedanceSimControllerConfig &config, uint32_t level)
 {
   Kpx = config.Kpx;
   Kpy = config.Kpy;
@@ -436,7 +448,8 @@ void CartesianImpedanceSimController::updateDynamicConfigGainsCallback(smalldrop
 /**
  * \brief Service callback to set if calculated torques should be sent to the robot.
  */
-bool CartesianImpedanceSimController::sendTorquesToRobot(std_srvs::SetBool::Request &req, std_srvs::SetBool::Response &res)
+bool CartesianImpedanceSimController::sendTorquesToRobot(std_srvs::SetBool::Request &req,
+                                                         std_srvs::SetBool::Response &res)
 {
   torques_to_robot_ = req.data;
   res.success = true;
@@ -444,5 +457,7 @@ bool CartesianImpedanceSimController::sendTorquesToRobot(std_srvs::SetBool::Requ
 }
 
 }  // namespace smalldrop_robot_arm
+}  // namespace smalldrop
 
-PLUGINLIB_EXPORT_CLASS(smalldrop_robot_arm::CartesianImpedanceSimController, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(smalldrop::smalldrop_robot_arm::CartesianImpedanceSimController,
+                       controller_interface::ControllerBase)

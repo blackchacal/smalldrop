@@ -6,7 +6,7 @@
 <!-- Controllers for simulation -->
 <library path="lib/libsdrop_robot_sim_cartesian_impedance">
   <class name="smalldrop_robot_arm/CartesianImpedanceSimController"
-         type="smalldrop_robot_arm::CartesianImpedanceSimController"
+         type="smalldrop::smalldrop_robot_arm::CartesianImpedanceSimController"
          base_class_type="controller_interface::ControllerBase">
     <description>
       Interaction control - Cartesian Impedance controller architecture.
@@ -17,7 +17,7 @@
 <!-- Controllers for real robot -->
 <library path="lib/libsdrop_robot_real_cartesian_impedance">
   <class name="smalldrop_robot_arm/CartesianImpedanceRealController"
-         type="smalldrop_robot_arm::CartesianImpedanceRealController"
+         type="smalldrop::smalldrop_robot_arm::CartesianImpedanceRealController"
          base_class_type="controller_interface::ControllerBase">
     <description>
       Interaction control - Cartesian Impedance controller architecture.
@@ -26,7 +26,7 @@
 </library>
 <library path="lib/libsdrop_real_gravity_compensation">
   <class name="smalldrop_robot_arm/GravityCompensationRealController"
-         type="smalldrop_robot_arm::GravityCompensationRealController"
+         type="smalldrop::smalldrop_robot_arm::GravityCompensationRealController"
          base_class_type="controller_interface::ControllerBase">
     <description>
       Interaction control - Gravity Compensation controller architecture.

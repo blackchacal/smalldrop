@@ -3,6 +3,8 @@
 
 #include "smalldrop_robot_arm/cartesian_impedance_real_controller.h"
 
+namespace smalldrop
+{
 namespace smalldrop_robot_arm
 {
 /*****************************************************************************************
@@ -106,9 +108,9 @@ bool CartesianImpedanceRealController::init(hardware_interface::RobotHW *robot_h
 
   // Setup dynamic reconfigure
   dyn_config_gains_node_ = ros::NodeHandle("cartesian_impedance_controller/gains");
-  dyn_config_gains_param_ =
-      std::make_unique<dynamic_reconfigure::Server<smalldrop_robot_arm::CartesianImpedanceRealControllerConfig>>(
-          dyn_config_gains_node_);
+  dyn_config_gains_param_ = std::make_unique<
+      dynamic_reconfigure::Server<::smalldrop_robot_arm::CartesianImpedanceRealControllerConfig>>(
+      dyn_config_gains_node_);
   dyn_config_gains_param_->setCallback(
       boost::bind(&CartesianImpedanceRealController::updateDynamicConfigGainsCallback, this, _1, _2));
 
@@ -316,7 +318,7 @@ Eigen::Matrix<double, 7, 1> CartesianImpedanceRealController::saturateTorqueRate
  * and nullspace stiffness matrix.
  */
 void CartesianImpedanceRealController::updateDynamicConfigGainsCallback(
-    smalldrop_robot_arm::CartesianImpedanceRealControllerConfig &config, uint32_t level)
+    ::smalldrop_robot_arm::CartesianImpedanceRealControllerConfig &config, uint32_t level)
 {
   Kpx = config.Kpx;
   Kpy = config.Kpy;
@@ -358,16 +360,18 @@ void CartesianImpedanceRealController::publishWrenches(void)
   // Prepare force msg
   franka::RobotState state = state_handle_->getRobotState();
   std::array<double, 6> wrench = state.O_F_ext_hat_K;
-  wrench_msg.force.x = wrench[0]; 
-  wrench_msg.force.y = wrench[1]; 
+  wrench_msg.force.x = wrench[0];
+  wrench_msg.force.y = wrench[1];
   wrench_msg.force.z = wrench[2];
-  wrench_msg.torque.x = wrench[3]; 
-  wrench_msg.torque.y = wrench[4]; 
-  wrench_msg.torque.z = wrench[5]; 
+  wrench_msg.torque.x = wrench[3];
+  wrench_msg.torque.y = wrench[4];
+  wrench_msg.torque.z = wrench[5];
 
   wrench_pub_.publish(wrench_msg);
 }
 
 }  // namespace smalldrop_robot_arm
+}  // namespace smalldrop
 
-PLUGINLIB_EXPORT_CLASS(smalldrop_robot_arm::CartesianImpedanceRealController, controller_interface::ControllerBase)
+PLUGINLIB_EXPORT_CLASS(smalldrop::smalldrop_robot_arm::CartesianImpedanceRealController,
+                       controller_interface::ControllerBase)
