@@ -4,6 +4,11 @@ This changelog will try to follow the recomendations provided by the project [Ke
 
 The versioning scheme will follow the [semantic versioning](https://semver.org/). 
 
+## UNRELEASED
+
+### Added
+- *smalldrop_teleoperation* package that allows the robot arm to be controlled via a remote controller.
+
 ## 0.2.4 (2020-03-09)
 
 ### Added
