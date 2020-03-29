@@ -8,6 +8,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 
 ### Added
 - *smalldrop_teleoperation* package that allows the robot arm to be controlled via a remote controller.
+- *smalldrop_bioprint* package that will be responsible for controlling the whole smalldrop system. At this moment it only has a class that provides data on the system state.
 
 ## 0.2.4 (2020-03-09)
 
