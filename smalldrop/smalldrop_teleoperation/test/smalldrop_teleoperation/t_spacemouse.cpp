@@ -44,6 +44,8 @@ class SpaceMouseTest : public ::testing::Test
 
       action_map3 = {
         {"joy", boost::bind(&teleop_actions::moveRobotArm, _1)},
+        {"mode", boost::bind(&SpaceMouseTest::mode, this, _1)},
+        {"ok", boost::bind(&SpaceMouseTest::ok, this, _1)}
       };
 
       button_map1 = {
@@ -52,12 +54,14 @@ class SpaceMouseTest : public ::testing::Test
         {"action3", "bt3"},
       };
       button_map2 = {
+        {"mode", "buttons_1"},
+        {"joy", "axes_*"},
+        {"ok", "buttons_0"},
+      };
+      button_map3 = {
         {"mode", "buttons_0"},
         {"joy", "axes_*"},
         {"ok", "buttons_1"},
-      };
-      button_map3 = {
-        {"joy", "axes_*"},
       };
     }
 
@@ -221,6 +225,34 @@ TEST_F(SpaceMouseTest, stateIsUpdated)
   sm.turnOff();
 }
 
+TEST_F(SpaceMouseTest, changeMode)
+{
+  SystemState ss;
+  waitSpin(2);
+
+  // Setup modes
+  RemoteControllerMode mode1("mode1", button_map3, action_map3);
+  RemoteControllerMode mode2("mode2", button_map2, action_map2);
+  std::list<IRemoteControllerMode*> modes;
+  modes.push_back(&mode1);
+  modes.push_back(&mode2);
+
+  SpaceMouse sm(topic1, modes, &ss);
+  sm.turnOn();
+
+  IRemoteControllerMode* start_mode = sm.whatMode();
+
+  // Wait for 10 second
+  waitSpin(10);
+
+  IRemoteControllerMode* changed_mode = sm.whatMode();
+
+  // IMPORTANT: Need to press the mode button from the first mode (button 0)
+  EXPECT_TRUE(start_mode->getName().compare(changed_mode->getName()) != 0);
+
+  sm.turnOff();
+}
+
 TEST_F(SpaceMouseTest, callButtonAction)
 {
   SystemState ss;
@@ -257,20 +289,26 @@ TEST_F(SpaceMouseTest, callMoveRobotArmTeleoperationAction)
   std::list<IRemoteControllerMode*> modes;
   modes.push_back(&mode);
 
-  testing::internal::CaptureStdout(); // Capture std::cout during test
-
   SpaceMouse sm(topic1, modes, &ss);
   sm.turnOn();
+
+  geometry_msgs::Pose initial_pose = ss.getRobotArmPose();
 
   // Wait for 10 second
   waitSpin(10);
 
+  geometry_msgs::Pose final_pose = ss.getRobotArmPose();
+
+  // IMPORTANT: Need to move the joystick during the test to change robot pose
+  EXPECT_TRUE(initial_pose.position.x != final_pose.position.x);
+  EXPECT_TRUE(initial_pose.position.y != final_pose.position.y);
+  EXPECT_TRUE(initial_pose.position.z != final_pose.position.z);
+  EXPECT_TRUE(initial_pose.orientation.x != final_pose.orientation.x);
+  EXPECT_TRUE(initial_pose.orientation.y != final_pose.orientation.y);
+  EXPECT_TRUE(initial_pose.orientation.z != final_pose.orientation.z);
+  EXPECT_TRUE(initial_pose.orientation.w != final_pose.orientation.w);
+
   sm.turnOff();
-
-  std::string output = testing::internal::GetCapturedStdout();
-
-  // IMPORTANT: Need to move spacemouse during the test to call the right function.
-  EXPECT_EQ(output.find("Moving Robot Arm..."), (unsigned int)0);
 }
 
 int main(int argc, char **argv)
