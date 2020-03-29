@@ -38,7 +38,14 @@ SpaceMouse::SpaceMouse(std::string topic, smalldrop_bioprint::SystemState* syste
   state_.buttons[0] = -1;
   state_.buttons[1] = -1;
 
-  state_prev_ = state_;
+  state_prev_.axes[0] = -1;
+  state_prev_.axes[1] = -1;
+  state_prev_.axes[2] = -1;
+  state_prev_.axes[3] = -1;
+  state_prev_.axes[4] = -1;
+  state_prev_.axes[5] = -1;
+  state_prev_.buttons[0] = -1;
+  state_prev_.buttons[1] = -1;
 }
 
 /**
@@ -63,7 +70,14 @@ SpaceMouse::SpaceMouse(std::string topic, std::list<IRemoteControllerMode *> mod
   state_.buttons[0] = -1;
   state_.buttons[1] = -1;
 
-  state_prev_ = state_;
+  state_prev_.axes[0] = -1;
+  state_prev_.axes[1] = -1;
+  state_prev_.axes[2] = -1;
+  state_prev_.axes[3] = -1;
+  state_prev_.axes[4] = -1;
+  state_prev_.axes[5] = -1;
+  state_prev_.buttons[0] = -1;
+  state_prev_.buttons[1] = -1;
 }
 
 /**
@@ -153,26 +167,32 @@ void SpaceMouse::checkButtonPress()
     button_map_t::iterator it = button_map.begin();
 
     // Check control buttons
-    if (state_.buttons[0] != state_prev_.buttons[0] && !state_.buttons[0])
+    if (state_.buttons[0] != state_prev_.buttons[0] && state_prev_.buttons[0] != -1 && !state_.buttons[0])
     {
       while (it != button_map.end())
       {
         if (it->second.compare("buttons_0") == 0 && isButtonSet(it->first))
         {
-          callButtonAction(it->first, system_state_);
+          if (it->first.compare("mode") == 0)
+            changeMode();
+          else
+            callButtonAction(it->first, system_state_);
           break;
         }
         it++;
       }
     }
-    if (state_.buttons[1] != state_prev_.buttons[1] && !state_.buttons[1])
+    if (state_.buttons[1] != state_prev_.buttons[1] && state_prev_.buttons[1] != -1 && !state_.buttons[1])
     {
       it = button_map.begin();
       while (it != button_map.end())
       {
         if (it->second.compare("buttons_1") == 0 && isButtonSet(it->first))
         {
-          callButtonAction(it->first, system_state_);
+          if (it->first.compare("mode") == 0)
+            changeMode();
+          else
+            callButtonAction(it->first, system_state_);
           break;
         }
         it++;

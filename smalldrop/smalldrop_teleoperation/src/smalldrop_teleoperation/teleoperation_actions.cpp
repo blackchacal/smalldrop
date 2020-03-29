@@ -19,7 +19,6 @@ const std::string LOG_TAG = "smalldrop_teleoperation";
 
 bool moveRobotArm(smalldrop_bioprint::SystemState* system_state)
 {
-  std::cout << "Moving Robot Arm..." << std::endl;
   ROS_INFO_NAMED(LOG_TAG, "%s: Moving Robot Arm...", LOG_TAG.c_str());
 
   double sensitivity_factor = 0.01;
