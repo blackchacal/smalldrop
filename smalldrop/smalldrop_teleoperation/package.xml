@@ -13,6 +13,8 @@
   <buildtool_depend>catkin</buildtool_depend>
   
   <depend>roscpp</depend>
+  <depend>spacenav_node</depend>
+  <depend>smalldrop_bioprint</depend>
 
   <export></export>
 </package>

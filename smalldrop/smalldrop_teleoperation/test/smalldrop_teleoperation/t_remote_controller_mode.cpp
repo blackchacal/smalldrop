@@ -7,46 +7,63 @@
  */
 
 #include <smalldrop_teleoperation/remote_controller_mode.h>
+#include <smalldrop_bioprint/system_state.h>
 #include <gtest/gtest.h>
 #include <iostream>
 
 using namespace smalldrop::smalldrop_teleoperation;
+using namespace smalldrop::smalldrop_bioprint;
 
 class RemoteControllerModeTest : public ::testing::Test
 {
   protected:
-    keymap_t keymap1, keymap2;
+    action_map_t action_map1, action_map2;
+    button_map_t button_map1, button_map2;
 
     void SetUp() override 
     {
-      keymap1 = {
-        {"action1", std::bind(&RemoteControllerModeTest::action1, this)},
-        {"action2", std::bind(&RemoteControllerModeTest::action2, this)},
-        {"action3", std::bind(&RemoteControllerModeTest::action3, this)},
+      action_map1 = {
+        {"action1", boost::bind(&RemoteControllerModeTest::action1, this, _1)},
+        {"action2", boost::bind(&RemoteControllerModeTest::action2, this, _1)},
+        {"action3", boost::bind(&RemoteControllerModeTest::action3, this, _1)},
       };
-      keymap2 = {
-        {"action1", std::bind(&RemoteControllerModeTest::action1, this)},
-        {"action2", std::bind(&RemoteControllerModeTest::action2, this)},
-        {"action4", std::bind(&RemoteControllerModeTest::action3, this)},
+      action_map2 = {
+        {"action1", boost::bind(&RemoteControllerModeTest::action1, this, _1)},
+        {"action2", boost::bind(&RemoteControllerModeTest::action2, this, _1)},
+        {"action4", boost::bind(&RemoteControllerModeTest::action3, this, _1)},
+      };
+
+      button_map1 = {
+        {"action1", "bt1"},
+        {"action2", "bt2"},
+        {"action3", "bt3"},
+      };
+      button_map2 = {
+        {"action1", "bt1"},
+        {"action2", "bt2"},
+        {"action4", "bt3"},
       };
     }
 
     void TearDown() override {}
 
   public:
-    void action1(void)
+    bool action1(smalldrop::smalldrop_bioprint::SystemState* system_state)
     {
       std::cout << "action1" << std::endl;
+      return true;
     }
 
-    void action2(void)
+    bool action2(smalldrop::smalldrop_bioprint::SystemState* system_state)
     {
       std::cout << "action2" << std::endl;
+      return true;
     }
 
-    void action3(void)
+    bool action3(smalldrop::smalldrop_bioprint::SystemState* system_state)
     {
       std::cout << "action3" << std::endl;
+      return true;
     }
 };
 
@@ -55,48 +72,78 @@ TEST_F(RemoteControllerModeTest, setsNameCorrectly)
   RemoteControllerMode mode1("mode1");
   EXPECT_EQ(mode1.getName(), "mode1");
 
-  RemoteControllerMode mode2("mode2", keymap2);
+  RemoteControllerMode mode2("mode2", button_map2, action_map2);
   EXPECT_EQ(mode2.getName(), "mode2");
 }
 
-TEST_F(RemoteControllerModeTest, setsAndGetsKeymapCorrectly)
+TEST_F(RemoteControllerModeTest, setsAndGetsButtonMapCorrectly)
 {
-  RemoteControllerMode mode1("mode1", keymap1);
-  keymap_t stored_keymap1 = mode1.getKeyMap();
-  keymap_t::iterator it1 = stored_keymap1.begin();
+  RemoteControllerMode mode1("mode1", button_map1, action_map1);
+  button_map_t stored_button_map1 = mode1.getButtonMap();
+  button_map_t::iterator it1 = stored_button_map1.begin();
  
 	// Iterate over the map using Iterator till end.
-	while (it1 != stored_keymap1.end())
+	while (it1 != stored_button_map1.end())
 	{
-		EXPECT_TRUE(keymap1.count(it1->first) > 0);
+		EXPECT_TRUE(button_map1.count(it1->first) > 0);
 		it1++;
 	}
-  EXPECT_TRUE(stored_keymap1.size() == keymap1.size());
-
+  EXPECT_TRUE(stored_button_map1.size() == button_map1.size());
 
   RemoteControllerMode mode2("mode2");
-  mode2.setKeyMap(keymap1);
-  keymap_t stored_keymap2 = mode2.getKeyMap();
-  keymap_t::iterator it2 = stored_keymap2.begin();
+  mode2.setKeyMaps(button_map1, action_map1);
+  button_map_t stored_button_map2 = mode2.getButtonMap();
+  button_map_t::iterator it2 = stored_button_map2.begin();
  
 	// Iterate over the map using Iterator till end.
-	while (it2 != stored_keymap2.end())
+	while (it2 != stored_button_map2.end())
 	{
-		EXPECT_TRUE(keymap1.count(it2->first) > 0);
+		EXPECT_TRUE(button_map1.count(it2->first) > 0);
 		it2++;
 	}
-  EXPECT_TRUE(stored_keymap2.size() == keymap1.size());
+  EXPECT_TRUE(stored_button_map2.size() == button_map1.size());
+}
+
+TEST_F(RemoteControllerModeTest, setsAndGetsActionMapCorrectly)
+{
+  RemoteControllerMode mode1("mode1", button_map1, action_map1);
+  action_map_t stored_action_map1 = mode1.getActionMap();
+  action_map_t::iterator it1 = stored_action_map1.begin();
+ 
+	// Iterate over the map using Iterator till end.
+	while (it1 != stored_action_map1.end())
+	{
+		EXPECT_TRUE(action_map1.count(it1->first) > 0);
+		it1++;
+	}
+  EXPECT_TRUE(stored_action_map1.size() == action_map1.size());
+
+  RemoteControllerMode mode2("mode2");
+  mode2.setKeyMaps(button_map1, action_map1);
+  action_map_t stored_action_map2 = mode2.getActionMap();
+  action_map_t::iterator it2 = stored_action_map2.begin();
+ 
+	// Iterate over the map using Iterator till end.
+	while (it2 != stored_action_map2.end())
+	{
+		EXPECT_TRUE(action_map1.count(it2->first) > 0);
+		it2++;
+	}
+  EXPECT_TRUE(stored_action_map2.size() == action_map1.size());
 }
 
 TEST_F(RemoteControllerModeTest, returnsRightFunction)
 {
-  RemoteControllerMode mode1("mode1", keymap2);
-  std::function<void()> f = mode1.getKeyAction("action1");
-  f();
+  SystemState ss;
+
+  RemoteControllerMode mode1("mode1", button_map2, action_map2);
+  std::function<bool(smalldrop::smalldrop_bioprint::SystemState*)> f = mode1.getButtonAction("action1");
+  EXPECT_TRUE(f(&ss));
 }
 
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
+  ros::init(argc, argv, "t_remote_controller_mode");
   return RUN_ALL_TESTS();
 }

@@ -12,56 +12,62 @@ namespace smalldrop
 {
 namespace smalldrop_teleoperation
 {
-
 /**
  * \copybrief RemoteControllerMode::RemoteControllerMode(std::string name)
  */
-RemoteControllerMode::RemoteControllerMode(std::string name)
+RemoteControllerMode::RemoteControllerMode(std::string name) : mode_name_(name)
 {
-  mode_name_ = name;
 }
 
 /**
- * \copybrief RemoteControllerMode::RemoteControllerMode(std::string name, keymap_t keymap)
+ * \copybrief RemoteControllerMode::(std::string name, button_map_t button_map, action_map_t action_map)
  */
-RemoteControllerMode::RemoteControllerMode(std::string name, keymap_t keymap)
+RemoteControllerMode::RemoteControllerMode(std::string name, button_map_t button_map, action_map_t action_map)
+: mode_name_(name), button_map_(button_map), action_map_(action_map) 
 {
-  mode_name_ = name;
-  key_map_ = keymap;
 }
 
 /**
- * \copybrief IRemoteControllerMode::getKeyMap()
+ * \copybrief IRemoteControllerMode::getButtonMap()
  */
-keymap_t RemoteControllerMode::getKeyMap(void)
+button_map_t RemoteControllerMode::getButtonMap() const
 {
-  return key_map_;
+  return button_map_;
 }
 
 /**
- * \copybrief IRemoteControllerMode::getKeyAction()
+ * \copybrief IRemoteControllerMode::getActionMap()
  */
-std::function<void(void)> RemoteControllerMode::getKeyAction(std::string key)
+action_map_t RemoteControllerMode::getActionMap() const
 {
-  return key_map_[key];
+  return action_map_;
+}
+
+/**
+ * \copybrief IRemoteControllerMode::getButtonAction()
+ */
+std::function<bool(smalldrop_bioprint::SystemState*)> RemoteControllerMode::getButtonAction(std::string function)
+{
+  return action_map_[function];
 }
 
 /**
  * \copybrief IRemoteControllerMode::getName()
  */
-std::string RemoteControllerMode::getName(void)
+std::string RemoteControllerMode::getName() const
 {
   return mode_name_;
 }
 
 /**
- * \copybrief RemoteControllerMode::setKeyMap()
+ * \copybrief RemoteControllerMode::setKeyMaps()
  */
-void RemoteControllerMode::setKeyMap(keymap_t keymap)
+void RemoteControllerMode::setKeyMaps(button_map_t button_map, action_map_t action_map)
 {
-  key_map_ = keymap;
+  button_map_ = button_map;
+  action_map_ = action_map;
 }
 
-} // namespace smalldrop_teleoperation
+}  // namespace smalldrop_teleoperation
 
-} // namespace smalldrop
+}  // namespace smalldrop
