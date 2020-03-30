@@ -22,6 +22,7 @@ SystemState::SystemState()
   remote_ctrl_state_topic_ = "/spacenav/joy";
   robot_arm_current_pose_topic_ = "/smalldrop/robot_arm/current_pose";
   robot_arm_desired_pose_topic_ = "/smalldrop/robot_arm/desired_pose";
+  rviz_segmentation_points_topic_ = "/smalldrop/teleoperation/segmentation_points";
 
   remote_ctrl_state_.axes.reserve(6);
   remote_ctrl_state_.buttons.reserve(2);
@@ -66,6 +67,7 @@ void SystemState::subscribeTopics()
   remote_ctrl_state_sub_ = nh_.subscribe<sensor_msgs::Joy>(remote_ctrl_state_topic_, 10, &SystemState::remoteCtrlStateCallback, this);
 
   robot_arm_desired_pose_pub_ = nh_.advertise<geometry_msgs::Pose>(robot_arm_desired_pose_topic_, 10);
+  rviz_segmentation_points_pub_ = nh_.advertise<visualization_msgs::Marker>(rviz_segmentation_points_topic_, 10);
 }
 
 /**

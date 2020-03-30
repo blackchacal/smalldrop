@@ -6,7 +6,7 @@ Panels:
       Expanded:
         - /TF1/Frames1
         - /Trajectory1/Namespaces1
-      Splitter Ratio: 0.5472221970558167
+      Splitter Ratio: 0.6527777910232544
     Tree Height: 182
   - Class: rviz/Selection
     Name: Selection
@@ -26,7 +26,7 @@ Panels:
     Experimental: false
     Name: Time
     SyncMode: 0
-    SyncSource: Image
+    SyncSource: ""
 Preferences:
   PromptSaveOnExit: true
 Toolbars:
@@ -154,20 +154,7 @@ Visualization Manager:
       Enabled: false
       History Length: 1
       Joints:
-        panda_joint1:
-          Value: true
-        panda_joint2:
-          Value: true
-        panda_joint3:
-          Value: true
-        panda_joint4:
-          Value: true
-        panda_joint5:
-          Value: true
-        panda_joint6:
-          Value: true
-        panda_joint7:
-          Value: true
+        {}
       Name: Effort
       Robot Description: robot_description
       Scale: 1
@@ -178,34 +165,19 @@ Visualization Manager:
       Width: 0.019999999552965164
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /panda_3dbioprint_simulation/gazebo_rviz_markers
-      Name: Gazebo Objects
-      Namespaces:
-        {}
-      Queue Size: 10
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
       Marker Topic: /panda_3dbioprint_simulation/trajectory_markers
       Name: Trajectory
       Namespaces:
-        panda_3dbioprint_simulation: true
+        {}
       Queue Size: 20
       Value: true
     - Class: rviz/Marker
       Enabled: true
-      Marker Topic: /panda_3dbioprint_vision_system/wound_segmentation_markers
+      Marker Topic: /smalldrop/teleoperation/segmentation_points
       Name: Wound Markers
       Namespaces:
-        {}
-      Queue Size: 100
-      Value: true
-    - Class: rviz/Marker
-      Enabled: true
-      Marker Topic: /panda_3dbioprint_vision_system/wound_segmentation_markers_text
-      Name: Wound Markers Text
-      Namespaces:
-        {}
+        /smalldrop/teleoperation/segmentation_points: true
+        /smalldrop/teleoperation/segmentation_points_text: true
       Queue Size: 100
       Value: true
     - Class: rviz/Image
@@ -248,25 +220,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 1.2252581119537354
+      Distance: 1.6656391620635986
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.49437564611434937
-        Y: 0.01982623152434826
-        Z: 0.4950349032878876
-      Focal Shape Fixed Size: true
+        X: 0.21697993576526642
+        Y: 0.5154733061790466
+        Z: 0.13250911235809326
+      Focal Shape Fixed Size: false
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.4403984546661377
+      Pitch: 0.2397974282503128
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.278568267822266
+      Yaw: 5.643564224243164
     Saved: ~
 Window Geometry:
   Displays:

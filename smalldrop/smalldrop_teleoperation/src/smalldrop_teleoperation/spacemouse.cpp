@@ -174,7 +174,10 @@ void SpaceMouse::checkButtonPress()
         if (it->second.compare("buttons_0") == 0 && isButtonSet(it->first))
         {
           if (it->first.compare("mode") == 0)
+          {
             changeMode();
+            callButtonAction(it->first, system_state_);
+          }
           else
             callButtonAction(it->first, system_state_);
           break;
@@ -190,7 +193,10 @@ void SpaceMouse::checkButtonPress()
         if (it->second.compare("buttons_1") == 0 && isButtonSet(it->first))
         {
           if (it->first.compare("mode") == 0)
+          {
             changeMode();
+            callButtonAction(it->first, system_state_);
+          }
           else
             callButtonAction(it->first, system_state_);
           break;

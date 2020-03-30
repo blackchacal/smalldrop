@@ -44,8 +44,8 @@ class SpaceMouseTest : public ::testing::Test
 
       action_map3 = {
         {"joy", boost::bind(&teleop_actions::moveRobotArm, _1)},
-        {"mode", boost::bind(&SpaceMouseTest::mode, this, _1)},
-        {"ok", boost::bind(&SpaceMouseTest::ok, this, _1)}
+        {"mode", boost::bind(&teleop_actions::changeMode, _1)},
+        {"ok", boost::bind(&teleop_actions::publishSegmentationPoint, _1)}
       };
 
       button_map1 = {

@@ -14,6 +14,7 @@
 // ROS messages
 #include <geometry_msgs/Pose.h>
 #include <sensor_msgs/Joy.h>
+#include <visualization_msgs/Marker.h>
 
 namespace smalldrop
 {
@@ -31,9 +32,10 @@ private:
   geometry_msgs::Pose robot_arm_pose_; /** \var Stores the robot arm pose. */
 
   // ROS Topics
-  std::string remote_ctrl_state_topic_; /** \var ROS topic where space mouse state is published. */
-  std::string robot_arm_current_pose_topic_;   /** \var ROS topic where space mouse current pose is published. */
-  std::string robot_arm_desired_pose_topic_;   /** \var ROS topic where space mouse desired pose is published. */
+  std::string remote_ctrl_state_topic_;         /** \var ROS topic where space mouse state is published. */
+  std::string robot_arm_current_pose_topic_;    /** \var ROS topic where space mouse current pose is published. */
+  std::string robot_arm_desired_pose_topic_;    /** \var ROS topic where space mouse desired pose is published. */
+  std::string rviz_segmentation_points_topic_;  /** \var ROS topic where wound segmentation points are published. */
 
   // Node handle
   ros::NodeHandle nh_;                          /** \var ROS node handle to access topics system. */
