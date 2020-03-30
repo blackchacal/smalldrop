@@ -41,7 +41,10 @@ add_library(${PROJECT_NAME}
   src/${PROJECT_NAME}/teleoperation_actions.cpp
 )
 
+add_executable(default_teleoperation src/nodes/default_teleoperation.cpp)
+
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(default_teleoperation ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##

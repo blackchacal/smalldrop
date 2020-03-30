@@ -13,6 +13,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 - On *smalldrop_teleoperation* create SpaceMouse class.
 - On *smalldrop_teleoperation* create teleoperation functions.
 - On *smalldrop_teleoperation* create tests.
+- On *smalldrop_teleoperation* create node and launch file.
 
 ### Changed
 - On *smalldrop_teleoperation* update RemoteControllerMode class, interface and tests.
