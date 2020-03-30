@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smalldrop_rviz</name>
-  <version>0.2.4</version>
+  <version>0.3.0</version>
   <description>
     Package responsible for managing everything related with rviz.
   </description>

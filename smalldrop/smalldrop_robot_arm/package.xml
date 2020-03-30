@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smalldrop_robot_arm</name>
-  <version>0.2.4</version>
+  <version>0.3.0</version>
   <description>
     Package responsible for handling robot arm control for real robot and simulation. 
     It explicitly depends on franka_ros packages.
