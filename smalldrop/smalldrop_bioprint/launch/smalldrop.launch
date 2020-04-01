@@ -1,0 +1,7 @@
+<launch>
+  <!-- Main arguments for Bioprinter constructor -->
+  <arg name="is_simulation" default="1" /> 
+  <arg name="is_development" default="1" />
+
+  <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development)" output="screen" />
+</launch>

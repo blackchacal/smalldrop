@@ -4,6 +4,13 @@ This changelog will try to follow the recomendations provided by the project [Ke
 
 The versioning scheme will follow the [semantic versioning](https://semver.org/). 
 
+## UNPUBLISHED
+
+### Added
+- On *smalldrop_bioprint* add Bioprinter class that will control the whole system. It shall provide the main API. Add tests.
+- On *smalldrop_bioprint* SystemState class subscribes to system working state topic.
+- On *smalldrop_bioprint* add node to instantiate the Bioprinter class and launch file.
+
 ## 0.3.0 (2020-03-30)
 
 ### Added

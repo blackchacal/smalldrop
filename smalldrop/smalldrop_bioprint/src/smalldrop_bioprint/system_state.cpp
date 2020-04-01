@@ -19,6 +19,7 @@ namespace smalldrop_bioprint
 
 SystemState::SystemState()
 {
+  system_state_topic_ = "/smalldrop/bioprint/state";
   remote_ctrl_state_topic_ = "/spacenav/joy";
   robot_arm_current_pose_topic_ = "/smalldrop/robot_arm/current_pose";
   robot_arm_desired_pose_topic_ = "/smalldrop/robot_arm/desired_pose";
@@ -36,6 +37,14 @@ SystemState::SystemState()
   remote_ctrl_state_.buttons[1] = 0;
 
   subscribeTopics();
+}
+
+/**
+ * \copybrief SystemState::getSystemState() const
+ */
+std::string SystemState::getSystemState() const
+{
+  return system_state_;
 }
 
 /**
@@ -63,11 +72,20 @@ sensor_msgs::Joy SystemState::getRemoteCtrlState() const
  */
 void SystemState::subscribeTopics()
 {
+  system_state_sub_ = nh_.subscribe<std_msgs::String>(system_state_topic_, 10, &SystemState::systemStateCallback, this);
   robot_arm_state_sub_ = nh_.subscribe<geometry_msgs::Pose>(robot_arm_current_pose_topic_, 10, &SystemState::robotArmStateCallback, this);
   remote_ctrl_state_sub_ = nh_.subscribe<sensor_msgs::Joy>(remote_ctrl_state_topic_, 10, &SystemState::remoteCtrlStateCallback, this);
 
   robot_arm_desired_pose_pub_ = nh_.advertise<geometry_msgs::Pose>(robot_arm_desired_pose_topic_, 10);
   rviz_segmentation_points_pub_ = nh_.advertise<visualization_msgs::Marker>(rviz_segmentation_points_topic_, 10);
+}
+
+/**
+ * \copybrief SystemState::systemStateCallback()
+ */
+void SystemState::systemStateCallback(const std_msgs::String::ConstPtr &msg)
+{
+  system_state_ = msg->data;
 }
 
 /**

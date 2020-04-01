@@ -35,10 +35,14 @@ include_directories(
 )
 
 add_library(${PROJECT_NAME}
+  src/${PROJECT_NAME}/bioprinter.cpp
   src/${PROJECT_NAME}/system_state.cpp
 )
 
+add_executable(bioprinter src/nodes/bioprinter.cpp)
+
 target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(bioprinter ${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -48,11 +52,8 @@ target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${catkin_LIBRARIES})
 ## Testing ##
 #############
 
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_smalldrop_bioprint.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
+catkin_add_gtest(t_bioprinter test/${PROJECT_NAME}/t_bioprinter.cpp)
+if(TARGET t_bioprinter)
+  target_link_libraries(t_bioprinter ${PROJECT_NAME})
+endif()
 
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)

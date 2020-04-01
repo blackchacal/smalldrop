@@ -16,6 +16,8 @@
 #include <sensor_msgs/Joy.h>
 #include <visualization_msgs/Marker.h>
 
+#include <smalldrop_bioprint/bioprinter.h>
+
 namespace smalldrop
 {
 namespace smalldrop_bioprint
@@ -28,10 +30,12 @@ private:
    *****************************************************************************************/
 
   // State variables
+  std::string system_state_;           /** \var Stores the system working state gathered from a ROS topic. */
   sensor_msgs::Joy remote_ctrl_state_; /** \var Stores the state of space mouse controller gathered from a ROS topic. */
   geometry_msgs::Pose robot_arm_pose_; /** \var Stores the robot arm pose. */
 
   // ROS Topics
+  std::string system_state_topic_;              /** \var ROS topic where system working state is published. */
   std::string remote_ctrl_state_topic_;         /** \var ROS topic where space mouse state is published. */
   std::string robot_arm_current_pose_topic_;    /** \var ROS topic where space mouse current pose is published. */
   std::string robot_arm_desired_pose_topic_;    /** \var ROS topic where space mouse desired pose is published. */
@@ -41,6 +45,7 @@ private:
   ros::NodeHandle nh_;                          /** \var ROS node handle to access topics system. */
 
   // Subscribers
+  ros::Subscriber system_state_sub_;            /** \var ROS topic subscriber instance to subscribe to system working state topic. */
   ros::Subscriber remote_ctrl_state_sub_;       /** \var ROS topic subscriber instance to subscribe to remote controller state topic. */
   ros::Subscriber robot_arm_state_sub_;         /** \var ROS topic subscriber instance to subscribe to robot arm state topic. */
 
@@ -60,24 +65,32 @@ private:
   void subscribeTopics();
 
   /**
+   * \fn void systemStateCallback(const std_msgs::String::ConstPtr &msg)
+   * \brief Callback to gather the data published on the system working state topic.
+   */
+  void systemStateCallback(const std_msgs::String::ConstPtr &msg);
+
+  /**
    * \fn void robotArmStateCallback(const geometry_msgs::Pose::ConstPtr &msg)
-   * \brief Callback to gathered the data published on the robot arm state topic.
+   * \brief Callback to gather the data published on the robot arm state topic.
    */
   void robotArmStateCallback(const geometry_msgs::Pose::ConstPtr &msg);
 
   /**
    * \fn void remoteCtrlStateCallback(const sensor_msgs::Joy::ConstPtr &msg)
-   * \brief Callback to gathered the data published on the remote controller state topic.
+   * \brief Callback to gather the data published on the remote controller state topic.
    */
   void remoteCtrlStateCallback(const sensor_msgs::Joy::ConstPtr &msg);
 
 public:
-  /**
-   * Class members
-   *****************************************************************************************/
-
   // Constructor
   SystemState();
+
+  /**
+   * \fn std_msgs::String getSystemState() const
+   * \brief Returns the system working state.
+   */
+  std::string getSystemState() const;
 
   /**
    * \fn geometry_msgs::Pose getRobotArmPose() const
