@@ -9,6 +9,8 @@
 
 #include <smalldrop_bioprint/bioprinter.h>
 
+#include <sstream>
+
 namespace smalldrop
 {
 namespace smalldrop_bioprint
@@ -22,7 +24,7 @@ namespace smalldrop_bioprint
  * \copybrief Bioprinter::Bioprinter(const bool simulation, const bool dev)
  */
 Bioprinter::Bioprinter(const bool simulation, const bool development)
- : state_(STATE::OFF), operation_mode_(MODE::PRINT), is_sim_(simulation), is_dev_(development)
+ : state_(STATE::OFF), prev_state_(STATE::OFF), operation_mode_(MODE::PRINT), is_sim_(simulation), is_dev_(development)
 {
   state_topic_ = "/smalldrop/bioprint/state";
 
@@ -46,6 +48,9 @@ void Bioprinter::publishState()
     break;
   case STATE::PRINT:
     state_str = "PRINT"; 
+    break;
+  case STATE::MOVE:
+    state_str = "MOVE"; 
     break;
   case STATE::PAUSE:
     state_str = "PAUSE"; 
@@ -76,6 +81,31 @@ void Bioprinter::publishState()
 }
 
 /**
+ * \copybrief Bioprinter::getCurrentState()
+ */
+STATE Bioprinter::getCurrentState() const
+{
+  return state_;
+}
+
+/**
+ * \copybrief Bioprinter::getPrevState()
+ */
+STATE Bioprinter::getPrevState() const
+{
+  return prev_state_;
+}
+
+/**
+ * \copybrief Bioprinter::setState(STATE new_state)
+ */
+void Bioprinter::setState(STATE new_state)
+{
+  prev_state_ = state_;
+  state_ = new_state;
+}
+
+/**
  * \copybrief Bioprinter::isSimulation() const
  */
 bool Bioprinter::isSimulation() const
@@ -91,6 +121,47 @@ bool Bioprinter::isDevelopment() const
   return is_dev_;
 }
 
+/**
+ * \copybrief Bioprinter::init()
+ */
+void Bioprinter::init(const bool calib_cam, const bool calib_phead, const bool calib_only)
+{
+  if (!calib_only)
+  {
+    // Read system configurations
+    // Init robot arm
+    if (!initRobotArm())
+      return; // initRobotArm sets STATE::ERROR
+  }
+  // init print head
+  // init camera
+  if (!calib_only)
+  {
+    // init remote controller
+  }
+
+  // If everything went well, change state to IDLE
+  setState(STATE::IDLE);
+}
+
+/**
+ * \copybrief Bioprinter::shutdown()
+ */
+void Bioprinter::shutdown()
+{
+  // Run remote controller shutdown sequence
+
+  // Run camera shutdown sequence
+
+  // Run print head shutdown sequence
+
+  // Run robot arm shutdown sequence 
+  shutdownRobotArm();
+
+  // Set the state to OFF
+  setState(STATE::OFF);
+}
+
 /*****************************************************************************************
  * Private methods
  *****************************************************************************************/
@@ -101,6 +172,46 @@ bool Bioprinter::isDevelopment() const
 void Bioprinter::setupPublishers()
 {
   state_pub_ = nh_.advertise<std_msgs::String>(state_topic_, 10);
+}
+
+/**
+ * \copybrief Bioprinter::initRobotArm()
+ */
+bool Bioprinter::initRobotArm()
+{
+  std::stringstream launch_cmd;
+  launch_cmd << "roslaunch smalldrop_robot_arm";
+
+  if (is_sim_)
+    launch_cmd << " cartesian_impedance_sim_controller.launch";
+  else
+    launch_cmd << " cartesian_impedance_real_controller.launch robot_ip:=172.16.0.2";
+
+  if (is_dev_)
+    launch_cmd << " rviz:=1 gains:=1";
+
+  launch_cmd << " &"; // To launch and detach from thread, otherwise caller will be blocked. 
+
+  int ret = std::system(launch_cmd.str().c_str());
+
+  if (ret != 0)
+  {
+    setState(STATE::ERROR);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * \copybrief Bioprinter::shutdownRobotArm()
+ */
+void Bioprinter::shutdownRobotArm()
+{
+  // Change to joint controller
+
+  // Move to shutdown position
+
 }
 
 }  // namespace smalldrop_bioprint

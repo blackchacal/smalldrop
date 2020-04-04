@@ -16,6 +16,8 @@ using namespace smalldrop::smalldrop_bioprint;
 // Global variables
 bool is_sim = true;
 bool is_dev = true;
+bool calib_cam = false;
+bool calib_phead = false;
 std::string LOG_TAG = "smalldrop_bioprint";
 
 // Function prototypes
@@ -40,10 +42,44 @@ int main(int argc, char **argv)
     // Publish system state
     bp.publishState();
 
+    // State machine
+    switch (bp.getCurrentState())
+    {
+    case STATE::OFF:
+      if (bp.getPrevState() == STATE::OFF) // We are initialising the system
+        bp.setState(STATE::INIT);
+      else // If previous state is not OFF it means we want to shutdown the system
+        return 0;
+      break;
+    case STATE::INIT:
+      bp.init(calib_cam, calib_phead, false);
+      break;
+    case STATE::IDLE:
+      break;
+    case STATE::PRINT:
+      break;
+    case STATE::MOVE:
+      break;
+    case STATE::PAUSE:
+      break;
+    case STATE::ABORT:
+      break;
+    case STATE::REFILL:
+      break;
+    case STATE::CALIB_CAM:
+      break;
+    case STATE::CALIB_PHEAD:
+      break;
+    case STATE::ERROR:
+      break;
+    default:
+      break;
+    }
+
     ros::spinOnce();
     r.sleep(); 
   }
-
+  
   return 0;
 }
 
@@ -55,21 +91,31 @@ bool processCmdArgs(int argc, char **argv)
 {
   // Process command-line arguments
   int opt;
-  const char *const short_opts = ":hs:d:";
-  const option long_opts[] = { { "sim", required_argument, nullptr, 's' },
-                               { "dev", required_argument, nullptr, 'd' },
-                               { "help", no_argument, nullptr, 'h' },
-                               { nullptr, no_argument, nullptr, 0 } };
+  const char *const short_opts = ":hc:d:p:s:";
+  const option long_opts[] = { 
+    { "ccam", required_argument, nullptr, 'c' },
+    { "dev", required_argument, nullptr, 'd' },
+    { "cphead", required_argument, nullptr, 'p' },
+    { "sim", required_argument, nullptr, 's' },
+    { "help", no_argument, nullptr, 'h' },
+    { nullptr, no_argument, nullptr, 0 } 
+  };
 
   while ((opt = getopt_long(argc, argv, short_opts, long_opts, nullptr)) != -1)
   {
     switch (opt)
     {
-      case 's':
-        is_sim = static_cast<bool>(std::stoi(optarg));
+      case 'c':
+        calib_cam = static_cast<bool>(std::stoi(optarg));
         break;
       case 'd':
         is_dev = static_cast<bool>(std::stoi(optarg));
+        break;
+      case 'p':
+        calib_phead = static_cast<bool>(std::stoi(optarg));
+        break;
+      case 's':
+        is_sim = static_cast<bool>(std::stoi(optarg));
         break;
       case 'h':
       default:

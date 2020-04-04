@@ -2,6 +2,8 @@
   <!-- Main arguments for Bioprinter constructor -->
   <arg name="is_simulation" default="1" /> 
   <arg name="is_development" default="1" />
+  <arg name="calib_cam" default="0" />
+  <arg name="calib_phead" default="0" />
 
-  <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development)" output="screen" />
+  <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development) --ccam $(arg calib_cam) --cphead $(arg calib_phead)" output="screen" />
 </launch>

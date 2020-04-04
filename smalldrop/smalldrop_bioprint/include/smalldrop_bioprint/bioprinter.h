@@ -28,6 +28,7 @@ enum class STATE
   INIT,
   IDLE,
   PRINT,
+  MOVE,
   PAUSE,
   ABORT,
   REFILL,
@@ -52,10 +53,11 @@ private:
    *****************************************************************************************/
 
   // State variables
-  STATE state_;           /** \var System state that changes according to work of the system. */
+  STATE state_;           /** \var System current state that changes according to work of the system. */
+  STATE prev_state_;      /** \var System previous state. It is important for the state machine. */
   MODE operation_mode_;   /** \var System operation mode. */
-  bool is_sim_;            /** \var Simulation or real mode. */
-  bool is_dev_;            /** \var Development or production mode. */
+  bool is_sim_;           /** \var Simulation or real mode. */
+  bool is_dev_;           /** \var Development or production mode. */
 
   // ROS topics
   std::string state_topic_; /** \var ROS topic where system working state will be published. */
@@ -75,6 +77,18 @@ private:
    * \brief Setup ROS publishers used by the class.
    */
   void setupPublishers();
+
+  /**
+   * \fn void initRobotArm()
+   * \brief Initialize robot arm according to system configuration.
+   */
+  bool initRobotArm();
+
+  /**
+   * \fn void shutdownRobotArm()
+   * \brief Shuts down the robot arm.
+   */
+  void shutdownRobotArm();
 
 public:
   /**
@@ -97,6 +111,24 @@ public:
   void publishState();
 
   /**
+   * \fn STATE getCurrentState() const
+   * \brief Returns the current system working state.
+   */
+  STATE getCurrentState() const;
+
+  /**
+   * \fn STATE getPrevState() const
+   * \brief Returns the previous system working state.
+   */
+  STATE getPrevState() const;
+
+  /**
+   * \fn void setState(STATE new_state)
+   * \brief Sets a new system state and updates previous state.
+   */
+  void setState(STATE new_state);
+
+  /**
    * \fn bool isSimulation() const
    * \brief Check if the system runs in simulation mode or real mode.
    */
@@ -107,6 +139,23 @@ public:
    * \brief Checks if system is in development mode or production.
    */
   bool isDevelopment() const;
+
+  /**
+   * \fn void init(const bool calib_cam, const bool calib_phead, const bool calib_only)
+   * \brief Initialises the whole system (robot arm, print head, camera and remote controllers).
+   * 
+   * \param calib_cam Informs the system that the camera needs to be calibrated.
+   * \param calib_phead Informs the system that the print head needs to be calibrated.
+   * \param calib_only If true, skip initialisation of robot arm and remote controllers.
+   */
+  void init(const bool calib_cam, const bool calib_phead, const bool calib_only);
+
+  /**
+   * \fn void shutdown()
+   * \brief Shuts down the robot arm, remote controller, camera and print head. It leaves the system
+   * on the OFF state.
+   */
+  void shutdown();
 
 };
 
