@@ -9,10 +9,10 @@
 #include <smalldrop_teleoperation/remote_controller_mode.h>
 #include <smalldrop_teleoperation/spacemouse.h>
 #include <smalldrop_teleoperation/teleoperation_actions.h>
-#include <smalldrop_bioprint/system_state.h>
+#include <smalldrop_state/system_state.h>
 
 using namespace smalldrop::smalldrop_teleoperation;
-using namespace smalldrop::smalldrop_bioprint;
+using namespace smalldrop::smalldrop_state;
 
 int main(int argc, char **argv)
 {

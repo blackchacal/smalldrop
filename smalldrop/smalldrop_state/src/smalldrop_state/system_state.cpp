@@ -6,11 +6,11 @@
  * \brief Defines a class that models the smalldrop system state.
  */
 
-#include <smalldrop_bioprint/system_state.h>
+#include <smalldrop_state/system_state.h>
 
 namespace smalldrop
 {
-namespace smalldrop_bioprint
+namespace smalldrop_state
 {
 
 /*****************************************************************************************
@@ -131,6 +131,6 @@ ros::Publisher SystemState::getSegmentationPointsPublisher() const
   return rviz_segmentation_points_pub_;
 }
 
-}  // namespace smalldrop_bioprint
+}  // namespace smalldrop_state
 
 }  // namespace smalldrop

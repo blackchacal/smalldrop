@@ -6,7 +6,7 @@ add_compile_options(-std=c++11 -Wall -g)
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   spacenav_node
-  smalldrop_bioprint
+  smalldrop_state
 )
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(PkgConfig REQUIRED)
@@ -19,7 +19,7 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES smalldrop_teleoperation
- CATKIN_DEPENDS roscpp spacenav_node smalldrop_bioprint
+ CATKIN_DEPENDS roscpp spacenav_node smalldrop_state
 )
 
 ###########

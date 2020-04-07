@@ -1,4 +1,3 @@
 <launch>
   <node name="spacenav" pkg="spacenav_node" type="spacenav_node" required="true"/>
-  <node name="teleoperation" pkg="smalldrop_teleoperation" type="default_teleoperation" />
 </launch>

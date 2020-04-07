@@ -14,7 +14,7 @@
   
   <depend>roscpp</depend>
   <depend>spacenav_node</depend>
-  <depend>smalldrop_bioprint</depend>
+  <depend>smalldrop_state</depend>
 
   <export></export>
 </package>

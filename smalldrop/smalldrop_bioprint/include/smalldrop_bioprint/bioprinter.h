@@ -14,6 +14,12 @@
 // ROS messages
 #include <std_msgs/String.h>
 
+#include <smalldrop_teleoperation/i_remote_controller.h>
+#include <smalldrop_teleoperation/spacemouse.h>
+
+using namespace smalldrop::smalldrop_state;
+using namespace smalldrop::smalldrop_teleoperation;
+
 namespace smalldrop
 {
 namespace smalldrop_bioprint
@@ -53,17 +59,23 @@ private:
    *****************************************************************************************/
 
   // State variables
-  STATE state_;           /** \var System current state that changes according to work of the system. */
-  STATE prev_state_;      /** \var System previous state. It is important for the state machine. */
-  MODE operation_mode_;   /** \var System operation mode. */
-  bool is_sim_;           /** \var Simulation or real mode. */
-  bool is_dev_;           /** \var Development or production mode. */
+  STATE state_;                     /** \var System current state that changes according to work of the system. */
+  STATE prev_state_;                /** \var System previous state. It is important for the state machine. */
+  MODE operation_mode_;             /** \var System operation mode. */
+  bool is_sim_;                     /** \var Simulation or real mode. */
+  bool is_dev_;                     /** \var Development or production mode. */
+  std::unique_ptr<SystemState> ss_; /** \var SystemState instance. It subscribes to all important system topics, and
+                                       provides general publishers. */
+
+  // System components
+  std::unique_ptr<IRemoteController> remote_ctrl_ptr_; /** \var Remote Controller instance. */
 
   // ROS topics
-  std::string state_topic_; /** \var ROS topic where system working state will be published. */
+  std::string remote_ctrl_topic_; /** \var ROS topic where remote controller state will be published. */
+  std::string state_topic_;       /** \var ROS topic where system working state will be published. */
 
   // Node handle
-  ros::NodeHandle nh_;    /** \var ROS node handle to access topics system. */
+  ros::NodeHandle nh_; /** \var ROS node handle to access topics system. */
 
   // ROS Publishers
   ros::Publisher state_pub_; /** \var Publisher for the system working state. */
@@ -86,9 +98,21 @@ private:
 
   /**
    * \fn void shutdownRobotArm()
-   * \brief Shuts down the robot arm.
+   * \brief Shut down the robot arm.
    */
   void shutdownRobotArm();
+
+  /**
+   * \fn void initRemoteController()
+   * \brief Initialize the remote controller according to system configuration.
+   */
+  bool initRemoteController();
+
+  /**
+   * \fn void shutdownRemoteController()
+   * \brief Shut down the remote controller.
+   */
+  void shutdownRemoteController();
 
 public:
   /**
@@ -96,14 +120,19 @@ public:
    *****************************************************************************************/
 
   /**
-   * \fn Bioprinter(const bool simulation, const bool dev)
+   * \fn Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development)
    * \brief Constructor
    *
+   * \param ss_ptr SystemState class pointer.
    * \param simulation Boolean that defines if system should operation in simulation or with real robot.
    * \param development Boolean that defines if the system is in development mode or production mode.
    */
-  Bioprinter(const bool simulation, const bool development);
-  
+  Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development);
+
+  ~Bioprinter()
+  {
+  }
+
   /**
    * \fn void publishState()
    * \brief Publishes the system working state on a topic.
@@ -143,7 +172,7 @@ public:
   /**
    * \fn void init(const bool calib_cam, const bool calib_phead, const bool calib_only)
    * \brief Initialises the whole system (robot arm, print head, camera and remote controllers).
-   * 
+   *
    * \param calib_cam Informs the system that the camera needs to be calibrated.
    * \param calib_phead Informs the system that the print head needs to be calibrated.
    * \param calib_only If true, skip initialisation of robot arm and remote controllers.
@@ -156,7 +185,6 @@ public:
    * on the OFF state.
    */
   void shutdown();
-
 };
 
 }  // namespace smalldrop_bioprint

@@ -20,9 +20,9 @@ const std::string LOG_TAG = "smalldrop_teleoperation";
 int segmentation_marker_id = 0; /** \var Wound segmentation markers id. */
 
 /**
- * \copybrief changeMode(smalldrop_bioprint::SystemState* system_state)
+ * \copybrief changeMode(smalldrop_state::SystemState* system_state)
  */
-bool changeMode(smalldrop_bioprint::SystemState* system_state)
+bool changeMode(smalldrop_state::SystemState* system_state)
 {
   std::string filepath = "/home/rtonet/ROS/tese/src/panda_3dbioprint_debug_tools/data/segmentation_points.dat";
   ros::Publisher rviz_segmentation_points_pub = system_state->getSegmentationPointsPublisher();
@@ -48,9 +48,9 @@ bool changeMode(smalldrop_bioprint::SystemState* system_state)
 }
 
 /**
- * \copybrief moveRobotArm(smalldrop_bioprint::SystemState* system_state)
+ * \copybrief moveRobotArm(smalldrop_state::SystemState* system_state)
  */
-bool moveRobotArm(smalldrop_bioprint::SystemState* system_state)
+bool moveRobotArm(smalldrop_state::SystemState* system_state)
 {
   ROS_INFO_NAMED(LOG_TAG, "%s: Moving Robot Arm...", LOG_TAG.c_str());
 
@@ -60,70 +60,75 @@ bool moveRobotArm(smalldrop_bioprint::SystemState* system_state)
   geometry_msgs::Pose robot_arm_pose = system_state->getRobotArmPose();
   ros::Publisher robot_arm_desired_pose_pub = system_state->getRobotDesiredPosePublisher();
 
-  // Remote controller joy data
-  float posx = remote_ctrl_state.axes[0];
-  float posy = remote_ctrl_state.axes[1];
-  float posz = remote_ctrl_state.axes[2];
-  float orientx = remote_ctrl_state.axes[3];
-  float orienty = remote_ctrl_state.axes[4];
-  float orientz = remote_ctrl_state.axes[5];
-
-  float orient_sensitivity = sensitivity_factor * 10;
-
-  geometry_msgs::Pose new_pose;
-  new_pose.position.x = robot_arm_pose.position.x + sensitivity_factor * (-posx);
-  new_pose.position.y = robot_arm_pose.position.y + sensitivity_factor * (-posy);
-  new_pose.position.z = robot_arm_pose.position.z + sensitivity_factor * posz;
-
-  Eigen::Quaterniond current_orientation(robot_arm_pose.orientation.w, 
-                                        robot_arm_pose.orientation.x, 
-                                        robot_arm_pose.orientation.y, 
-                                        robot_arm_pose.orientation.z);
-
-  Eigen::Matrix3d Rc = current_orientation.matrix();  // Rotation matrix for current pose
-  Eigen::Matrix3d Rs;                                 // Rotation matrix for spacenav
-  Eigen::Matrix3d Rsx;                                // Rotation matrix for spacenav x-axis rotation
-  Eigen::Matrix3d Rsy;                                // Rotation matrix for spacenav y-axis rotation
-  Eigen::Matrix3d Rsz;                                // Rotation matrix for spacenav z-axis rotation
-
-  if (orientx >= 0 && orientx < 0.001 && orienty >= 0 && orienty < 0.001 && orientz >= 0 && orientz < 0.001)
+  if (remote_ctrl_state.axes.size() >= 6)
   {
-    Rs << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+    std::cout << remote_ctrl_state.axes.size() << std::endl;
+    // Remote controller joy data
+    float posx = remote_ctrl_state.axes[0];
+    float posy = remote_ctrl_state.axes[1];
+    float posz = remote_ctrl_state.axes[2];
+    float orientx = remote_ctrl_state.axes[3];
+    float orienty = remote_ctrl_state.axes[4];
+    float orientz = remote_ctrl_state.axes[5];
+
+    float orient_sensitivity = sensitivity_factor * 10;
+
+    geometry_msgs::Pose new_pose;
+    new_pose.position.x = robot_arm_pose.position.x + sensitivity_factor * (-posx);
+    new_pose.position.y = robot_arm_pose.position.y + sensitivity_factor * (-posy);
+    new_pose.position.z = robot_arm_pose.position.z + sensitivity_factor * posz;
+
+    Eigen::Quaterniond current_orientation(robot_arm_pose.orientation.w, 
+                                          robot_arm_pose.orientation.x, 
+                                          robot_arm_pose.orientation.y, 
+                                          robot_arm_pose.orientation.z);
+
+    Eigen::Matrix3d Rc = current_orientation.matrix();  // Rotation matrix for current pose
+    Eigen::Matrix3d Rs;                                 // Rotation matrix for spacenav
+    Eigen::Matrix3d Rsx;                                // Rotation matrix for spacenav x-axis rotation
+    Eigen::Matrix3d Rsy;                                // Rotation matrix for spacenav y-axis rotation
+    Eigen::Matrix3d Rsz;                                // Rotation matrix for spacenav z-axis rotation
+
+    if (orientx >= 0 && orientx < 0.001 && orienty >= 0 && orienty < 0.001 && orientz >= 0 && orientz < 0.001)
+    {
+      Rs << 1, 0, 0, 0, 1, 0, 0, 0, 1;
+    }
+    else
+    {
+      Rsx << 1, 0, 0, 0, cos(orient_sensitivity * orientx), -sin(orient_sensitivity * orientx), 0,
+          sin(orient_sensitivity * orientx), cos(orient_sensitivity * orientx);
+
+      Rsy << cos(-orient_sensitivity * orienty), 0, sin(-orient_sensitivity * orienty), 0, 1, 0,
+          -sin(-orient_sensitivity * orienty), 0, cos(-orient_sensitivity * orienty);
+
+      Rsz << cos(-orient_sensitivity * orientz), -sin(-orient_sensitivity * orientz), 0,
+          sin(-orient_sensitivity * orientz), cos(-orient_sensitivity * orientz), 0, 0, 0, 1;
+
+      Rs = Rsx * Rsy * Rsz;
+    }
+
+    Eigen::Matrix3d Rf = Rc * Rs;  // In relation to end-effector
+    // Eigen::Matrix3d Rf = Rs * Rc; // In relation to base
+
+    Eigen::Quaterniond new_orientation(Rf);
+
+    new_pose.orientation.x = new_orientation.x();
+    new_pose.orientation.y = new_orientation.y();
+    new_pose.orientation.z = new_orientation.z();
+    new_pose.orientation.w = new_orientation.w();
+
+    if (posx || posy || posz || orientx || orienty || orientz)
+      robot_arm_desired_pose_pub.publish(new_pose);
+
+    return true;
   }
-  else
-  {
-    Rsx << 1, 0, 0, 0, cos(orient_sensitivity * orientx), -sin(orient_sensitivity * orientx), 0,
-        sin(orient_sensitivity * orientx), cos(orient_sensitivity * orientx);
-
-    Rsy << cos(-orient_sensitivity * orienty), 0, sin(-orient_sensitivity * orienty), 0, 1, 0,
-        -sin(-orient_sensitivity * orienty), 0, cos(-orient_sensitivity * orienty);
-
-    Rsz << cos(-orient_sensitivity * orientz), -sin(-orient_sensitivity * orientz), 0,
-        sin(-orient_sensitivity * orientz), cos(-orient_sensitivity * orientz), 0, 0, 0, 1;
-
-    Rs = Rsx * Rsy * Rsz;
-  }
-
-  Eigen::Matrix3d Rf = Rc * Rs;  // In relation to end-effector
-  // Eigen::Matrix3d Rf = Rs * Rc; // In relation to base
-
-  Eigen::Quaterniond new_orientation(Rf);
-
-  new_pose.orientation.x = new_orientation.x();
-  new_pose.orientation.y = new_orientation.y();
-  new_pose.orientation.z = new_orientation.z();
-  new_pose.orientation.w = new_orientation.w();
-
-  if (posx || posy || posz || orientx || orienty || orientz)
-    robot_arm_desired_pose_pub.publish(new_pose);
-
-  return true;
+  return false;
 }
 
 /**
- * \copybrief publishSegmentationPoint(smalldrop_bioprint::SystemState* system_state)
+ * \copybrief publishSegmentationPoint(smalldrop_state::SystemState* system_state)
  */
-bool publishSegmentationPoint(smalldrop_bioprint::SystemState* system_state)
+bool publishSegmentationPoint(smalldrop_state::SystemState* system_state)
 {
   ROS_INFO_NAMED(LOG_TAG, "%s: Publish Segmentation Point...", LOG_TAG.c_str());
 

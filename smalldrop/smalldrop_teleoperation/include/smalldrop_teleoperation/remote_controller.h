@@ -159,17 +159,18 @@ protected:
   bool isButtonSet(std::string button) const;
 
   /**
-   * \fn bool callButtonAction(std::string function, smalldrop_bioprint::SystemState* system_state)
+   * \fn bool callButtonAction(std::string function, smalldrop_state::SystemState* system_state)
    * \brief Call the action associated to the button selected.
    *
    * \param function Function for which the action will be called.
    * \param system_state SystemState class pointer. It provides access to all the system data.
    */
-  bool callButtonAction(std::string function, smalldrop_bioprint::SystemState* system_state);
+  bool callButtonAction(std::string function, smalldrop_state::SystemState* system_state);
 
 public:
   virtual ~RemoteController() override
   {
+    delete active_mode_;
   }
 
   /**

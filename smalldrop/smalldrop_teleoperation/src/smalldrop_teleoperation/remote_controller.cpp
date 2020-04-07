@@ -22,7 +22,7 @@ namespace smalldrop_teleoperation
 /**
  * \copybrief RemoteController::RemoteController()
  */
-RemoteController::RemoteController() : active_mode_(nullptr)
+RemoteController::RemoteController() : connected_(false), active_mode_(nullptr)
 {
   mode_it_ = modes_.begin();
 }
@@ -30,7 +30,7 @@ RemoteController::RemoteController() : active_mode_(nullptr)
 /**
  * \copybrief RemoteController::RemoteController(std::list<IRemoteControllerMode*> modes)
  */
-RemoteController::RemoteController(std::list<IRemoteControllerMode*> modes) : modes_(modes)
+RemoteController::RemoteController(std::list<IRemoteControllerMode*> modes) : connected_(false), modes_(modes)
 {
   mode_it_ = modes_.begin();
   active_mode_ = modes.front();
@@ -147,7 +147,7 @@ bool RemoteController::isButtonSet(std::string button) const
 /**
  * \copybrief RemoteController::callButtonAction()
  */
-bool RemoteController::callButtonAction(std::string function, smalldrop_bioprint::SystemState* system_state)
+bool RemoteController::callButtonAction(std::string function, smalldrop_state::SystemState* system_state)
 {
   return active_mode_->getButtonAction(function)(system_state); // Call the action
 }

@@ -9,9 +9,12 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   sensor_msgs
   std_msgs
+  smalldrop_teleoperation
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
+find_package(PkgConfig REQUIRED)
+pkg_search_module(EIGEN REQUIRED eigen3)
 
 ###################################
 ## catkin specific configuration ##
@@ -20,8 +23,7 @@ find_package(Boost REQUIRED COMPONENTS system)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES smalldrop_bioprint
- CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs std_msgs
-#  DEPENDS system_lib
+ CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs std_msgs smalldrop_teleoperation
 )
 
 ###########
@@ -32,11 +34,12 @@ include_directories(
   include
   ${catkin_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
 )
+link_directories(${EIGEN_LIBRARY_DIRS})
 
 add_library(${PROJECT_NAME}
   src/${PROJECT_NAME}/bioprinter.cpp
-  src/${PROJECT_NAME}/system_state.cpp
 )
 
 add_executable(bioprinter src/nodes/bioprinter.cpp)

@@ -5,5 +5,8 @@
   <arg name="calib_cam" default="0" />
   <arg name="calib_phead" default="0" />
 
+  <!-- Include remote controller launch -->
+  <include file="$(find smalldrop_teleoperation)/launch/system_teleoperation.launch" />
+
   <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development) --ccam $(arg calib_cam) --cphead $(arg calib_phead)" output="screen" />
 </launch>

@@ -67,7 +67,7 @@ public:
   /**
    * \copydoc IRemoteControllerMode::getButtonAction()
    */
-  virtual std::function<bool(smalldrop_bioprint::SystemState*)> getButtonAction(std::string function) override;
+  virtual std::function<bool(smalldrop_state::SystemState*)> getButtonAction(std::string function) override;
 
   /**
    * \copydoc IRemoteControllerMode::getName()

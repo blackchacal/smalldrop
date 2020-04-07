@@ -15,12 +15,11 @@
 #include <geometry_msgs/Pose.h>
 #include <sensor_msgs/Joy.h>
 #include <visualization_msgs/Marker.h>
-
-#include <smalldrop_bioprint/bioprinter.h>
+#include <std_msgs/String.h>
 
 namespace smalldrop
 {
-namespace smalldrop_bioprint
+namespace smalldrop_state
 {
 class SystemState
 {
@@ -123,7 +122,7 @@ public:
   ros::Publisher getSegmentationPointsPublisher() const;
 };
 
-}  // namespace smalldrop_bioprint
+}  // namespace smalldrop_state
 
 }  // namespace smalldrop
 

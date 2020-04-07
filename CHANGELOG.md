@@ -12,6 +12,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 - On *smalldrop_bioprint* add node to instantiate the Bioprinter class and launch file.
 - On *smalldrop_bioprint* add system state machine.
 - On *smalldrop_bioprint* add init and shutdown routines for robot arm.
+- On *smalldrop_bioprint* add init and shutdown routines for remote controller.
 
 ## 0.3.0 (2020-03-30)
 

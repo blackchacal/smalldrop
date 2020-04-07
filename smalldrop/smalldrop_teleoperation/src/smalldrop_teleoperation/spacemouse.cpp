@@ -17,9 +17,9 @@ namespace smalldrop_teleoperation
  *****************************************************************************************/
 
 /**
- * \copybrief SpaceMouse::SpaceMouse(std::string topic, smalldrop_bioprint::SystemState* system_state)
+ * \copybrief SpaceMouse::SpaceMouse(std::string topic, smalldrop_state::SystemState* system_state)
  */
-SpaceMouse::SpaceMouse(std::string topic, smalldrop_bioprint::SystemState* system_state)
+SpaceMouse::SpaceMouse(std::string topic, smalldrop_state::SystemState* system_state)
   : RemoteController(), system_state_(system_state), state_topic_(topic)
 {
   subscribeToStateTopic();
@@ -49,9 +49,9 @@ SpaceMouse::SpaceMouse(std::string topic, smalldrop_bioprint::SystemState* syste
 }
 
 /**
- * \copybrief SpaceMouse::SpaceMouse(std::string topic, std::list<IRemoteControllerMode *> modes, smalldrop_bioprint::SystemState* system_state)
+ * \copybrief SpaceMouse::SpaceMouse(std::string topic, std::list<IRemoteControllerMode *> modes, smalldrop_state::SystemState* system_state)
  */
-SpaceMouse::SpaceMouse(std::string topic, std::list<IRemoteControllerMode *> modes, smalldrop_bioprint::SystemState* system_state)
+SpaceMouse::SpaceMouse(std::string topic, std::list<IRemoteControllerMode *> modes, smalldrop_state::SystemState* system_state)
   : RemoteController(modes), system_state_(system_state), state_topic_(topic)
 {
   subscribeToStateTopic();
@@ -105,8 +105,21 @@ sensor_msgs::Joy& SpaceMouse::getState()
  */
 void SpaceMouse::connect()
 {
-  int ret = std::system("rosrun spacenav_node spacenav_node &");
-  if (ret == 0)
+  bool spacenav_is_on = false;
+
+  std::vector<std::string> nodes;
+  ros::master::getNodes(nodes);
+
+  for (unsigned int i = 0; i < nodes.size(); i++)
+  {
+    if (nodes[i].compare("/spacenav") == 0)
+    {
+      spacenav_is_on = true;
+      break;
+    }
+  }
+
+  if (spacenav_is_on)
     connected_ = true;
 }
 
@@ -115,9 +128,7 @@ void SpaceMouse::connect()
  */
 void SpaceMouse::disconnect()
 {
-  int ret = std::system("rosnode kill /spacenav");
-  if (ret == 0)
-    connected_ = false;
+  connected_ = false;
 }
 
 /**
@@ -133,27 +144,30 @@ void SpaceMouse::subscribeToStateTopic()
  */
 void SpaceMouse::getStateFromTopic(const sensor_msgs::Joy::ConstPtr &msg)
 {
-  state_.axes[0] = msg->axes[0];
-  state_.axes[1] = msg->axes[1];
-  state_.axes[2] = msg->axes[2];
-  state_.axes[3] = msg->axes[3];
-  state_.axes[4] = msg->axes[4];
-  state_.axes[5] = msg->axes[5];
-  state_.buttons[0] = msg->buttons[0];
-  state_.buttons[1] = msg->buttons[1];
+  if (connected_)
+  {
+    state_.axes[0] = msg->axes[0];
+    state_.axes[1] = msg->axes[1];
+    state_.axes[2] = msg->axes[2];
+    state_.axes[3] = msg->axes[3];
+    state_.axes[4] = msg->axes[4];
+    state_.axes[5] = msg->axes[5];
+    state_.buttons[0] = msg->buttons[0];
+    state_.buttons[1] = msg->buttons[1];
 
-  // Check if any button was pressed and call the associated action
-  checkButtonPress();
+    // Check if any button was pressed and call the associated action
+    checkButtonPress();
 
-  // Update previous data
-  state_prev_.axes[0] = state_.axes[0];
-  state_prev_.axes[1] = state_.axes[1];
-  state_prev_.axes[2] = state_.axes[2];
-  state_prev_.axes[3] = state_.axes[3];
-  state_prev_.axes[4] = state_.axes[4];
-  state_prev_.axes[5] = state_.axes[5];
-  state_prev_.buttons[0] = state_.buttons[0];
-  state_prev_.buttons[1] = state_.buttons[1];
+    // Update previous data
+    state_prev_.axes[0] = state_.axes[0];
+    state_prev_.axes[1] = state_.axes[1];
+    state_prev_.axes[2] = state_.axes[2];
+    state_prev_.axes[3] = state_.axes[3];
+    state_prev_.axes[4] = state_.axes[4];
+    state_prev_.axes[5] = state_.axes[5];
+    state_prev_.buttons[0] = state_.buttons[0];
+    state_prev_.buttons[1] = state_.buttons[1];
+  }
 }
 
 /**

@@ -46,7 +46,7 @@ action_map_t RemoteControllerMode::getActionMap() const
 /**
  * \copybrief IRemoteControllerMode::getButtonAction()
  */
-std::function<bool(smalldrop_bioprint::SystemState*)> RemoteControllerMode::getButtonAction(std::string function)
+std::function<bool(smalldrop_state::SystemState*)> RemoteControllerMode::getButtonAction(std::string function)
 {
   return action_map_[function];
 }

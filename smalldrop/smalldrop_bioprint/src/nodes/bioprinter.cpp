@@ -8,9 +8,10 @@
 
 #include <getopt.h>
 
-#include <smalldrop_bioprint/system_state.h>
+#include <smalldrop_state/system_state.h>
 #include <smalldrop_bioprint/bioprinter.h>
 
+using namespace smalldrop::smalldrop_state;
 using namespace smalldrop::smalldrop_bioprint;
 
 // Global variables
@@ -33,8 +34,8 @@ int main(int argc, char **argv)
   if (!processCmdArgs(argc, argv))
     return 0;
 
-  SystemState ss;
-  Bioprinter bp(is_sim, is_dev);
+  std::unique_ptr<SystemState> ss(new SystemState());
+  Bioprinter bp(std::move(ss), is_sim, is_dev);
 
   ros::Rate r(100); // 100 Hz
   while (ros::ok())
@@ -71,6 +72,7 @@ int main(int argc, char **argv)
     case STATE::CALIB_PHEAD:
       break;
     case STATE::ERROR:
+      std::cout << "STATE ERROR" << std::endl;
       break;
     default:
       break;

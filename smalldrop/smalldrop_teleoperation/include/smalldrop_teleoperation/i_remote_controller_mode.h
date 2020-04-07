@@ -9,7 +9,7 @@
 #ifndef _SMALLDROP_INTERFACE_REMOTE_CONTROLLER_MODE_H
 #define _SMALLDROP_INTERFACE_REMOTE_CONTROLLER_MODE_H
 
-#include <smalldrop_bioprint/system_state.h>
+#include <smalldrop_state/system_state.h>
 
 #include <functional>
 #include <map>
@@ -23,7 +23,7 @@ namespace smalldrop_teleoperation
  * \typedef
  * \brief Typedef for callback functions.
  */
-typedef std::function<bool(smalldrop_bioprint::SystemState*)> callback_t;
+typedef std::function<bool(smalldrop_state::SystemState*)> callback_t;
 
 /**
  * \typedef
@@ -65,12 +65,12 @@ public:
   virtual action_map_t getActionMap() const = 0;
 
   /**
-   * \fn virtual std::function<bool(smalldrop_bioprint::SystemState*)> getButtonAction(std::string function)
+   * \fn virtual std::function<bool(smalldrop_state::SystemState*)> getButtonAction(std::string function)
    * \brief Returns the action function associated with a specified key.
    *
    * \param function Function name for which the action will be returned.
    */
-  virtual std::function<bool(smalldrop_bioprint::SystemState*)> getButtonAction(std::string function) = 0;
+  virtual std::function<bool(smalldrop_state::SystemState*)> getButtonAction(std::string function) = 0;
 
   /**
    * \fn virtual std::string getName() const
