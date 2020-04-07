@@ -54,10 +54,18 @@ target_link_libraries(default_teleoperation ${PROJECT_NAME} ${Boost_LIBRARIES} $
 ## Testing ##
 #############
 
-catkin_add_gtest(t_remote_controller_mode test/smalldrop_teleoperation/t_remote_controller_mode.cpp)
-catkin_add_gtest(t_spacemouse test/smalldrop_teleoperation/t_spacemouse.cpp)
+catkin_add_gtest(t_remote_controller_mode_gtest test/smalldrop_teleoperation/t_remote_controller_mode_gtest.cpp)
+catkin_add_gtest(t_spacemouse_gtest test/smalldrop_teleoperation/t_spacemouse_gtest.cpp)
 
-if (TARGET t_remote_controller_mode)
-  target_link_libraries(t_remote_controller_mode ${PROJECT_NAME})
-  target_link_libraries(t_spacemouse ${PROJECT_NAME})
+if (TARGET t_remote_controller_mode_gtest)
+target_link_libraries(t_remote_controller_mode_gtest ${PROJECT_NAME})
+endif()
+if (TARGET t_spacemouse_gtest)
+target_link_libraries(t_spacemouse_gtest ${PROJECT_NAME})
+endif()
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  add_rostest_gtest(t_spacemouse_rostest test/t_spacemouse.test test/smalldrop_teleoperation/t_spacemouse_rostest.cpp)
+  target_link_libraries(t_spacemouse_rostest ${PROJECT_NAME} ${catkin_LIBRARIES})
 endif()

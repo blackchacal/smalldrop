@@ -1,0 +1,4 @@
+<launch>
+  <node name="spacenav" pkg="spacenav_node" type="spacenav_node" />
+  <test test-name="t_spacemouse_rostest" pkg="smalldrop_teleoperation" type="t_spacemouse_rostest" />
+</launch>

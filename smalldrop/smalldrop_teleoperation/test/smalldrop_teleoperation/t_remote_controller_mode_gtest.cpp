@@ -7,12 +7,12 @@
  */
 
 #include <smalldrop_teleoperation/remote_controller_mode.h>
-#include <smalldrop_bioprint/system_state.h>
+#include <smalldrop_state/system_state.h>
 #include <gtest/gtest.h>
 #include <iostream>
 
 using namespace smalldrop::smalldrop_teleoperation;
-using namespace smalldrop::smalldrop_bioprint;
+using namespace smalldrop::smalldrop_state;
 
 class RemoteControllerModeTest : public ::testing::Test
 {
@@ -48,19 +48,19 @@ class RemoteControllerModeTest : public ::testing::Test
     void TearDown() override {}
 
   public:
-    bool action1(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool action1(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "action1" << std::endl;
       return true;
     }
 
-    bool action2(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool action2(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "action2" << std::endl;
       return true;
     }
 
-    bool action3(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool action3(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "action3" << std::endl;
       return true;
@@ -137,7 +137,7 @@ TEST_F(RemoteControllerModeTest, returnsRightFunction)
   SystemState ss;
 
   RemoteControllerMode mode1("mode1", button_map2, action_map2);
-  std::function<bool(smalldrop::smalldrop_bioprint::SystemState*)> f = mode1.getButtonAction("action1");
+  std::function<bool(smalldrop::smalldrop_state::SystemState*)> f = mode1.getButtonAction("action1");
   EXPECT_TRUE(f(&ss));
 }
 

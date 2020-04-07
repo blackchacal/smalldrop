@@ -2,19 +2,19 @@
 // Use of this source code is governed by the MIT license, see LICENSE
 
 /**
- * \file t_spacemouse.cpp
+ * \file t_spacemouse_gtest.cpp
  * \brief Test file for SpaceMouse class.
  */
 
 #include <smalldrop_teleoperation/remote_controller_mode.h>
 #include <smalldrop_teleoperation/spacemouse.h>
 #include <smalldrop_teleoperation/teleoperation_actions.h>
-#include <smalldrop_bioprint/system_state.h>
+#include <smalldrop_state/system_state.h>
 #include <gtest/gtest.h>
 #include <iostream>
 
 using namespace smalldrop::smalldrop_teleoperation;
-using namespace smalldrop::smalldrop_bioprint;
+using namespace smalldrop::smalldrop_state;
 
 class SpaceMouseTest : public ::testing::Test
 {
@@ -68,37 +68,37 @@ class SpaceMouseTest : public ::testing::Test
     void TearDown() override {}
 
   public:
-    bool action1(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool action1(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "action1" << std::endl;
       return true;
     }
 
-    bool action2(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool action2(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "action2" << std::endl;
       return true;
     }
 
-    bool action3(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool action3(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "action3" << std::endl;
       return true;
     }
 
-    bool mode(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool mode(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "change mode" << std::endl;
       return true;
     }
 
-    bool joy(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool joy(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "change joy" << std::endl;
       return true;
     }
 
-    bool ok(smalldrop::smalldrop_bioprint::SystemState* system_state)
+    bool ok(smalldrop::smalldrop_state::SystemState* system_state)
     {
       std::cout << "change ok" << std::endl;
       return true;
@@ -147,95 +147,53 @@ TEST_F(SpaceMouseTest, setKeyModes)
 {
   SystemState ss;
 
-  RemoteControllerMode mode1("default", button_map1, action_map1);
+  IRemoteControllerMode* mode1 = new RemoteControllerMode("default", button_map1, action_map1);
   std::list<IRemoteControllerMode*> modes;
-  modes.push_front(&mode1);
+  modes.push_front(mode1);
 
   SpaceMouse sm(topic1, modes, &ss);
 
-  EXPECT_EQ(sm.whatMode()->getName(), mode1.getName());
+  EXPECT_EQ(sm.whatMode()->getName(), mode1->getName());
 }
 
 TEST_F(SpaceMouseTest, changeKeyModes)
 {
   SystemState ss;
 
-  RemoteControllerMode mode1("default", button_map1, action_map1);
-  RemoteControllerMode mode2("mode2", button_map2, action_map2);
+  IRemoteControllerMode* mode1 = new RemoteControllerMode("default", button_map1, action_map1);
+  IRemoteControllerMode* mode2 = new RemoteControllerMode("mode2", button_map2, action_map2);
   std::list<IRemoteControllerMode*> modes;
-  modes.push_back(&mode1);
-  modes.push_back(&mode2);
+  modes.push_back(mode1);
+  modes.push_back(mode2);
 
   SpaceMouse sm(topic1, modes, &ss);
 
-  EXPECT_EQ(sm.whatMode()->getName(), mode1.getName());
+  EXPECT_EQ(sm.whatMode()->getName(), mode1->getName());
   sm.changeMode();
-  EXPECT_EQ(sm.whatMode()->getName(), mode2.getName());
+  EXPECT_EQ(sm.whatMode()->getName(), mode2->getName());
   sm.changeMode();
-  EXPECT_EQ(sm.whatMode()->getName(), mode1.getName());
+  EXPECT_EQ(sm.whatMode()->getName(), mode1->getName());
 }
 
-TEST_F(SpaceMouseTest, connectController)
-{
-  SystemState ss;
+// The next two tests are disabled because they depend on a external node
+// and also on user interaction. They are not true Unit Tests.
+// To run the tests, the following must be accomplished:
+// - On a different terminal, run the spacenav_node.
+// - Re-enable the test cases.
+// - Run the tests and execute the specific interaction for the test 
+// which are documented next to the test macros. 
 
-  SpaceMouse sm(topic1, &ss);
-  EXPECT_TRUE(sm.turnOn());
-
-  // Wait for 1 second
-  wait(1);
-
-  sm.turnOff();
-}
-
-TEST_F(SpaceMouseTest, disconnectController)
-{
-  SystemState ss;
-
-  SpaceMouse sm(topic1, &ss);
-  sm.turnOn();
-
-  // Wait for 1 second
-  wait(1);
-
-  ASSERT_TRUE(sm.turnOff());
-}
-
-TEST_F(SpaceMouseTest, stateIsUpdated)
-{
-  SystemState ss;
-
-  SpaceMouse sm(topic1, &ss);
-  sm.turnOn();
-
-  // Wait for 2 seconds for the topic to be publish and update the state
-  waitSpin(2);
-
-  sensor_msgs::Joy& state = sm.getState();
-  
-  EXPECT_TRUE(state.axes[0] != -1);
-  EXPECT_TRUE(state.axes[1] != -1);
-  EXPECT_TRUE(state.axes[2] != -1);
-  EXPECT_TRUE(state.axes[3] != -1);
-  EXPECT_TRUE(state.axes[4] != -1);
-  EXPECT_TRUE(state.axes[5] != -1);
-  EXPECT_TRUE(state.buttons[0] != -1);
-  EXPECT_TRUE(state.buttons[1] != -1);
-
-  sm.turnOff();
-}
-
-TEST_F(SpaceMouseTest, changeMode)
+TEST_F(SpaceMouseTest, DISABLED_changeMode)
 {
   SystemState ss;
   waitSpin(2);
 
   // Setup modes
-  RemoteControllerMode mode1("mode1", button_map3, action_map3);
-  RemoteControllerMode mode2("mode2", button_map2, action_map2);
+  IRemoteControllerMode* mode1 = new RemoteControllerMode("mode1", button_map3, action_map3);
+  IRemoteControllerMode* mode2 = new RemoteControllerMode("mode2", button_map2, action_map2);
   std::list<IRemoteControllerMode*> modes;
-  modes.push_back(&mode1);
-  modes.push_back(&mode2);
+  modes.push_back(mode1);
+  modes.push_back(mode2);
 
   SpaceMouse sm(topic1, modes, &ss);
   sm.turnOn();
@@ -253,41 +211,15 @@ TEST_F(SpaceMouseTest, changeMode)
   sm.turnOff();
 }
 
-TEST_F(SpaceMouseTest, callButtonAction)
-{
-  SystemState ss;
-
-  // Setup modes
-  RemoteControllerMode mode("default", button_map2, action_map2);
-  std::list<IRemoteControllerMode*> modes;
-  modes.push_front(&mode);
-
-  testing::internal::CaptureStdout(); // Capture std::cout during test
-
-  SpaceMouse sm(topic1, &ss);
-  sm.configModes(modes);
-  sm.turnOn();
-
-  // Wait for 1 second
-  wait(1);
-
-  sm.turnOff();
-
-  std::string output = testing::internal::GetCapturedStdout();
-
-  // Always calls joy two times before stabilizing
-  EXPECT_GE(output.find("change joy"), (unsigned int)0);
-}
-
-TEST_F(SpaceMouseTest, callMoveRobotArmTeleoperationAction)
+TEST_F(SpaceMouseTest, DISABLED_callMoveRobotArmTeleoperationAction)
 {
   SystemState ss;
   waitSpin(2);
 
   // Setup modes
-  RemoteControllerMode mode("default", button_map3, action_map3);
+  IRemoteControllerMode* mode = new RemoteControllerMode("default", button_map3, action_map3);
   std::list<IRemoteControllerMode*> modes;
-  modes.push_back(&mode);
+  modes.push_back(mode);
 
   SpaceMouse sm(topic1, modes, &ss);
   sm.turnOn();
@@ -314,6 +246,6 @@ TEST_F(SpaceMouseTest, callMoveRobotArmTeleoperationAction)
 int main(int argc, char **argv)
 {
   ::testing::InitGoogleTest(&argc, argv);
-  ros::init(argc, argv, "t_spacemouse");
+  ros::init(argc, argv, "t_spacemouse_gtest");
   return RUN_ALL_TESTS();
 }

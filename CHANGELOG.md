@@ -14,6 +14,9 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 - On *smalldrop_bioprint* add init and shutdown routines for robot arm.
 - On *smalldrop_bioprint* add init and shutdown routines for remote controller.
 
+### Changed
+- On *smalldrop_teleoperation* update and separate the tests between gtest and rostest.
+
 ## 0.3.0 (2020-03-30)
 
 ### Added
