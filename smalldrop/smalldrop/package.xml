@@ -10,7 +10,12 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
+  <exec_depend>smalldrop_bioprint</exec_depend>
   <exec_depend>smalldrop_robot_arm</exec_depend>
+  <exec_depend>smalldrop_teleoperation</exec_depend>
+  <exec_depend>smalldrop_state</exec_depend>
+  <exec_depend>smalldrop_msgs</exec_depend>
+  <exec_depend>smalldrop_rviz</exec_depend>
 
   <export>
     <metapackage />
