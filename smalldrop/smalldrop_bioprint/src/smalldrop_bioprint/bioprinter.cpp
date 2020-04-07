@@ -7,6 +7,8 @@
  * the system to be controlled by a GUI.
  */
 
+#include <ros/master.h>
+
 #include <smalldrop_bioprint/bioprinter.h>
 #include <smalldrop_state/system_state.h>
 #include <smalldrop_teleoperation/remote_controller_mode.h>
@@ -27,11 +29,7 @@ namespace smalldrop_bioprint
  * \copybrief Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development)
  */
 Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development)
-  : state_(STATE::OFF)
-  , prev_state_(STATE::OFF)
-  , operation_mode_(MODE::PRINT)
-  , is_sim_(simulation)
-  , is_dev_(development)
+  : state_(STATE::OFF), prev_state_(STATE::OFF), operation_mode_(MODE::PRINT), is_sim_(simulation), is_dev_(development)
 {
   ss_ = std::move(ss_ptr);
   state_topic_ = "/smalldrop/bioprint/state";
@@ -135,6 +133,10 @@ bool Bioprinter::isDevelopment() const
  */
 void Bioprinter::init(const bool calib_cam, const bool calib_phead, const bool calib_only)
 {
+  // Wait two seconds for the whole roslaunch stack to initialise.
+  ros::Rate r(0.5);  // 0.5 Hz - T = 2 sec
+  r.sleep();
+
   if (!calib_only)
   {
     // Read system configurations
@@ -147,7 +149,7 @@ void Bioprinter::init(const bool calib_cam, const bool calib_phead, const bool c
   if (!calib_only)
   {
     if (!initRemoteController())
-      return; // initRemoteController sets STATE::ERROR
+      return;  // initRemoteController sets STATE::ERROR
   }
 
   // If everything went well, change state to IDLE
@@ -190,26 +192,66 @@ void Bioprinter::setupPublishers()
  */
 bool Bioprinter::initRobotArm()
 {
-  std::stringstream launch_cmd;
-  launch_cmd << "roslaunch smalldrop_robot_arm";
+  // Check if the robot controllers and gazebo (if simulation) are running
+  // If not, there was an error during launch and the system initialisation cannot procede.
+  bool controllers_on = false;
+  bool gazebo_on = false;
+  unsigned int controllers_nodes = 0;
+  unsigned int gazebo_nodes = 0;
+
+  std::vector<std::string> nodes;
+  ros::master::getNodes(nodes);
+
+  for (unsigned int i = 0; i < nodes.size(); i++)
+  {
+    if (is_sim_)
+    {
+      if (nodes[i].compare("/controller_spawner") == 0)
+        controllers_nodes++;
+      if (nodes[i].compare("/joint_state_desired_publisher") == 0)
+        controllers_nodes++;
+      if (nodes[i].compare("/robot_state_publisher") == 0)
+        controllers_nodes++;
+
+      if (nodes[i].compare("/gazebo") == 0)
+        gazebo_nodes++;
+      if (nodes[i].compare("/gazebo_gui") == 0)
+        gazebo_nodes++;
+    }
+    else
+    {
+      if (nodes[i].compare("/controller_spawner") == 0)
+        controllers_nodes++;
+      if (nodes[i].compare("/franka_control") == 0)
+        controllers_nodes++;
+      if (nodes[i].compare("/state_controller_spawner") == 0)
+        controllers_nodes++;
+      if (nodes[i].compare("/robot_state_publisher") == 0)
+        controllers_nodes++;
+      if (nodes[i].compare("/joint_state_publisher") == 0)
+        controllers_nodes++;
+      if (nodes[i].compare("/joint_state_desired_publisher") == 0)
+        controllers_nodes++;
+    }
+  }
 
   if (is_sim_)
-    launch_cmd << " cartesian_impedance_sim_controller.launch";
+  {
+    controllers_on = (controllers_nodes == 3) ? true : false;
+    gazebo_on = (gazebo_nodes == 2) ? true : false;
+  }
   else
-    launch_cmd << " cartesian_impedance_real_controller.launch robot_ip:=172.16.0.2";
+  {
+    controllers_on = (controllers_nodes == 6) ? true : false;
+  }
 
-  if (is_dev_)
-    launch_cmd << " rviz:=1 gains:=1";
-
-  // launch_cmd << " &";  // To launch and detach from thread, otherwise caller will be blocked.
-
-  int ret = std::system(launch_cmd.str().c_str());
-
-  if (ret != 0)
+  if ((is_sim_ && !controllers_on && !gazebo_on) || (!is_sim_ && !controllers_on))
   {
     setState(STATE::ERROR);
     return false;
   }
+
+  // Move the robot to the HOME position
 
   return true;
 }
@@ -232,13 +274,13 @@ bool Bioprinter::initRemoteController()
   action_map_t action_map_default, action_map_teleop, action_map_comanip;
   button_map_t button_map_default, button_map_teleop, button_map_comanip;
 
-  action_map_default = { 
+  action_map_default = {
     { "mode", boost::bind(&teleop_actions::changeMode, _1) },
   };
   button_map_default = {
     { "mode", "buttons_0" },
   };
-  action_map_teleop = { 
+  action_map_teleop = {
     { "mode", boost::bind(&teleop_actions::changeMode, _1) },
     { "joy", boost::bind(&teleop_actions::moveRobotArm, _1) },
   };
@@ -246,11 +288,9 @@ bool Bioprinter::initRemoteController()
     { "mode", "buttons_0" },
     { "joy", "axes_*" },
   };
-  action_map_comanip = { 
-    { "mode", boost::bind(&teleop_actions::changeMode, _1) },
-    { "joy", boost::bind(&teleop_actions::moveRobotArm, _1) },
-    { "ok", boost::bind(&teleop_actions::publishSegmentationPoint, _1) } 
-  };
+  action_map_comanip = { { "mode", boost::bind(&teleop_actions::changeMode, _1) },
+                         { "joy", boost::bind(&teleop_actions::moveRobotArm, _1) },
+                         { "ok", boost::bind(&teleop_actions::publishSegmentationPoint, _1) } };
   button_map_comanip = {
     { "joy", "axes_*" },
     { "mode", "buttons_0" },
