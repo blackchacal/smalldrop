@@ -1,9 +1,5 @@
+<?xml version="1.0" ?>
 <launch>
-  <param name="robot_description" command="$(find xacro)/xacro $(find smalldrop_robot_arm)/robots/panda_arm_hand.urdf.xacro robot_origin_xyz:='1 0.0 0.945' robot_origin_rpy:='0.0 0.0 3.1415'" />
-  
-  <!-- Robot gains setup and test arguments -->
-  <arg name="gains" default="false" />
-
   <!-- GAZEBO arguments -->
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
@@ -14,7 +10,6 @@
 
   <!--launch GAZEBO with own world configuration -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find smalldrop_robot_arm)/worlds/hospital_room.world"/>
     <arg name="debug" value="$(arg debug)"/>
     <arg name="gui" value="$(arg gui)"/>
     <arg name="paused" value="$(arg paused)"/>
@@ -22,7 +17,4 @@
     <arg name="recording" value="$(arg recording)"/>
     <arg name="verbose" value="$(arg verbose)"/>
   </include>
-
-  <!-- Add robot to simulation world -->
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model panda" />
 </launch>

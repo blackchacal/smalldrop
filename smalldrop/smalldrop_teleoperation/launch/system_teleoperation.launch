@@ -1,3 +1,4 @@
+<?xml version="1.0" ?>
 <launch>
   <node name="spacenav" pkg="spacenav_node" type="spacenav_node" required="true"/>
 </launch>

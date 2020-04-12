@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<launch>
+<launch> 
   <!-- Robot gains setup and test arguments -->
   <arg name="gains" default="false" />
   <arg name="rviz" default="false" />
