@@ -9,6 +9,7 @@
 #include <getopt.h>
 
 #include <smalldrop_state/system_state.h>
+#include <smalldrop_state/exceptions.h>
 #include <smalldrop_bioprint/bioprinter.h>
 
 using namespace smalldrop::smalldrop_state;
@@ -50,10 +51,26 @@ int main(int argc, char **argv)
       if (bp.getPrevState() == STATE::OFF) // We are initialising the system
         bp.setState(STATE::INIT);
       else // If previous state is not OFF it means we want to shutdown the system
-        return 0;
+      {
+        // Turn off all nodes
+        ROS_WARN("Shutting down the system...");
+        ros::Rate r(0.2); // 0.2 Hz -> T = 5 s
+        r.sleep(); // Sleep for 5 seconds
+
+        std::system("rosnode kill --all");
+      }
       break;
     case STATE::INIT:
-      bp.init(calib_cam, calib_phead, false);
+      try
+      {
+        bp.init(calib_cam, calib_phead, false);
+        // If everything went well, change state to IDLE
+        bp.setState(STATE::IDLE);
+      }
+      catch(SmallDropException& e)
+      {
+        bp.setErrorState(e);
+      }
       break;
     case STATE::IDLE:
       break;
@@ -72,7 +89,7 @@ int main(int argc, char **argv)
     case STATE::CALIB_PHEAD:
       break;
     case STATE::ERROR:
-      std::cout << "STATE ERROR" << std::endl;
+      bp.handleErrors();
       break;
     default:
       break;

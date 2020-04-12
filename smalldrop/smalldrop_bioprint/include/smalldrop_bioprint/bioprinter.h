@@ -63,6 +63,7 @@ private:
   STATE state_;                     /** \var System current state that changes according to work of the system. */
   STATE prev_state_;                /** \var System previous state. It is important for the state machine. */
   MODE operation_mode_;             /** \var System operation mode. */
+  
   bool is_sim_;                     /** \var Simulation or real mode. */
   bool is_dev_;                     /** \var Development or production mode. */
   std::unique_ptr<SystemState> ss_; /** \var SystemState instance. It subscribes to all important system topics, and

@@ -199,12 +199,18 @@ void Bioprinter::handleErrors()
       ros::Rate r(0.2);  // 0.2 Hz - T = 5 sec
       r.sleep();
 
-      if (initRemoteController())
+      try
+      {
+        initRemoteController();
         setState(STATE::IDLE);
-      else if (is_sim_)
-        shutdown(); // If in simulation mode and not able to recover, shutdown the system.
-      else
-        setState(STATE::IDLE);
+      }
+      catch(const RemoteCtrlInitException& e)
+      {
+        if (is_sim_)
+          shutdown(); // If in simulation mode and not able to recover, shutdown the system.
+        else
+          setState(STATE::IDLE);
+      } 
     }
     break;
   default:
