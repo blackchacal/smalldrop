@@ -11,6 +11,7 @@
 
 #include <smalldrop_bioprint/bioprinter.h>
 #include <smalldrop_state/system_state.h>
+#include <smalldrop_state/exceptions.h>
 #include <smalldrop_teleoperation/remote_controller_mode.h>
 #include <smalldrop_teleoperation/spacemouse.h>
 #include <smalldrop_teleoperation/teleoperation_actions.h>
@@ -113,6 +114,18 @@ void Bioprinter::setState(STATE new_state)
 }
 
 /**
+ * \fn void setErrorState(smalldrop_state::SmallDropException& exception)
+ * \brief Sets the system at error state and updates previous state. It receives an exception 
+ * object related to the error.
+ */
+void Bioprinter::setErrorState(smalldrop_state::SmallDropException& exception)
+{
+  prev_state_ = state_;
+  state_ = STATE::ERROR;
+  last_exception_ = exception;
+}
+
+/**
  * \copybrief Bioprinter::isSimulation() const
  */
 bool Bioprinter::isSimulation() const
@@ -141,19 +154,14 @@ void Bioprinter::init(const bool calib_cam, const bool calib_phead, const bool c
   {
     // Read system configurations
 
-    if (!initRobotArm())
-      return;  // initRobotArm sets STATE::ERROR
+    initRobotArm();
   }
   // init print head
   // init camera
   if (!calib_only)
   {
-    if (!initRemoteController())
-      return;  // initRemoteController sets STATE::ERROR
+    initRemoteController();
   }
-
-  // If everything went well, change state to IDLE
-  setState(STATE::IDLE);
 }
 
 /**
@@ -173,6 +181,35 @@ void Bioprinter::shutdown()
 
   // Set the state to OFF
   setState(STATE::OFF);
+}
+
+/**
+ * \copybrief Bioprinter::handleErrors()
+ */
+void Bioprinter::handleErrors()
+{
+  switch (prev_state_)
+  {
+  case STATE::INIT:
+    if (last_exception_.getType().compare("RobotArmInit") == 0)
+      setState(STATE::OFF); // Essential component. Irrecoverable error and should shutdown.
+    else if (last_exception_.getType().compare("RemoteCtrlInit") == 0)
+    {
+      // Wait 5 seconds and try to init again
+      ros::Rate r(0.2);  // 0.2 Hz - T = 5 sec
+      r.sleep();
+
+      if (initRemoteController())
+        setState(STATE::IDLE);
+      else if (is_sim_)
+        shutdown(); // If in simulation mode and not able to recover, shutdown the system.
+      else
+        setState(STATE::IDLE);
+    }
+    break;
+  default:
+    break;
+  }
 }
 
 /*****************************************************************************************
@@ -247,8 +284,7 @@ bool Bioprinter::initRobotArm()
 
   if ((is_sim_ && !controllers_on && !gazebo_on) || (!is_sim_ && !controllers_on))
   {
-    setState(STATE::ERROR);
-    return false;
+    throw smalldrop_state::RobotArmInitException();
   }
 
   // Move the robot to the HOME position
@@ -307,10 +343,7 @@ bool Bioprinter::initRemoteController()
   remote_ctrl_ptr_ = std::move(sm);
 
   if (!remote_ctrl_ptr_->turnOn())
-  {
-    setState(STATE::ERROR);
-    return false;
-  }
+    throw smalldrop_state::RemoteCtrlInitException();
 
   return true;
 }

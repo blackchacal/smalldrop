@@ -14,6 +14,7 @@
 // ROS messages
 #include <std_msgs/String.h>
 
+#include <smalldrop_state/exceptions.h>
 #include <smalldrop_teleoperation/i_remote_controller.h>
 #include <smalldrop_teleoperation/spacemouse.h>
 
@@ -67,6 +68,9 @@ private:
   std::unique_ptr<SystemState> ss_; /** \var SystemState instance. It subscribes to all important system topics, and
                                        provides general publishers. */
 
+  // Error/Exception handling
+  SmallDropException last_exception_; /** \var Exception object representing the last system exception. */
+
   // System components
   std::unique_ptr<IRemoteController> remote_ctrl_ptr_; /** \var Remote Controller instance. */
 
@@ -91,7 +95,7 @@ private:
   void setupPublishers();
 
   /**
-   * \fn void initRobotArm()
+   * \fn bool initRobotArm()
    * \brief Initialize robot arm according to system configuration.
    */
   bool initRobotArm();
@@ -103,7 +107,7 @@ private:
   void shutdownRobotArm();
 
   /**
-   * \fn void initRemoteController()
+   * \fn bool initRemoteController()
    * \brief Initialize the remote controller according to system configuration.
    */
   bool initRemoteController();
@@ -158,6 +162,13 @@ public:
   void setState(STATE new_state);
 
   /**
+   * \fn void setErrorState(SmallDropException& exception)
+   * \brief Sets the system at error state and updates previous state. It receives an exception 
+   * object related to the error.
+   */
+  void setErrorState(SmallDropException& exception);
+
+  /**
    * \fn bool isSimulation() const
    * \brief Check if the system runs in simulation mode or real mode.
    */
@@ -185,6 +196,12 @@ public:
    * on the OFF state.
    */
   void shutdown();
+
+  /**
+   * \fn void handleErrors()
+   * \brief Manages system errors and deals with error recovery.
+   */
+  void handleErrors();
 };
 
 }  // namespace smalldrop_bioprint
