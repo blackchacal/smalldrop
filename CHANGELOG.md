@@ -14,6 +14,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 - On *smalldrop_bioprint* add init and shutdown routines for robot arm.
 - On *smalldrop_bioprint* add init and shutdown routines for remote controller.
 - On *smalldrop_bioprint* add SystemConfig to manage system configurations.
+- On *smalldrop_robot_arm* add workspace limits (virtual walls) to cartesian impedance controllers based on system configuration values.
 
 ### Changed
 - On *smalldrop_teleoperation* update and separate the tests between gtest and rostest.

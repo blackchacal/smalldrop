@@ -135,6 +135,24 @@ bool CartesianImpedanceSimController::init(hardware_interface::RobotHW *robot_hw
       robot_joints_[joint_handles_[6].getName()].get()->limits.get()->lower;
   nullspace_objective_.setZero();
 
+  // Workspace limits
+  std::vector<double> x_limits;
+  std::vector<double> x_limits_defaults = {0.1, 0.5};
+  std::vector<double> y_limits;
+  std::vector<double> y_limits_defaults = {-0.2, 0.2};
+  std::vector<double> z_limits;
+  std::vector<double> z_limits_defaults = {0, 0.5};
+  root_nh.param("smalldrop/robot/workspace/x_limits", x_limits, x_limits_defaults);
+  root_nh.param("smalldrop/robot/workspace/y_limits", y_limits, y_limits_defaults);
+  root_nh.param("smalldrop/robot/workspace/z_limits", z_limits, z_limits_defaults);
+
+  wsp_x_min_limit_ = x_limits[0];
+  wsp_x_max_limit_ = x_limits[1];
+  wsp_y_min_limit_ = y_limits[0];
+  wsp_y_max_limit_ = y_limits[1];
+  wsp_z_min_limit_ = z_limits[0];
+  wsp_z_max_limit_ = z_limits[1];
+
   return true;
 }
 

@@ -115,6 +115,15 @@ protected:
   Eigen::Matrix3d Ko_d, Do_d, Io_d, Ko_d_target, Do_d_target, Io_d_target;  // orientation stiffness, damping and integral in desired frame
   double Kpx, Kpy, Kpz, Kox, Koy, Koz, Dpx, Dpy, Dpz, Dox, Doy, Doz, Ipx, Ipy, Ipz, Iox, Ioy, Ioz, Kpn;
 
+  // Workspace limits
+  //-------------------------------------------------------------------------------------
+  double wsp_x_min_limit_; /** \var Workspace minimum limit on the x axis. */
+  double wsp_x_max_limit_; /** \var Workspace maximum limit on the x axis. */
+  double wsp_y_min_limit_; /** \var Workspace minimum limit on the y axis. */
+  double wsp_y_max_limit_; /** \var Workspace maximum limit on the y axis. */
+  double wsp_z_min_limit_; /** \var Workspace minimum limit on the z axis. */
+  double wsp_z_max_limit_; /** \var Workspace maximum limit on the z axis. */
+
   // Dynamic reconfigure
   //-------------------------------------------------------------------------------------
   ros::NodeHandle dyn_config_gains_node_;

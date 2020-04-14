@@ -1,0 +1,59 @@
+smalldrop:
+  robot:
+    controllers:
+      init_controller: cartesian_impedance
+      available_controllers:
+        - cartesian_impedance
+        - gravity_compensation
+    workspace:
+      x_limits:
+        - 0.1
+        - 0.5
+      y_limits:
+        - -0.2
+        - 0.2
+      z_limits:
+        - 0
+        - 0.5
+    standard_poses:
+      home:
+        - 0
+        - 0
+        - 0
+        - -1.571
+        - 0
+        - 1.571
+        - 0.785
+      refill:
+        - 0
+        - 0
+        - 0
+        - -1.571
+        - 0
+        - 1.571
+        - 0.785
+      shutdown: shutdown_left
+      shutdown_left:
+        - 0
+        - 0
+        - 0
+        - -1.571
+        - 0
+        - 1.571
+        - 0.785
+      shutdown_right:
+        - 0
+        - 0
+        - 0
+        - -1.571
+        - 0
+        - 1.571
+        - 0.785
+      shutdown_front:
+        - 0
+        - 0
+        - 0
+        - -1.571
+        - 0
+        - 1.571
+        - 0.785

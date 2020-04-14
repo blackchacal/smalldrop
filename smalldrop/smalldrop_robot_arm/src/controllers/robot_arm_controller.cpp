@@ -37,7 +37,29 @@ void RobotArmController::setupPublishersAndSubscribers(ros::NodeHandle nh)
  */
 void RobotArmController::updatePoseCallback(const geometry_msgs::PoseConstPtr &msg)
 {
-  X0ee_d_target_ << msg->position.x, msg->position.y, msg->position.z;
+  double x_pos = msg->position.x;
+  double y_pos = msg->position.y; 
+  double z_pos = msg->position.z;
+
+  // Limit the pose to the workspace x limits
+  if (x_pos < wsp_x_min_limit_)
+    x_pos = wsp_x_min_limit_;
+  else if (x_pos > wsp_x_max_limit_)
+    x_pos = wsp_x_max_limit_;
+
+  // Limit the pose to the workspace y limits
+  if (y_pos < wsp_y_min_limit_)
+    y_pos = wsp_y_min_limit_;
+  else if (y_pos > wsp_y_max_limit_)
+    y_pos = wsp_y_max_limit_;
+
+  // Limit the pose to the workspace z limits
+  if (z_pos < wsp_z_min_limit_)
+    z_pos = wsp_z_min_limit_;
+  else if (z_pos > wsp_z_max_limit_)
+    z_pos = wsp_z_max_limit_;
+
+  X0ee_d_target_ << x_pos, y_pos, z_pos;
 
   Eigen::Quaterniond last_orient_d_target_(orient_d_target_);
   orient_d_target_.coeffs() << msg->orientation.x, msg->orientation.y, msg->orientation.z, msg->orientation.w;
