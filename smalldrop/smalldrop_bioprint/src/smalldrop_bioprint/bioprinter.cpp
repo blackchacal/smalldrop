@@ -27,12 +27,13 @@ namespace smalldrop_bioprint
  *****************************************************************************************/
 
 /**
- * \copybrief Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development)
+ * \copybrief Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development)
  */
-Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development)
+Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development)
   : state_(STATE::OFF), prev_state_(STATE::OFF), operation_mode_(MODE::PRINT), is_sim_(simulation), is_dev_(development)
 {
   ss_ = std::move(ss_ptr);
+  config_ = std::move(config_ptr);
   state_topic_ = "/smalldrop/bioprint/state";
   remote_ctrl_topic_ = "/spacenav/joy";
 

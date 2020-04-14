@@ -1,0 +1,49 @@
+smalldrop:
+  bioprint:
+    section1:
+      param3: 1000
+      param4: 1.002300
+      param2:
+        - what
+        - do
+        - you
+        - mean
+        - test?
+      param6:
+        - 1.231000
+        - 2343.233000
+        - 1124.200000
+        - 1.232350
+      param1:
+        - 10
+        - 100
+        - 1000
+        - 10000
+        - 100000
+      param5: bioprinting
+  module2:
+    section1:
+      param2:
+        - str1
+        - str2
+        - str3
+      param1:
+        - 1
+        - 1
+        - 2
+        - 3
+        - 5
+  module1:
+    section2:
+      param1:
+        - 0
+        - 0
+        - 0
+        - -1.571
+        - 0
+        - 1.571
+        - 0.785
+    section1:
+      param3: string
+      param1: 10
+      param2: 5.3

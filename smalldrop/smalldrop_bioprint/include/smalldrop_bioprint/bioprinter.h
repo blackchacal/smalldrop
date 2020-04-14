@@ -14,6 +14,7 @@
 // ROS messages
 #include <std_msgs/String.h>
 
+#include <smalldrop_bioprint/system_config.h>
 #include <smalldrop_state/exceptions.h>
 #include <smalldrop_teleoperation/i_remote_controller.h>
 #include <smalldrop_teleoperation/spacemouse.h>
@@ -54,20 +55,108 @@ enum class MODE
 
 class Bioprinter
 {
+public:
+  /**
+   * Class methods
+   *****************************************************************************************/
+
+  /**
+   * \fn Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development)
+   * \brief Constructor
+   *
+   * \param ss_ptr SystemState class pointer.
+   * \param config_ptr SystemConfig class pointer.
+   * \param simulation Boolean that defines if system should operation in simulation or with real robot.
+   * \param development Boolean that defines if the system is in development mode or production mode.
+   */
+  Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development);
+
+  ~Bioprinter()
+  {
+  }
+
+  /**
+   * \fn void publishState()
+   * \brief Publishes the system working state on a topic.
+   */
+  void publishState();
+
+  /**
+   * \fn STATE getCurrentState() const
+   * \brief Returns the current system working state.
+   */
+  STATE getCurrentState() const;
+
+  /**
+   * \fn STATE getPrevState() const
+   * \brief Returns the previous system working state.
+   */
+  STATE getPrevState() const;
+
+  /**
+   * \fn void setState(STATE new_state)
+   * \brief Sets a new system state and updates previous state.
+   */
+  void setState(STATE new_state);
+
+  /**
+   * \fn void setErrorState(SmallDropException& exception)
+   * \brief Sets the system at error state and updates previous state. It receives an exception
+   * object related to the error.
+   */
+  void setErrorState(SmallDropException& exception);
+
+  /**
+   * \fn bool isSimulation() const
+   * \brief Check if the system runs in simulation mode or real mode.
+   */
+  bool isSimulation() const;
+
+  /**
+   * \fn bool isDevelopment() const
+   * \brief Checks if system is in development mode or production.
+   */
+  bool isDevelopment() const;
+
+  /**
+   * \fn void init(const bool calib_cam, const bool calib_phead, const bool calib_only)
+   * \brief Initialises the whole system (robot arm, print head, camera and remote controllers).
+   *
+   * \param calib_cam Informs the system that the camera needs to be calibrated.
+   * \param calib_phead Informs the system that the print head needs to be calibrated.
+   * \param calib_only If true, skip initialisation of robot arm and remote controllers.
+   */
+  void init(const bool calib_cam, const bool calib_phead, const bool calib_only);
+
+  /**
+   * \fn void shutdown()
+   * \brief Shuts down the robot arm, remote controller, camera and print head. It leaves the system
+   * on the OFF state.
+   */
+  void shutdown();
+
+  /**
+   * \fn void handleErrors()
+   * \brief Manages system errors and deals with error recovery.
+   */
+  void handleErrors();
+
 private:
   /**
    * Class members
    *****************************************************************************************/
 
   // State variables
-  STATE state_;                     /** \var System current state that changes according to work of the system. */
-  STATE prev_state_;                /** \var System previous state. It is important for the state machine. */
-  MODE operation_mode_;             /** \var System operation mode. */
-  
+  STATE state_;         /** \var System current state that changes according to work of the system. */
+  STATE prev_state_;    /** \var System previous state. It is important for the state machine. */
+  MODE operation_mode_; /** \var System operation mode. */
+
   bool is_sim_;                     /** \var Simulation or real mode. */
   bool is_dev_;                     /** \var Development or production mode. */
-  std::unique_ptr<SystemState> ss_; /** \var SystemState instance. It subscribes to all important system topics, and
-                                       provides general publishers. */
+  std::unique_ptr<SystemState> ss_; /** \var SystemState instance pointer. It subscribes to all important system topics,
+                                       and provides general publishers. */
+  std::unique_ptr<SystemConfig> config_; /** \var SystemConfig instance pointer. It allows reading/writing whole system
+                                            configuration files. */
 
   // Error/Exception handling
   SmallDropException last_exception_; /** \var Exception object representing the last system exception. */
@@ -118,91 +207,6 @@ private:
    * \brief Shut down the remote controller.
    */
   void shutdownRemoteController();
-
-public:
-  /**
-   * Class methods
-   *****************************************************************************************/
-
-  /**
-   * \fn Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development)
-   * \brief Constructor
-   *
-   * \param ss_ptr SystemState class pointer.
-   * \param simulation Boolean that defines if system should operation in simulation or with real robot.
-   * \param development Boolean that defines if the system is in development mode or production mode.
-   */
-  Bioprinter(std::unique_ptr<SystemState> ss_ptr, const bool simulation, const bool development);
-
-  ~Bioprinter()
-  {
-  }
-
-  /**
-   * \fn void publishState()
-   * \brief Publishes the system working state on a topic.
-   */
-  void publishState();
-
-  /**
-   * \fn STATE getCurrentState() const
-   * \brief Returns the current system working state.
-   */
-  STATE getCurrentState() const;
-
-  /**
-   * \fn STATE getPrevState() const
-   * \brief Returns the previous system working state.
-   */
-  STATE getPrevState() const;
-
-  /**
-   * \fn void setState(STATE new_state)
-   * \brief Sets a new system state and updates previous state.
-   */
-  void setState(STATE new_state);
-
-  /**
-   * \fn void setErrorState(SmallDropException& exception)
-   * \brief Sets the system at error state and updates previous state. It receives an exception 
-   * object related to the error.
-   */
-  void setErrorState(SmallDropException& exception);
-
-  /**
-   * \fn bool isSimulation() const
-   * \brief Check if the system runs in simulation mode or real mode.
-   */
-  bool isSimulation() const;
-
-  /**
-   * \fn bool isDevelopment() const
-   * \brief Checks if system is in development mode or production.
-   */
-  bool isDevelopment() const;
-
-  /**
-   * \fn void init(const bool calib_cam, const bool calib_phead, const bool calib_only)
-   * \brief Initialises the whole system (robot arm, print head, camera and remote controllers).
-   *
-   * \param calib_cam Informs the system that the camera needs to be calibrated.
-   * \param calib_phead Informs the system that the print head needs to be calibrated.
-   * \param calib_only If true, skip initialisation of robot arm and remote controllers.
-   */
-  void init(const bool calib_cam, const bool calib_phead, const bool calib_only);
-
-  /**
-   * \fn void shutdown()
-   * \brief Shuts down the robot arm, remote controller, camera and print head. It leaves the system
-   * on the OFF state.
-   */
-  void shutdown();
-
-  /**
-   * \fn void handleErrors()
-   * \brief Manages system errors and deals with error recovery.
-   */
-  void handleErrors();
 };
 
 }  // namespace smalldrop_bioprint

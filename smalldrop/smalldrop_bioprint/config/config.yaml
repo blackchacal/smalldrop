@@ -1,0 +1,10 @@
+smalldrop:
+  bioprint:
+    print_configurations:
+      pause_timeout: 10 # seconds
+      pilot_force: 10 # newton
+    visualisation:
+      show_position_tracking: false
+      show_external_forces: false
+      show_external_torques: false
+  

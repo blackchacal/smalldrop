@@ -1,0 +1,4 @@
+<launch>
+  <rosparam file="$(find smalldrop_bioprint)/config/test_config.yaml" command="load"/>
+  <test test-name="t_system_config_rostest" pkg="smalldrop_bioprint" type="t_system_config_rostest" />
+</launch>

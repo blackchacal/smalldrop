@@ -8,11 +8,12 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 
 ### Added
 - On *smalldrop_bioprint* add Bioprinter class that will control the whole system. It shall provide the main API. Add tests.
-- On *smalldrop_bioprint* SystemState class subscribes to system working state topic.
+- On *smalldrop_bioprint* add SystemState class subscribes to system working state topic.
 - On *smalldrop_bioprint* add node to instantiate the Bioprinter class and launch file.
 - On *smalldrop_bioprint* add system state machine.
 - On *smalldrop_bioprint* add init and shutdown routines for robot arm.
 - On *smalldrop_bioprint* add init and shutdown routines for remote controller.
+- On *smalldrop_bioprint* add SystemConfig to manage system configurations.
 
 ### Changed
 - On *smalldrop_teleoperation* update and separate the tests between gtest and rostest.

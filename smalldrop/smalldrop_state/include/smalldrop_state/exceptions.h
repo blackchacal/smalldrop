@@ -61,6 +61,20 @@ public:
   }
 };
 
+class ConfigFileSaveException : public SmallDropException
+{
+public:
+  ConfigFileSaveException() 
+  {
+    type_ = "ConfigFileSave";
+  }
+
+  virtual const char* what() const throw()
+  {
+    return "System Configuration File Write Failure Exception.";
+  }
+};
+
 }  // namespace smalldrop_state
 
 }  // namespace smalldrop

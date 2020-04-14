@@ -11,6 +11,7 @@
 #include <smalldrop_state/system_state.h>
 #include <smalldrop_state/exceptions.h>
 #include <smalldrop_bioprint/bioprinter.h>
+#include <smalldrop_bioprint/system_config.h>
 
 using namespace smalldrop::smalldrop_state;
 using namespace smalldrop::smalldrop_bioprint;
@@ -20,6 +21,7 @@ bool is_sim = true;
 bool is_dev = true;
 bool calib_cam = false;
 bool calib_phead = false;
+std::string catkin_ws = "";
 std::string LOG_TAG = "smalldrop_bioprint";
 
 // Function prototypes
@@ -35,8 +37,16 @@ int main(int argc, char **argv)
   if (!processCmdArgs(argc, argv))
     return 0;
 
+  ros::NodeHandle nh;
+
+  // System State
   std::unique_ptr<SystemState> ss(new SystemState());
-  Bioprinter bp(std::move(ss), is_sim, is_dev);
+
+  // System Configuration
+  std::unique_ptr<SystemConfig> config(new SystemConfig(nh, catkin_ws));
+
+  // Bioprinter
+  Bioprinter bp(std::move(ss), std::move(config), is_sim, is_dev);
 
   ros::Rate r(100); // 100 Hz
   while (ros::ok())
@@ -110,10 +120,11 @@ bool processCmdArgs(int argc, char **argv)
 {
   // Process command-line arguments
   int opt;
-  const char *const short_opts = ":hc:d:p:s:";
+  const char *const short_opts = ":hc:d:k:p:s:";
   const option long_opts[] = { 
     { "ccam", required_argument, nullptr, 'c' },
     { "dev", required_argument, nullptr, 'd' },
+    { "catkin", required_argument, nullptr, 'k' },
     { "cphead", required_argument, nullptr, 'p' },
     { "sim", required_argument, nullptr, 's' },
     { "help", no_argument, nullptr, 'h' },
@@ -129,6 +140,9 @@ bool processCmdArgs(int argc, char **argv)
         break;
       case 'd':
         is_dev = static_cast<bool>(std::stoi(optarg));
+        break;
+      case 'k':
+        catkin_ws = optarg;
         break;
       case 'p':
         calib_phead = static_cast<bool>(std::stoi(optarg));

@@ -1,5 +1,9 @@
 <?xml version="1.0" ?>
 <launch>
+  <!-- Main arguments for system configuration -->
+  <!-- It must be defined because of the configuration system. -->
+  <arg name="catkin_ws" default="/home/rtonet/ROS/tese" /> 
+
   <!-- Main arguments for Bioprinter constructor -->
   <arg name="is_simulation" default="1" /> 
   <arg name="is_development" default="1" />
@@ -27,5 +31,7 @@
     <arg name="rviz" value="$(arg rviz)" />
   </include>
 
-  <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development) --ccam $(arg calib_cam) --cphead $(arg calib_phead)" output="screen" />
+  <rosparam file="$(find smalldrop_bioprint)/config/config.yaml" command="load"/>
+  
+  <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development) --ccam $(arg calib_cam) --cphead $(arg calib_phead) --catkin $(arg catkin_ws)" output="screen" />
 </launch>

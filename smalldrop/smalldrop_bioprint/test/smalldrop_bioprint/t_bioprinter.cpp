@@ -8,16 +8,29 @@
 
 #include <gtest/gtest.h>
 #include <smalldrop_bioprint/bioprinter.h>
-#include <smalldrop_bioprint/system_state.h>
+#include <smalldrop_bioprint/system_config.h>
+#include <smalldrop_state/system_state.h>
 #include <iostream>
 
 using namespace smalldrop::smalldrop_bioprint;
+using namespace smalldrop::smalldrop_state;
 
-class SpaceMouseTest : public ::testing::Test
+class BioprinterTest : public ::testing::Test
 {
 protected:
+  ros::NodeHandle nh;
+  std::string catkin_ws;
+  std::unique_ptr<SystemState> ss;
+  std::unique_ptr<SystemConfig> config;
+
   void SetUp() override
   {
+    catkin_ws = "/home/rtonet/ROS/tese";
+
+    std::unique_ptr<SystemState> ss_ptr(new SystemState());
+    std::unique_ptr<SystemConfig> config_ptr(new SystemConfig(nh, catkin_ws));
+    ss = std::move(ss_ptr);
+    config = std::move(config_ptr);
   }
 
   void TearDown() override
@@ -49,33 +62,33 @@ public:
   }
 };
 
-TEST_F(SpaceMouseTest, isSimulationMode)
+TEST_F(BioprinterTest, isSimulationMode)
 {
-  Bioprinter bp1(true, true); // is_simulation = true, is_dev = true;
+  Bioprinter bp1(std::move(ss), std::move(config), true, true); // is_simulation = true, is_dev = true;
   EXPECT_TRUE(bp1.isSimulation());  
 
-  Bioprinter bp2(false, true); // is_simulation = false, is_dev = true;
+  Bioprinter bp2(std::move(ss), std::move(config), false, true); // is_simulation = false, is_dev = true;
   EXPECT_FALSE(bp2.isSimulation());
 }
 
-TEST_F(SpaceMouseTest, isDevelopmentMode)
+TEST_F(BioprinterTest, isDevelopmentMode)
 {
-  Bioprinter bp1(true, true); // is_simulation = true, is_dev = true;
+  Bioprinter bp1(std::move(ss), std::move(config), true, true); // is_simulation = true, is_dev = true;
   EXPECT_TRUE(bp1.isDevelopment());  
 
-  Bioprinter bp2(true, false); // is_simulation = true, is_dev = false;
+  Bioprinter bp2(std::move(ss), std::move(config), true, false); // is_simulation = true, is_dev = false;
   EXPECT_FALSE(bp2.isDevelopment());
 }
 
-TEST_F(SpaceMouseTest, isPublishingState)
+TEST_F(BioprinterTest, isPublishingState)
 {
-  SystemState ss;
-  Bioprinter bp(true, true); // is_simulation = true, is_dev = true;
+  SystemState sys_state;
+  Bioprinter bp(std::move(ss), std::move(config), true, true); // is_simulation = true, is_dev = true;
 
   // Wait 3 seconds for the topics to update
   waitSpin(3);
 
-  std::string state = ss.getSystemState();
+  std::string state = sys_state.getSystemState();
 
   EXPECT_EQ(state, "OFF");  
 }
