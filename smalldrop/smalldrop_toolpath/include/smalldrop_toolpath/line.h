@@ -26,10 +26,10 @@ class Line : public Path
 {
 public:
   /**
-   * \fn Line(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f)
+   * \fn Line(const pose_t pose_i, const pose_t pose_f)
    * \brief Constructor.
    */
-  Line(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f);
+  Line(const pose_t pose_i, const pose_t pose_f);
 
   ~Line()
   {

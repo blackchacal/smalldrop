@@ -7,7 +7,6 @@
  */
 
 #include <gtest/gtest.h>
-// #include <smalldrop_toolpath/path.h>
 #include <smalldrop_toolpath/line.h>
 #include <smalldrop_toolpath/circle.h>
 #include <smalldrop_toolpath/circular_spiral.h>

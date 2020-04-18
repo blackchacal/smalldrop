@@ -19,14 +19,14 @@ namespace smalldrop_toolpath
  *****************************************************************************************/
 
 /**
- * \copybrief Line::Line(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f)
+ * \copybrief Line::Line(const pose_t pose_i, const pose_t pose_f)
  */
-Line::Line(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f) : Path()
+Line::Line(const pose_t pose_i, const pose_t pose_f) : Path()
 {
   double t = 0;
   while (t < 1.0001)
   {
-    geometry_msgs::Pose pose;
+    pose_t pose;
     pose.position.x = (1 - t) * pose_i.position.x + t * pose_f.position.x;
     pose.position.y = (1 - t) * pose_i.position.y + t * pose_f.position.y;
     pose.position.z = (1 - t) * pose_i.position.z + t * pose_f.position.z;

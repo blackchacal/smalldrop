@@ -75,6 +75,20 @@ public:
   }
 };
 
+class TrajectoryMaxSpeedExceededException : public SmallDropException
+{
+public:
+  TrajectoryMaxSpeedExceededException() 
+  {
+    type_ = "TrajectoryMaxSpeedExceeded";
+  }
+
+  virtual const char* what() const throw()
+  {
+    return "Trajectory Maximum Speed Exceeded Exception.";
+  }
+};
+
 }  // namespace smalldrop_state
 
 }  // namespace smalldrop

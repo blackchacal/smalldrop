@@ -26,7 +26,7 @@ class CircularSpiral : public Path
 {
 public:
   /**
-   * \fn CircularSpiral(const geometry_msgs::Pose current_pose, const double eradius, const double iradius, const unsigned int loops, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
+   * \fn CircularSpiral(const pose_t current_pose, const double eradius, const double iradius, const unsigned int loops, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
    * \brief Constructor.
    * 
    * \param current_pose Current robot pose.
@@ -36,7 +36,7 @@ public:
    * \param n_points Number of points that make the circular spiral. More points means a more defined circular spiral.
    * \param plane The geometrical plane where the path will be followed.
    */
-  CircularSpiral(const geometry_msgs::Pose current_pose, const double eradius, const double iradius, const unsigned int loops, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
+  CircularSpiral(const pose_t current_pose, const double eradius, const double iradius, const unsigned int loops, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
 
   ~CircularSpiral()
   {

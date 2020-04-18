@@ -27,7 +27,7 @@ double Path::length() const
 }
 
 /**
- * \copybrief Path::points() const
+ * \copybrief Path::poses() const
  */
 poses_t Path::poses() const
 {
@@ -55,9 +55,9 @@ void Path::calcLength()
  *****************************************************************************************/
 
 /**
- * \copybrief Path::distanceBetweenTwoPoses(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f) const
+ * \copybrief Path::distanceBetweenTwoPoses(const pose_t pose_i, const pose_t pose_f) const
  */
-double Path::distanceBetweenTwoPoses(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f) const
+double Path::distanceBetweenTwoPoses(const pose_t pose_i, const pose_t pose_f) const
 {
   return std::sqrt(std::pow((pose_f.position.x - pose_i.position.x), 2) +
                    std::pow((pose_f.position.y - pose_i.position.y), 2) +

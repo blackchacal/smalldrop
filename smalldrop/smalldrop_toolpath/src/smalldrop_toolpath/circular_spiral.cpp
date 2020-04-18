@@ -19,10 +19,10 @@ namespace smalldrop_toolpath
  *****************************************************************************************/
 
 /**
- * \copybrief CircularSpiral::CircularSpiral(const geometry_msgs::Pose current_pose, const double eradius, const double
+ * \copybrief CircularSpiral::CircularSpiral(const pose_t current_pose, const double eradius, const double
  * iradius, const unsigned int loops, const unsigned int n_points, const PATH_PLANE plane)
  */
-CircularSpiral::CircularSpiral(const geometry_msgs::Pose current_pose, const double eradius, const double iradius,
+CircularSpiral::CircularSpiral(const pose_t current_pose, const double eradius, const double iradius,
                                const unsigned int loops, const unsigned int n_points, const PATH_PLANE plane)
   : Path()
 {
@@ -38,7 +38,7 @@ CircularSpiral::CircularSpiral(const geometry_msgs::Pose current_pose, const dou
     t = 0;
     while (t <= 0.9999)
     {
-      geometry_msgs::Pose pose;
+      pose_t pose;
       switch (plane)
       {
       case PATH_PLANE::XZ:

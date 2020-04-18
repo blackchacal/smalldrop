@@ -14,5 +14,7 @@
   <depend>geometry_msgs</depend>
   <depend>trajectory_msgs</depend>
 
+  <depend>smalldrop_state</depend>
+
   <export/>
 </package>

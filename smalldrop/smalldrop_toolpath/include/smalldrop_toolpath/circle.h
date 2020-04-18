@@ -26,7 +26,7 @@ class Circle : public Path
 {
 public:
   /**
-   * \fn Circle(const geometry_msgs::Pose current_pose, const geometry_msgs::Pose center, const double radius, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
+   * \fn Circle(const pose_t current_pose, const pose_t center, const double radius, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
    * \brief Constructor.
    * 
    * \param current_pose Current robot pose.
@@ -35,7 +35,7 @@ public:
    * \param n_points Number of points that make the circle. More points means a more defined circle.
    * \param plane The geometrical plane where the path will be followed.
    */
-  Circle(const geometry_msgs::Pose current_pose, const geometry_msgs::Pose center, const double radius, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
+  Circle(const pose_t current_pose, const pose_t center, const double radius, const unsigned int n_points, const PATH_PLANE plane = PATH_PLANE::XY);
 
   ~Circle()
   {

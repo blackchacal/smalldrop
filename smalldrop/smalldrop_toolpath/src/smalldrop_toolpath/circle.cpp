@@ -19,10 +19,10 @@ namespace smalldrop_toolpath
  *****************************************************************************************/
 
 /**
- * \copybrief Circle::Circle(const geometry_msgs::Pose current_pose, const geometry_msgs::Pose center, const double
+ * \copybrief Circle::Circle(const pose_t current_pose, const pose_t center, const double
  * radius, const unsigned int n_points, const PATH_PLANE plane)
  */
-Circle::Circle(const geometry_msgs::Pose current_pose, const geometry_msgs::Pose center, const double radius,
+Circle::Circle(const pose_t current_pose, const pose_t center, const double radius,
                const unsigned int n_points, const PATH_PLANE plane)
   : Path()
 {
@@ -30,7 +30,7 @@ Circle::Circle(const geometry_msgs::Pose current_pose, const geometry_msgs::Pose
   double step = 1 / (double)n_points;
   while (t <= 1.0001)
   {
-    geometry_msgs::Pose pose;
+    pose_t pose;
     switch (plane)
     {
       case PATH_PLANE::XZ:

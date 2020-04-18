@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   roscpp
   trajectory_msgs
+  smalldrop_state
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -20,7 +21,7 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES toolpath_planner path_planner cartesian_space_trajectory_planner
- CATKIN_DEPENDS geometry_msgs roscpp trajectory_msgs
+ CATKIN_DEPENDS geometry_msgs roscpp trajectory_msgs smalldrop_state
 #  DEPENDS system_lib
 )
 
@@ -42,15 +43,16 @@ add_library(path_planner
   src/${PROJECT_NAME}/circle.cpp
   src/${PROJECT_NAME}/circular_spiral.cpp
 )
+add_library(trajectory_planner
+  src/${PROJECT_NAME}/trajectory.cpp
+  src/${PROJECT_NAME}/trajectory_planner.cpp
+)
 
 add_dependencies(path_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/smalldrop_toolpath_node.cpp)
+add_dependencies(trajectory_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(path_planner ${catkin_LIBRARIES})
+target_link_libraries(trajectory_planner path_planner ${catkin_LIBRARIES})
 
 #############
 ## Install ##
@@ -63,4 +65,9 @@ target_link_libraries(path_planner ${catkin_LIBRARIES})
 catkin_add_gtest(t_paths_gtest test/smalldrop_toolpath/t_paths_gtest.cpp)
 if(TARGET t_paths_gtest)
   target_link_libraries(t_paths_gtest path_planner)
+endif()
+
+catkin_add_gtest(t_trajectory_gtest test/smalldrop_toolpath/t_trajectory_gtest.cpp)
+if(TARGET t_trajectory_gtest)
+  target_link_libraries(t_trajectory_gtest path_planner trajectory_planner)
 endif()

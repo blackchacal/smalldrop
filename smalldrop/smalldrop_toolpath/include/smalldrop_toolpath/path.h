@@ -20,6 +20,11 @@ namespace smalldrop_toolpath
 {
 
 /**
+ * \typedef pose_t
+ */
+typedef geometry_msgs::Pose pose_t;
+
+/**
  * \typedef poses_t
  */
 typedef std::vector<geometry_msgs::Pose> poses_t;
@@ -73,7 +78,7 @@ protected:
 
   /**
    * \fn Path()
-   * \brief Constructor. Cannot be instantiated.
+   * \brief Constructor. Cannot be instantiated directly.
    */
   Path() : length_(0) {}
 
@@ -86,10 +91,10 @@ protected:
 private:
 
   /**
-   * \fn double distanceBetweenTwoPoses(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f) const
+   * \fn double distanceBetweenTwoPoses(const pose_t pose_i, const pose_t pose_f) const
    * \brief Calculates the distance in space between two pose positions.
    */
-  double distanceBetweenTwoPoses(const geometry_msgs::Pose pose_i, const geometry_msgs::Pose pose_f) const;
+  double distanceBetweenTwoPoses(const pose_t pose_i, const pose_t pose_f) const;
 };
 
 }  // namespace smalldrop_toolpath
