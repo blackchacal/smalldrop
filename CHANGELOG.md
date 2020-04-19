@@ -16,6 +16,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 - On *smalldrop_bioprint* add SystemConfig to manage system configurations.
 - On *smalldrop_robot_arm* add workspace limits (virtual walls) to cartesian impedance controllers based on system configuration values.
 - Add *smalldrop_toolpath* package to manage path and trajectory planning.
+- On *smalldrop_robot_arm* add two nodes for moving the robot to a start pose, and to send trajectories (line, circle, circular_spiral) to the robot for execution.
 
 ### Changed
 - On *smalldrop_teleoperation* update and separate the tests between gtest and rostest.

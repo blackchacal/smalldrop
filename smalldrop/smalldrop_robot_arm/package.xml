@@ -26,6 +26,8 @@
 
   <depend>franka_hw</depend> <!-- For real robot -->
   <depend>controller_interface</depend> <!-- For real robot -->
+
+  <depend>smalldrop_toolpath</depend>
   
   <doc_depend>doxygen</doc_depend>
   
