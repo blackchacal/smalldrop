@@ -21,7 +21,8 @@ using namespace smalldrop::smalldrop_state;
 class TrajectoryTest : public ::testing::Test
 {
 protected:
-  geometry_msgs::Pose pose_1, pose_2, pose_3, pose_4, pose_5, pose_6;
+  pose_t pose_1, pose_2, pose_3, pose_4, pose_5, pose_6;
+  pose_t initial_pose, final_pose, center;
   std::shared_ptr<Line> line;
   std::shared_ptr<Circle> circle;
   std::shared_ptr<CircularSpiral> circular_spiral;
@@ -287,6 +288,48 @@ TEST_F(TrajectoryTest, throwExceptionWhenViolatingTrajectoryMaxSpeed)
   EXPECT_NO_THROW(Trajectory traj2(pl.plan(*circle)));
   pl.setMaxSpeed(circular_spiral->length()/duration + 1);
   EXPECT_NO_THROW(Trajectory traj3(pl.plan(*circular_spiral)));
+}
+
+TEST_F(TrajectoryTest, trajectoryWithMultiplePaths)
+{
+  initial_pose.position.x = 0.4;
+  initial_pose.position.y = 0;
+  initial_pose.position.z = 0.5;
+  initial_pose.orientation.x = 1;
+  initial_pose.orientation.y = 0;
+  initial_pose.orientation.z = 0;
+  initial_pose.orientation.w = 0;
+
+  final_pose.position.x = 0.4;
+  final_pose.position.y = 0;
+  final_pose.position.z = 0;
+  final_pose.orientation.x = 1;
+  final_pose.orientation.y = 0;
+  final_pose.orientation.z = 0;
+  final_pose.orientation.w = 0;
+
+  center.position.x = 0.3;
+  center.position.y = 0;
+  center.position.z = 0;
+  center.orientation.x = 1;
+  center.orientation.y = 0;
+  center.orientation.z = 0;
+  center.orientation.w = 0;
+
+  Line l(initial_pose, final_pose);
+  Circle c(final_pose, center, 0.1, 10, PATH_PLANE::XY);
+
+  double duration = 10;
+  double frequency = 100;
+  PLAN_MODE mode = PLAN_MODE::POLY3;
+
+  TrajectoryPlanner pl(duration, frequency, mode);
+  std::vector<Path> paths = {l, c};
+  Trajectory t(pl.plan(paths));
+
+  EXPECT_FALSE(t.empty());
+  EXPECT_NE(t.length(), 0);
+  EXPECT_EQ(t.length(), l.length()+c.length());
 }
 
 int main(int argc, char** argv)

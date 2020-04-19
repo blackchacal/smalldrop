@@ -48,7 +48,7 @@ Trajectory TrajectoryPlanner::plan(const Path& path)
   poses_t trajectory;
   poses_t poses = path.poses();
   unsigned int npoints = poses.size();
-  double t_interval = duration_ / (double)npoints;
+  double t_interval = duration_ / ((double)npoints-1);
 
   Trajectory t(trajectory, 0, duration_);
 
@@ -73,6 +73,54 @@ Trajectory TrajectoryPlanner::plan(const Path& path)
     }
 
     Trajectory traj(trajectory, path.length(), duration_);
+    t = traj;
+  }
+
+  return t;
+}
+
+/**
+ * \copybrief TrajectoryPlanner::plan(const paths_t paths)
+ */
+Trajectory TrajectoryPlanner::plan(const paths_t paths)
+{
+  // Check if speed exceeds upper bound
+  if (duration_ > 0 && getFullPathLength(paths)/duration_ > max_speed_)
+    throw smalldrop_state::TrajectoryMaxSpeedExceededException();
+
+  poses_t trajectory;
+  double path_duration = duration_ / paths.size();
+
+  Trajectory t(trajectory, 0, duration_);
+
+  if (duration_ > 0 && frequency_ > 0)
+  {
+    for (size_t i = 0; i < paths.size(); i++)
+    {
+      poses_t poses = paths[i].poses();
+      unsigned int npoints = poses.size();
+      double t_interval = path_duration / ((double)npoints-1);
+
+      for (size_t j = 0; j < npoints - 1; j++)
+      {
+        double t = 0;
+        while (t <= t_interval + 0.0001)
+        {
+          switch (plan_mode_)
+          {
+            case PLAN_MODE::LSPB:
+              trajectory.push_back(lspb(poses[j], poses[j + 1], LSPB_ACCEL, 0, t_interval, t));
+              break;
+            default:  // PLAN_MODE::POLY3
+              trajectory.push_back(poly3(poses[j], poses[j + 1], 0, t_interval, t));
+              break;
+          }
+          t += 1 / frequency_;
+        }
+      }
+    }
+
+    Trajectory traj(trajectory, getFullPathLength(paths), duration_);
     t = traj;
   }
 
@@ -398,6 +446,30 @@ pose_t TrajectoryPlanner::lspb(const pose_t pose_i, const pose_t pose_f, const d
   }
 
   return pose;
+}
+
+/**
+ * \copybrief TrajectoryPlanner::getFullPathLength(const paths_t path)
+ */
+double TrajectoryPlanner::getFullPathLength(const paths_t paths)
+{
+  double total_length = 0;
+  for (size_t i = 0; i < paths.size(); i++)
+    total_length += paths[i].length();
+  
+  return total_length;
+}
+
+/**
+ * \copybrief TrajectoryPlanner::getFullPathSize(const paths_t path)
+ */
+double TrajectoryPlanner::getFullPathSize(const paths_t paths)
+{
+  double total_size = 0;
+  for (size_t i = 0; i < paths.size(); i++)
+    total_size += paths[i].poses().size();
+  
+  return total_size;
 }
 
 }  // namespace smalldrop_toolpath

@@ -20,7 +20,7 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES toolpath_planner path_planner cartesian_space_trajectory_planner
+ LIBRARIES path_planner trajectory_planner
  CATKIN_DEPENDS geometry_msgs roscpp trajectory_msgs smalldrop_state
 #  DEPENDS system_lib
 )

@@ -29,6 +29,11 @@ typedef geometry_msgs::Pose pose_t;
  */
 typedef std::vector<geometry_msgs::Pose> poses_t;
 
+/**
+ * \typedef paths_t
+ */
+typedef std::vector<Path> paths_t;
+
 enum class PLAN_MODE
 {
   POLY3,
@@ -85,6 +90,14 @@ public:
    * \param path Path associated to the trajectory.
    */
   Trajectory plan(const Path& path);
+
+  /**
+   * \fn Trajectory plan(const paths_t paths)
+   * \brief Plan the trajectory.
+   *
+   * \param paths A list of paths that will be concatenated to form the trajectory.
+   */
+  Trajectory plan(const paths_t paths);
 
   /**
    * \fn void setDuration(const double duration)
@@ -194,6 +207,22 @@ private:
    */
   pose_t lspb(const pose_t pose_i, const pose_t pose_f, const double accel, const double t0, const double tf,
               const double t) const;
+
+  /**
+   * \fn double getFullPathLength(const paths_t path)
+   * \brief Get the length of all the paths associated with the trajectory
+   * 
+   * \param paths List of paths.
+   */
+  double getFullPathLength(const paths_t paths);
+
+  /**
+   * \fn double getFullPathSize(const paths_t path)
+   * \brief Get the size of all the paths associated with the trajectory
+   * 
+   * \param paths List of paths.
+   */
+  double getFullPathSize(const paths_t paths);
 };
 
 }  // namespace smalldrop_toolpath
