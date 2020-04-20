@@ -89,6 +89,34 @@ public:
   }
 };
 
+class JointTrajectoryLSPBInvalidAccelerationException : public SmallDropException
+{
+public:
+  JointTrajectoryLSPBInvalidAccelerationException() 
+  {
+    type_ = "JointTrajectoryLSPBInvalidAcceleration";
+  }
+
+  virtual const char* what() const throw()
+  {
+    return "Invalid Acceleration on LSPB Joint Trajectory Planning Exception.";
+  }
+};
+
+class InvalidNumberOfJointsException : public SmallDropException
+{
+public:
+  InvalidNumberOfJointsException() 
+  {
+    type_ = "InvalidNumberOfJoints";
+  }
+
+  virtual const char* what() const throw()
+  {
+    return "Invalid Number of Joints Exception.";
+  }
+};
+
 }  // namespace smalldrop_state
 
 }  // namespace smalldrop

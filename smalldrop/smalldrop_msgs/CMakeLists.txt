@@ -15,6 +15,7 @@ add_message_files(
   FILES
   Tau.msg
   TrackingError.msg
+  JointPositions.msg
 )
 
 generate_messages(

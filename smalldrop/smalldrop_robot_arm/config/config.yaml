@@ -1,10 +1,11 @@
 smalldrop:
   robot:
     controllers:
-      init_controller: cartesian_impedance
+      init_controller: joint_position_pid
       available_controllers:
         - cartesian_impedance
         - gravity_compensation
+        - joint_position_pid
     workspace:
       x_limits:
         - 0.1
@@ -15,45 +16,61 @@ smalldrop:
       z_limits:
         - 0
         - 0.5
+      min_joint_limits:
+        - -2.5
+        - -1.5
+        - -2.5
+        - -2.8
+        - -2.5
+        - 0
+        - -2.5
+      max_joint_limits:
+        - 2.5
+        - 1.5
+        - 2.5
+        - -0.5
+        - 2.5
+        - 3.5
+        - 2.5
     standard_poses:
       home:
         - 0
         - 0
         - 0
-        - -1.571
+        - -1.5701
         - 0
-        - 1.571
-        - 0.785
+        - 1.5701
+        - 0.7854
       refill:
         - 0
         - 0
         - 0
-        - -1.571
+        - -1.5701
         - 0
-        - 1.571
-        - 0.785
+        - 1.5701
+        - 0.7854
       shutdown: shutdown_left
       shutdown_left:
+        - 1.5701
+        - -0.7854
         - 0
+        - -2.8
         - 0
-        - 0
-        - -1.571
-        - 0
-        - 1.571
-        - 0.785
+        - 1.5701
+        - 2.3561
       shutdown_right:
+        - -1.5701
+        - -0.7854
         - 0
+        - -2.8
         - 0
-        - 0
-        - -1.571
-        - 0
-        - 1.571
-        - 0.785
+        - 1.5701
+        - 2.3561
       shutdown_front:
         - 0
+        - -0.7854
         - 0
+        - -2.8
         - 0
-        - -1.571
-        - 0
-        - 1.571
-        - 0.785
+        - 1.5701
+        - 2.3561

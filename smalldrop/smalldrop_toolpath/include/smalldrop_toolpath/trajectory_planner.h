@@ -75,7 +75,7 @@ public:
    */
   TrajectoryPlanner(const double duration, const double frequency, const PLAN_MODE plan_mode, const double max_speed);
 
-  virtual ~TrajectoryPlanner()
+  ~TrajectoryPlanner()
   {
   }
 

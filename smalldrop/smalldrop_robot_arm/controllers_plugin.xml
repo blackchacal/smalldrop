@@ -24,12 +24,21 @@
     </description>
   </class>
 </library>
-<library path="lib/libsdrop_real_gravity_compensation">
+<library path="lib/libsdrop_robot_real_gravity_compensation">
   <class name="smalldrop_robot_arm/GravityCompensationRealController"
          type="smalldrop::smalldrop_robot_arm::GravityCompensationRealController"
          base_class_type="controller_interface::ControllerBase">
     <description>
       Interaction control - Gravity Compensation controller architecture.
+    </description>
+  </class>
+</library>
+<library path="lib/libsdrop_robot_sim_joint_position_pid">
+  <class name="smalldrop_robot_arm/JointPositionPIDSimController"
+         type="smalldrop::smalldrop_robot_arm::JointPositionPIDSimController"
+         base_class_type="controller_interface::ControllerBase">
+    <description>
+      Joint control - Joint Position PID controller architecture.
     </description>
   </class>
 </library>

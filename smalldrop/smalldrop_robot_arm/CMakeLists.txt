@@ -28,6 +28,7 @@ find_package(gazebo REQUIRED)
 generate_dynamic_reconfigure_options(
   cfg/CartesianImpedanceSimController.cfg
   cfg/CartesianImpedanceRealController.cfg
+  cfg/JointPositionPIDSimController.cfg
 )
 
 ###################################
@@ -80,21 +81,29 @@ add_library(sdrop_robot_sim_cartesian_impedance
   src/controllers/cartesian_impedance_sim_controller.cpp
   src/controllers/robot_arm_controller.cpp
 )
+add_library(sdrop_robot_sim_joint_position_pid
+  src/controllers/joint_position_pid_sim_controller.cpp
+  src/controllers/robot_arm_joint_controller.cpp
+)
 add_library(sdrop_create_sim_world SHARED src/gazebo_plugins/create_sim_world.cc)
 
 add_executable(move_to_start src/nodes/move_to_start.cpp)
+add_executable(move_to_joint_config src/nodes/move_to_joint_config.cpp)
 add_executable(execute_trajectory src/nodes/execute_trajectory.cpp)
 
 add_dependencies(sdrop_robot_real_cartesian_impedance ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
 add_dependencies(sdrop_robot_real_gravity_compensation ${PROJECT_NAME}_generate_messages_cpp)
 add_dependencies(sdrop_robot_sim_cartesian_impedance ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(sdrop_robot_sim_joint_position_pid ${PROJECT_NAME}_gencfg ${PROJECT_NAME}_generate_messages_cpp)
 
 target_link_libraries(sdrop_robot_real_cartesian_impedance ${catkin_LIBRARIES})
 target_link_libraries(sdrop_robot_real_gravity_compensation ${catkin_LIBRARIES})
 target_link_libraries(sdrop_robot_sim_cartesian_impedance ${catkin_LIBRARIES})
+target_link_libraries(sdrop_robot_sim_joint_position_pid ${catkin_LIBRARIES})
 target_link_libraries(sdrop_create_sim_world ${GAZEBO_LIBRARIES})
 
 target_link_libraries(move_to_start path_planner trajectory_planner ${catkin_LIBRARIES})
+target_link_libraries(move_to_joint_config joint_trajectory_planner ${catkin_LIBRARIES})
 target_link_libraries(execute_trajectory path_planner trajectory_planner ${catkin_LIBRARIES})
 
 #############

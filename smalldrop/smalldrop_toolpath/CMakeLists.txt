@@ -20,7 +20,7 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 
 catkin_package(
  INCLUDE_DIRS include
- LIBRARIES path_planner trajectory_planner
+ LIBRARIES path_planner trajectory_planner joint_trajectory_planner
  CATKIN_DEPENDS geometry_msgs roscpp trajectory_msgs smalldrop_state
 #  DEPENDS system_lib
 )
@@ -47,12 +47,17 @@ add_library(trajectory_planner
   src/${PROJECT_NAME}/trajectory.cpp
   src/${PROJECT_NAME}/trajectory_planner.cpp
 )
+add_library(joint_trajectory_planner
+  src/${PROJECT_NAME}/joint_trajectory_planner.cpp
+)
 
 add_dependencies(path_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 add_dependencies(trajectory_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(joint_trajectory_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(path_planner ${catkin_LIBRARIES})
 target_link_libraries(trajectory_planner path_planner ${catkin_LIBRARIES})
+target_link_libraries(joint_trajectory_planner ${catkin_LIBRARIES})
 
 #############
 ## Install ##
