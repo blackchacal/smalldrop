@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smalldrop</name>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
   <description>The smalldrop metapackage.</description>
   <maintainer email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</maintainer>
   <author email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</author>
@@ -16,6 +16,7 @@
   <exec_depend>smalldrop_state</exec_depend>
   <exec_depend>smalldrop_msgs</exec_depend>
   <exec_depend>smalldrop_rviz</exec_depend>
+  <exec_depend>smalldrop_toolpath</exec_depend>
 
   <export>
     <metapackage />
