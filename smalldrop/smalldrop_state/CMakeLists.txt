@@ -8,6 +8,8 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  smalldrop_msgs
+  controller_manager_msgs
 )
 
 ###################################
@@ -17,7 +19,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES ${PROJECT_NAME}
- CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs
+ CATKIN_DEPENDS geometry_msgs roscpp sensor_msgs std_msgs smalldrop_msgs controller_manager_msgs
 )
 
 ###########

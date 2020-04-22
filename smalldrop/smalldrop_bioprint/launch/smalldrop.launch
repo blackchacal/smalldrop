@@ -20,7 +20,7 @@
   <include file="$(find smalldrop_teleoperation)/launch/system_teleoperation.launch" />
 
   <!-- Include robot arm launch -->
-  <include if="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/cartesian_impedance_sim_controller.launch">
+  <include if="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/joint_position_pid_sim_controller.launch">
       <arg name="gains" value="$(arg gains)" />
       <arg name="rviz" value="$(arg rviz)" />
       <arg name="sim_world" value="$(arg sim_world)" />

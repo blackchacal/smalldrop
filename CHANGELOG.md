@@ -18,6 +18,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 - Add *smalldrop_toolpath* package to manage path and trajectory planning.
 - On *smalldrop_robot_arm* add two nodes for moving the robot to a start pose, and to send trajectories (line, circle, circular_spiral) to the robot for execution.
 - On *smalldrop_robot_arm* add node for moving the robot to a chosen joint configuration.
+- On *smalldrop_bioprint* add robot movement to HOME and SHUTDOWN positions.
 
 ### Changed
 - On *smalldrop_teleoperation* update and separate the tests between gtest and rostest.

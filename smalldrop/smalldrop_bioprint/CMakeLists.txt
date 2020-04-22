@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   std_msgs
   smalldrop_teleoperation
+  smalldrop_toolpath
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -23,7 +24,14 @@ pkg_search_module(EIGEN REQUIRED eigen3)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES smalldrop_bioprint
- CATKIN_DEPENDS geometry_msgs roscpp rospy sensor_msgs std_msgs smalldrop_teleoperation
+ CATKIN_DEPENDS 
+  geometry_msgs 
+  roscpp 
+  rospy 
+  sensor_msgs 
+  std_msgs 
+  smalldrop_teleoperation 
+  smalldrop_toolpath
 )
 
 ###########

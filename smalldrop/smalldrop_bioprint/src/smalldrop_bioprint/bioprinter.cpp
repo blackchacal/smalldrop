@@ -11,12 +11,12 @@
 
 #include <smalldrop_bioprint/bioprinter.h>
 #include <smalldrop_state/system_state.h>
-#include <smalldrop_state/exceptions.h>
 #include <smalldrop_teleoperation/remote_controller_mode.h>
-#include <smalldrop_teleoperation/spacemouse.h>
 #include <smalldrop_teleoperation/teleoperation_actions.h>
 
 #include <sstream>
+
+using namespace smalldrop::smalldrop_toolpath;
 
 namespace smalldrop
 {
@@ -279,7 +279,7 @@ bool Bioprinter::initRobotArm()
     }
   }
 
-  if (is_sim_)
+  if (isSimulation())
   {
     controllers_on = (controllers_nodes == 3) ? true : false;
     gazebo_on = (gazebo_nodes == 2) ? true : false;
@@ -289,12 +289,13 @@ bool Bioprinter::initRobotArm()
     controllers_on = (controllers_nodes == 6) ? true : false;
   }
 
-  if ((is_sim_ && !controllers_on && !gazebo_on) || (!is_sim_ && !controllers_on))
+  if ((isSimulation() && !controllers_on && !gazebo_on) || (!isSimulation() && !controllers_on))
   {
     throw smalldrop_state::RobotArmInitException();
   }
 
   // Move the robot to the HOME position
+  moveRobotArmHome();
 
   return true;
 }
@@ -305,8 +306,124 @@ bool Bioprinter::initRobotArm()
 void Bioprinter::shutdownRobotArm()
 {
   // Change to joint controller
+  names_t start_controllers = {"joint_position_pid"};
+  names_t stop_controllers = {"cartesian_impedance"};
+  switchRobotArmControllers(start_controllers, stop_controllers);
 
   // Move to shutdown position
+  // Read current joint positions
+  smalldrop_msgs::JointPositions jpos = ss_->getRobotArmJointPositions();
+  jpos_t joints_i = jpos.positions;
+
+  // Read SHUTDOWN joint positions from system configurations
+  std::string shutdown_position;
+  jpos_t joints_f;
+  config_->readConfigParam("robot", "standard_poses", "shutdown", shutdown_position);
+  config_->readConfigParam("robot", "standard_poses", shutdown_position, joints_f);
+
+  double duration = 10; // Movement duration in seconds
+  double freq = 100; // Hz
+
+  planRobotJointMovement(duration, freq, PLAN_MODE::POLY3, joints_i, joints_f);
+}
+
+/**
+ * \copybrief Bioprinter::moveRobotArmHome()
+ */
+void Bioprinter::moveRobotArmHome()
+{
+  // All the controllers are already loaded from launch file
+  // Joint controller is already selected
+
+  ros::spinOnce(); // Update the system state subscribers
+  
+  // Read current joint positions
+  smalldrop_msgs::JointPositions jpos = ss_->getRobotArmJointPositions();
+  jpos_t joints_i = jpos.positions;
+
+  // Read HOME joint positions from system configurations
+  jpos_t joints_f;
+  config_->readConfigParam("robot", "standard_poses", "home", joints_f);
+
+  double duration = 10; // Movement duration in seconds
+  double freq = 100; // Hz
+
+  planRobotJointMovement(duration, freq, PLAN_MODE::POLY3, joints_i, joints_f);
+
+  // Switch to cartesian impedance controller
+  names_t start_controllers = {"cartesian_impedance"};
+  names_t stop_controllers = {"joint_position_pid"};
+  switchRobotArmControllers(start_controllers, stop_controllers);
+}
+
+/**
+ * \copybrief Bioprinter::switchRobotArmControllers() const
+ */
+void Bioprinter::switchRobotArmControllers(const names_t start_controllers, const names_t stop_controllers) const
+{
+  ros::ServiceClient client = ss_->getControllerManagerSwitchControllerService();
+
+  controller_manager_msgs::SwitchController srv;
+  if (isSimulation())
+  {
+    for (size_t i = 0; i < start_controllers.size(); i++)
+    {
+      std::stringstream start;
+      start << start_controllers[i] << "_sim_controller";
+      srv.request.start_controllers.push_back(start.str());
+    }
+    for (size_t i = 0; i < stop_controllers.size(); i++)
+    {
+      std::stringstream stop;
+      stop << stop_controllers[i] << "_sim_controller";
+      srv.request.stop_controllers.push_back(stop.str());
+    }
+  }
+  else
+  {
+    for (size_t i = 0; i < start_controllers.size(); i++)
+    {
+      std::stringstream start;
+      start << start_controllers[i] << "_real_controller";
+      srv.request.start_controllers.push_back(start.str());
+    }
+    for (size_t i = 0; i < stop_controllers.size(); i++)
+    {
+      std::stringstream stop;
+      stop << stop_controllers[i] << "_real_controller";
+      srv.request.stop_controllers.push_back(stop.str());
+    }
+  }
+  srv.request.strictness = 2; // STRICT
+  srv.request.start_asap = true;
+  srv.request.timeout = 5; // seconds
+
+  if (!client.call(srv) || !srv.response.ok)
+    throw RobotArmControllerSwitchException();
+}
+
+/**
+ * \copybrief Bioprinter::planRobotJointMovement()
+ */
+void Bioprinter::planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode, const jpos_t joints_i, const jpos_t joints_f)
+{
+  // Plan joint trajectory between joints_i and joints_f
+  JointTrajectoryPlanner pl(duration, frequency, plan_mode);  
+  std::vector<jpos_t> traj = pl.plan(joints_i, joints_f);
+
+  ros::Rate r(frequency);
+  ros::Publisher joints_pub = ss_->getRobotDesiredJointPositionsPublisher();
+  for (size_t i = 0; i < traj.size(); i++)
+  {
+    smalldrop_msgs::JointPositions msg;
+    for (size_t j = 0; j < traj[i].size(); j++)
+      msg.positions.push_back(traj[i][j]);
+
+    // Send trajectory to robot
+    joints_pub.publish(msg);
+    ros::spinOnce();
+    r.sleep();
+  }
 }
 
 /**

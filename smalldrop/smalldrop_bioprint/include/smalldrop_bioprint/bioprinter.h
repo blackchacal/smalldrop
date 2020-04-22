@@ -11,21 +11,30 @@
 
 #include <ros/ros.h>
 
-// ROS messages
+// ROS messages & services
 #include <std_msgs/String.h>
+#include <controller_manager_msgs/SwitchController.h>
 
 #include <smalldrop_bioprint/system_config.h>
 #include <smalldrop_state/exceptions.h>
 #include <smalldrop_teleoperation/i_remote_controller.h>
 #include <smalldrop_teleoperation/spacemouse.h>
+#include <smalldrop_toolpath/joint_trajectory_planner.h>
 
 using namespace smalldrop::smalldrop_state;
 using namespace smalldrop::smalldrop_teleoperation;
+using namespace smalldrop::smalldrop_toolpath;
 
 namespace smalldrop
 {
 namespace smalldrop_bioprint
 {
+
+/**
+ * \typedef names_t
+ */
+typedef std::vector<std::string> names_t;
+
 /**
  * \enum STATE
  * \brief Defines the various possible states of the system
@@ -197,6 +206,18 @@ private:
   void shutdownRobotArm();
 
   /**
+   * \fn void moveRobotArmHome()
+   * \brief Move the robot arm to the HOME position.
+   */
+  void moveRobotArmHome();
+
+  /**
+   * \fn void switchRobotArmControllers(const names_t start_controllers, const names_t stop_controllers) const;
+   * \brief Switches the robot arm controllers.
+   */
+  void switchRobotArmControllers(const names_t start_controllers, const names_t stop_controllers) const;
+
+  /**
    * \fn bool initRemoteController()
    * \brief Initialize the remote controller according to system configuration.
    */
@@ -207,6 +228,18 @@ private:
    * \brief Shut down the remote controller.
    */
   void shutdownRemoteController();
+
+  /**
+   * \fn void planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode, const jpos_t joints_i, const jpos_t joints_f)
+   * \brief Plan and send joint configuration to robot.
+   * 
+   * \param duration Joint movement duration.
+   * \param frequency Publishing frequency.
+   * \param plan_mode Planning mode.
+   * \param joints_i Initial joint configuration.
+   * \param joints_f Final joint configuration.
+   */
+  void planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode, const jpos_t joints_i, const jpos_t joints_f);
 };
 
 }  // namespace smalldrop_bioprint

@@ -24,6 +24,7 @@
   <depend>smalldrop_rviz</depend>
   <depend>smalldrop_teleoperation</depend>
   <depend>smalldrop_state</depend>
+  <depend>smalldrop_toolpath</depend>
 
   <export></export>
 </package>

@@ -82,13 +82,14 @@ TEST_F(BioprinterTest, isDevelopmentMode)
 
 TEST_F(BioprinterTest, isPublishingState)
 {
-  SystemState sys_state;
+  std::unique_ptr<SystemState> ss_(new SystemState());
+
   Bioprinter bp(std::move(ss), std::move(config), true, true); // is_simulation = true, is_dev = true;
 
   // Wait 3 seconds for the topics to update
   waitSpin(3);
 
-  std::string state = sys_state.getSystemState();
+  std::string state = ss_->getSystemState();
 
   EXPECT_EQ(state, "OFF");  
 }

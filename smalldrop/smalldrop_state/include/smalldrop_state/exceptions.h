@@ -117,6 +117,20 @@ public:
   }
 };
 
+class RobotArmControllerSwitchException : public SmallDropException
+{
+public:
+  RobotArmControllerSwitchException() 
+  {
+    type_ = "RobotArmControllerSwitch";
+  }
+
+  virtual const char* what() const throw()
+  {
+    return "Robot Arm Controller Switch Exception.";
+  }
+};
+
 }  // namespace smalldrop_state
 
 }  // namespace smalldrop

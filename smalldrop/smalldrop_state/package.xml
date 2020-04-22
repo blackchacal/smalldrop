@@ -16,6 +16,9 @@
   <depend>roscpp</depend>
   <depend>sensor_msgs</depend>
   <depend>std_msgs</depend>
+  <depend>controller_manager_msgs</depend>
+
+  <depend>smalldrop_msgs</depend>
 
   <export/>
 </package>
