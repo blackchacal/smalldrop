@@ -9,6 +9,9 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 ### Added
 - Add *smalldrop_segmentation* package with convex hull segmentation algorithm for co-manipulation.
 
+### Changed
+- On *smalldrop_teleoperation* started using relative paths for file storing of co-manipulation wound segmentation points.
+
 ## 0.4.0 (2020-04-22)
 
 ### Added

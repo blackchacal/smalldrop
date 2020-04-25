@@ -8,6 +8,9 @@
 
 #include <smalldrop_teleoperation/teleoperation_actions.h>
 
+#include <ros/package.h>
+#include <sstream>
+
 namespace smalldrop
 {
 namespace smalldrop_teleoperation
@@ -24,7 +27,9 @@ int segmentation_marker_id = 0; /** \var Wound segmentation markers id. */
  */
 bool changeMode(smalldrop_state::SystemState* system_state)
 {
-  std::string filepath = "/home/rtonet/ROS/tese/src/panda_3dbioprint_debug_tools/data/segmentation_points.dat";
+  std::stringstream path;
+  path << ros::package::getPath("smalldrop_segmentation") << "/data/segmentation_points.dat";	
+  std::string filepath = path.str();
   ros::Publisher rviz_segmentation_points_pub = system_state->getSegmentationPointsPublisher();
 
   // Open file to append point data
@@ -132,7 +137,9 @@ bool publishSegmentationPoint(smalldrop_state::SystemState* system_state)
 {
   ROS_INFO_NAMED(LOG_TAG, "%s: Publish Segmentation Point...", LOG_TAG.c_str());
 
-  std::string filepath = "/home/rtonet/ROS/tese/src/panda_3dbioprint_debug_tools/data/segmentation_points.dat";
+  std::stringstream path;
+  path << ros::package::getPath("smalldrop_segmentation") << "/data/segmentation_points.dat";	
+  std::string filepath = path.str();
   geometry_msgs::Pose robot_arm_pose = system_state->getRobotArmPose();
   ros::Publisher rviz_segmentation_points_pub = system_state->getSegmentationPointsPublisher();
 

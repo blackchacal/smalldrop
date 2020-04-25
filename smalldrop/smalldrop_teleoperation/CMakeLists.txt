@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   spacenav_node
   smalldrop_state
+  roslib
 )
 find_package(Boost REQUIRED COMPONENTS system)
 find_package(PkgConfig REQUIRED)
