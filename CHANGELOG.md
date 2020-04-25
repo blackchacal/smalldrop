@@ -4,6 +4,11 @@ This changelog will try to follow the recomendations provided by the project [Ke
 
 The versioning scheme will follow the [semantic versioning](https://semver.org/). 
 
+## UNPUBLISHED
+
+### Added
+- Add *smalldrop_segmentation* package with convex hull segmentation algorithm for co-manipulation.
+
 ## 0.4.0 (2020-04-22)
 
 ### Added

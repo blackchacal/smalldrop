@@ -20,9 +20,10 @@ This project is composed of several ROS packages that communicate with each othe
 - **smalldrop_robot_arm:** Responsible for the robot arm control for the real robot and Gazebo simulation.
 - **smalldrop_msgs:** Responsible for declaring all messages, services and actions for the project.
 - **smalldrop_rviz:** Responsible for handling rviz configurations and visualisation displays.
-- **smalldrop_teleoperation:** Responsible providing an interface for remote controllers for teleoperation. It provides a standard remote controller ([Space Mouse Compact from 3Dconnexion](https://www.3dconnexion.eu/spacemouse_compact/eu/)).
+- **smalldrop_teleoperation:** Responsible for providing an interface for remote controllers for teleoperation. It provides a standard remote controller ([Space Mouse Compact from 3Dconnexion](https://www.3dconnexion.eu/spacemouse_compact/eu/)).
 - **smalldrop_toolpath:** Provides cartesian and joint path/trajectory planners.
 - **smalldrop_state:** Responsible for declaring exceptions and provides a SystemState class that has general publishers and subscribers to be used by the other packages.
+- **smalldrop_segmentation:** Responsible for providing wound segmentation algorithms for co-manipulation or camera segmentation.
 
 **Dependencies (git submodules)**
 

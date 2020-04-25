@@ -17,6 +17,7 @@
   <exec_depend>smalldrop_msgs</exec_depend>
   <exec_depend>smalldrop_rviz</exec_depend>
   <exec_depend>smalldrop_toolpath</exec_depend>
+  <exec_depend>smalldrop_segmentation</exec_depend>
 
   <export>
     <metapackage />
