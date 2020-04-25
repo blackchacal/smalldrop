@@ -21,7 +21,6 @@ bool is_sim = true;
 bool is_dev = true;
 bool calib_cam = false;
 bool calib_phead = false;
-std::string catkin_ws = "";
 std::string LOG_TAG = "smalldrop_bioprint";
 
 // Function prototypes
@@ -43,7 +42,7 @@ int main(int argc, char **argv)
   std::unique_ptr<SystemState> ss(new SystemState());
 
   // System Configuration
-  std::unique_ptr<SystemConfig> config(new SystemConfig(nh, catkin_ws));
+  std::unique_ptr<SystemConfig> config(new SystemConfig(nh));
 
   // Bioprinter
   Bioprinter bp(std::move(ss), std::move(config), is_sim, is_dev);
@@ -120,11 +119,10 @@ bool processCmdArgs(int argc, char **argv)
 {
   // Process command-line arguments
   int opt;
-  const char *const short_opts = ":hc:d:k:p:s:";
+  const char *const short_opts = ":hc:d:p:s:";
   const option long_opts[] = { 
     { "ccam", required_argument, nullptr, 'c' },
     { "dev", required_argument, nullptr, 'd' },
-    { "catkin", required_argument, nullptr, 'k' },
     { "cphead", required_argument, nullptr, 'p' },
     { "sim", required_argument, nullptr, 's' },
     { "help", no_argument, nullptr, 'h' },
@@ -140,9 +138,6 @@ bool processCmdArgs(int argc, char **argv)
         break;
       case 'd':
         is_dev = static_cast<bool>(std::stoi(optarg));
-        break;
-      case 'k':
-        catkin_ws = optarg;
         break;
       case 'p':
         calib_phead = static_cast<bool>(std::stoi(optarg));

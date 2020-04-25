@@ -12,6 +12,8 @@
 #include <smalldrop_bioprint/system_config.h>
 #include <smalldrop_state/exceptions.h>
 
+#include <ros/package.h>
+
 // YAML-CPP Library
 #include <yaml-cpp/yaml.h>
 
@@ -24,9 +26,9 @@ namespace smalldrop_bioprint
  *****************************************************************************************/
 
 /**
- * \copybrief SystemConfig::SystemConfig(ros::NodeHandle nh, std::string catkin_ws)
+ * \copybrief SystemConfig::SystemConfig(ros::NodeHandle nh)
  */
-SystemConfig::SystemConfig(ros::NodeHandle nh, std::string catkin_ws) : nh_(nh), ws_(catkin_ws)
+SystemConfig::SystemConfig(ros::NodeHandle nh) : nh_(nh)
 {
   config_filemap_ = {
     { "bioprint", "smalldrop_bioprint" },
@@ -259,7 +261,7 @@ std::string SystemConfig::getConfigFilePath(const std::string module) const
   std::stringstream path;
   if (config_filemap_.find(module) != config_filemap_.end())
   {
-    path << ws_ << "/src/smalldrop/" << config_filemap_.find(module)->second << "/config/test_config.yaml";
+    path << ros::package::getPath(config_filemap_.find(module)->second) << "/config/test_config.yaml";
     return path.str();
   }
   else

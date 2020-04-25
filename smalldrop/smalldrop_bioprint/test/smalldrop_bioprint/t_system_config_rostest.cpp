@@ -8,6 +8,7 @@
 
 #include <gtest/gtest.h>
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <smalldrop_bioprint/system_config.h>
 #include <smalldrop_state/exceptions.h>
 #include <yaml-cpp/yaml.h>
@@ -21,7 +22,6 @@ using namespace smalldrop::smalldrop_state;
 class SystemConfigTest : public ::testing::Test
 {
 protected:
-  std::string catkin_ws = "/home/rtonet/ROS/tese";
   ros::NodeHandle nh;
 
   void SetUp() override
@@ -33,7 +33,7 @@ protected:
   }
 
 public:
-  std::string getConfigFilePath(const std::string ws, const std::string module) const
+  std::string getConfigFilePath(const std::string module) const
   {
     std::stringstream path;
     std::map<std::string, std::string> config_filemap = {
@@ -42,14 +42,14 @@ public:
       { "teleop", "smalldrop_teleoperation" },
     };
 
-    path << ws << "/src/smalldrop/" << config_filemap.find(module)->second << "/config/test_config.yaml";
+    path << ros::package::getPath(config_filemap.find(module)->second) << "/config/test_config.yaml";
     return path.str();
   }
 };
 
 TEST_F(SystemConfigTest, readIntConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   int param_val;
   cfg.readConfigParam("module1", "section1", "param1", param_val);
@@ -59,7 +59,7 @@ TEST_F(SystemConfigTest, readIntConfigParam)
 
 TEST_F(SystemConfigTest, readDoubleConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   double param_val;
   cfg.readConfigParam("module1", "section1", "param2", param_val);
@@ -69,7 +69,7 @@ TEST_F(SystemConfigTest, readDoubleConfigParam)
 
 TEST_F(SystemConfigTest, readStringConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string param_val;
   cfg.readConfigParam("module1", "section1", "param3", param_val);
@@ -79,7 +79,7 @@ TEST_F(SystemConfigTest, readStringConfigParam)
 
 TEST_F(SystemConfigTest, readIntListConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::vector<int> param_val;
   cfg.readConfigParam("module2", "section1", "param1", param_val);
@@ -94,7 +94,7 @@ TEST_F(SystemConfigTest, readIntListConfigParam)
 
 TEST_F(SystemConfigTest, readDoubleListConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::vector<double> param_val;
   cfg.readConfigParam("module1", "section2", "param1", param_val);
@@ -111,7 +111,7 @@ TEST_F(SystemConfigTest, readDoubleListConfigParam)
 
 TEST_F(SystemConfigTest, readStringListConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::vector<std::string> param_val;
   cfg.readConfigParam("module2", "section1", "param2", param_val);
@@ -124,7 +124,7 @@ TEST_F(SystemConfigTest, readStringListConfigParam)
 
 TEST_F(SystemConfigTest, writeConfigParamWrongModuleThrowsException)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string param_val = "new_string";
 
@@ -133,7 +133,7 @@ TEST_F(SystemConfigTest, writeConfigParamWrongModuleThrowsException)
 
 TEST_F(SystemConfigTest, writeIntConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string module = "bioprint";
   std::string section = "section1";
@@ -143,7 +143,7 @@ TEST_F(SystemConfigTest, writeIntConfigParam)
 
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  YAML::Node config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  YAML::Node config = YAML::LoadFile(getConfigFilePath(module));
   int file_val = config["smalldrop"][module][section][param].as<int>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -151,7 +151,7 @@ TEST_F(SystemConfigTest, writeIntConfigParam)
   param_val = 2;
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<int>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -159,7 +159,7 @@ TEST_F(SystemConfigTest, writeIntConfigParam)
   param_val = 1000;
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<int>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -167,7 +167,7 @@ TEST_F(SystemConfigTest, writeIntConfigParam)
 
 TEST_F(SystemConfigTest, writeDoubleConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string module = "bioprint";
   std::string section = "section1";
@@ -177,7 +177,7 @@ TEST_F(SystemConfigTest, writeDoubleConfigParam)
 
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  YAML::Node config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  YAML::Node config = YAML::LoadFile(getConfigFilePath(module));
   double file_val = config["smalldrop"][module][section][param].as<double>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -185,7 +185,7 @@ TEST_F(SystemConfigTest, writeDoubleConfigParam)
   param_val = 0.324;
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<double>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -193,7 +193,7 @@ TEST_F(SystemConfigTest, writeDoubleConfigParam)
   param_val = 1.0023;
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<double>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -201,7 +201,7 @@ TEST_F(SystemConfigTest, writeDoubleConfigParam)
 
 TEST_F(SystemConfigTest, writeStringConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string module = "bioprint";
   std::string section = "section1";
@@ -211,7 +211,7 @@ TEST_F(SystemConfigTest, writeStringConfigParam)
 
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  YAML::Node config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  YAML::Node config = YAML::LoadFile(getConfigFilePath(module));
   std::string file_val = config["smalldrop"][module][section][param].as<std::string>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -219,7 +219,7 @@ TEST_F(SystemConfigTest, writeStringConfigParam)
   param_val = "hello world";
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::string>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -227,7 +227,7 @@ TEST_F(SystemConfigTest, writeStringConfigParam)
   param_val = "bioprinting";
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::string>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -235,7 +235,7 @@ TEST_F(SystemConfigTest, writeStringConfigParam)
 
 TEST_F(SystemConfigTest, writeIntListConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string module = "bioprint";
   std::string section = "section1";
@@ -245,7 +245,7 @@ TEST_F(SystemConfigTest, writeIntListConfigParam)
 
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  YAML::Node config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  YAML::Node config = YAML::LoadFile(getConfigFilePath(module));
   std::vector<int> file_val = config["smalldrop"][module][section][param].as<std::vector<int>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -253,7 +253,7 @@ TEST_F(SystemConfigTest, writeIntListConfigParam)
   param_val = { 1, 1, 2, 3, 5, 8, 13 };
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::vector<int>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -261,7 +261,7 @@ TEST_F(SystemConfigTest, writeIntListConfigParam)
   param_val = { 10, 100, 1000, 10000, 100000 };
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::vector<int>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -269,7 +269,7 @@ TEST_F(SystemConfigTest, writeIntListConfigParam)
 
 TEST_F(SystemConfigTest, writeDoubleListConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string module = "bioprint";
   std::string section = "section1";
@@ -279,7 +279,7 @@ TEST_F(SystemConfigTest, writeDoubleListConfigParam)
 
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  YAML::Node config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  YAML::Node config = YAML::LoadFile(getConfigFilePath(module));
   std::vector<double> file_val = config["smalldrop"][module][section][param].as<std::vector<double>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -287,7 +287,7 @@ TEST_F(SystemConfigTest, writeDoubleListConfigParam)
   param_val = { 0.1, 0.01, 0.001 };
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::vector<double>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -295,7 +295,7 @@ TEST_F(SystemConfigTest, writeDoubleListConfigParam)
   param_val = { 1.231, 2343.233, 1124.2, 1.23235 };
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::vector<double>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -303,7 +303,7 @@ TEST_F(SystemConfigTest, writeDoubleListConfigParam)
 
 TEST_F(SystemConfigTest, writeStringListConfigParam)
 {
-  SystemConfig cfg(nh, catkin_ws);
+  SystemConfig cfg(nh);
 
   std::string module = "bioprint";
   std::string section = "section1";
@@ -313,7 +313,7 @@ TEST_F(SystemConfigTest, writeStringListConfigParam)
 
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  YAML::Node config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  YAML::Node config = YAML::LoadFile(getConfigFilePath(module));
   std::vector<std::string> file_val = config["smalldrop"][module][section][param].as<std::vector<std::string>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -321,7 +321,7 @@ TEST_F(SystemConfigTest, writeStringListConfigParam)
   param_val = { "back", "to", "the", "future" };
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::vector<std::string>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);
@@ -329,7 +329,7 @@ TEST_F(SystemConfigTest, writeStringListConfigParam)
   param_val = { "what", "do", "you", "mean", "test?" };
   cfg.writeConfigParam(module, section, param, param_val);
   cfg.readConfigParam(module, section, param, stored_val);
-  config = YAML::LoadFile(getConfigFilePath(catkin_ws, module));
+  config = YAML::LoadFile(getConfigFilePath(module));
   file_val = config["smalldrop"][module][section][param].as<std::vector<std::string>>();
   EXPECT_EQ(stored_val, param_val);
   EXPECT_EQ(file_val, param_val);

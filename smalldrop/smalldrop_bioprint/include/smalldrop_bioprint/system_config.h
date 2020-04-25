@@ -23,10 +23,10 @@ public:
    *****************************************************************************************/
 
   /**
-   * \fn SystemConfig(ros::NodeHandle nh, std::string catkin_ws)
+   * \fn SystemConfig(ros::NodeHandle nh)
    * \brief Constructor
    */
-  SystemConfig(ros::NodeHandle nh, std::string catkin_ws);
+  SystemConfig(ros::NodeHandle nh);
 
   ~SystemConfig()
   {
@@ -176,8 +176,6 @@ private:
    *****************************************************************************************/
 
   ros::NodeHandle nh_; /** \var ROS node handle. */
-
-  std::string ws_; /** \var Catkin workspace path. */
 
   std::map<std::string, std::string> config_filemap_; /** \var Stores the map between module names and associated
                                                          packages. */

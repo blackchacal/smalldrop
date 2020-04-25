@@ -19,16 +19,14 @@ class BioprinterTest : public ::testing::Test
 {
 protected:
   ros::NodeHandle nh;
-  std::string catkin_ws;
+  // std::string catkin_ws;
   std::unique_ptr<SystemState> ss;
   std::unique_ptr<SystemConfig> config;
 
   void SetUp() override
   {
-    catkin_ws = "/home/rtonet/ROS/tese";
-
     std::unique_ptr<SystemState> ss_ptr(new SystemState());
-    std::unique_ptr<SystemConfig> config_ptr(new SystemConfig(nh, catkin_ws));
+    std::unique_ptr<SystemConfig> config_ptr(new SystemConfig(nh));
     ss = std::move(ss_ptr);
     config = std::move(config_ptr);
   }

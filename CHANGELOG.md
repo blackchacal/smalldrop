@@ -11,6 +11,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 
 ### Changed
 - On *smalldrop_teleoperation* started using relative paths for file storing of co-manipulation wound segmentation points.
+- On *smalldrop_bioprint* started using relative paths for system configuration.
 
 ## 0.4.0 (2020-04-22)
 
