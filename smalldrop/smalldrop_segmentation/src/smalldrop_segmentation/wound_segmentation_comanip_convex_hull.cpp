@@ -17,15 +17,10 @@ namespace smalldrop_segmentation
  *****************************************************************************************/
 
 /**
- * \copybrief WSegmentCoManipConvexHull::WSegmentCoManipConvexHull(const std::string filepath, const unsigned int
- * im_width, const unsigned int im_height, const double wsp_x_min, const double wsp_x_max, const double wsp_y_min, const
- * double wsp_y_max)
+ * \copybrief WSegmentCoManipConvexHull::WSegmentCoManipConvexHull(const std::string filepath, const img_wsp_calibration_t calibration_data)
  */
-WSegmentCoManipConvexHull::WSegmentCoManipConvexHull(const std::string filepath, const unsigned int im_width,
-                                                     const unsigned int im_height, const double wsp_x_min,
-                                                     const double wsp_x_max, const double wsp_y_min,
-                                                     const double wsp_y_max)
-  : WSegmentCoManip(filepath, im_width, im_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max)
+WSegmentCoManipConvexHull::WSegmentCoManipConvexHull(const std::string filepath, const img_wsp_calibration_t calibration_data)
+  : WSegmentCoManip(filepath, calibration_data)
 {
   // Get save poses and convert them to points
   poses_t poses = loadWoundSegmentationPoses();

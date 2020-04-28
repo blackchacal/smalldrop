@@ -27,21 +27,13 @@ public:
    *****************************************************************************************/
 
   /**
-   * \fn WSegmentCoManipConvexHull(const std::string filepath, const unsigned int im_width, const unsigned int
-   * im_height, const double wsp_x_min, const double wsp_x_max, const double wsp_y_min, const double wsp_y_max) 
+   * \fn WSegmentCoManipConvexHull(const std::string filepath, const img_wsp_calibration_t calibration_data) 
    * \brief Constructor where robot workspace and image limits are defined.
    *
    * \param filepath The path to the file with wound segmentation poses data.
-   * \param im_width Image width in pixels
-   * \param im_height Image height in pixels
-   * \param wsp_x_min Robot workspace coordinates minimum x limit
-   * \param wsp_x_max Robot workspace coordinates maximum x limit
-   * \param wsp_y_min Robot workspace coordinates minimum y limit
-   * \param wsp_y_max Robot workspace coordinates maximum y limit
+   * \param calibration_data Data for image-workspace calibration.
    */
-  WSegmentCoManipConvexHull(const std::string filepath, const unsigned int im_width, const unsigned int im_height,
-                            const double wsp_x_min, const double wsp_x_max, const double wsp_y_min,
-                            const double wsp_y_max);
+  WSegmentCoManipConvexHull(const std::string filepath, const img_wsp_calibration_t calibration_data);
 
   ~WSegmentCoManipConvexHull()
   {

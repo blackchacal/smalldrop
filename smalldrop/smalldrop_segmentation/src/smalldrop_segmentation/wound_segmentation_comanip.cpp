@@ -31,20 +31,16 @@ WSegmentCoManip::WSegmentCoManip(const std::string filepath)
 }
 
 /**
- * \copybrief WSegmentCoManip::WSegmentCoManip(const std::string filepath, const unsigned int im_width, const unsigned
- * int im_height, const double wsp_x_min, const double wsp_x_max, const double wsp_y_min, const double wsp_y_max)
+ * \copybrief WSegmentCoManip::WSegmentCoManip(const std::string filepath, const img_wsp_calibration_t calibration_data)
  */
-WSegmentCoManip::WSegmentCoManip(const std::string filepath, const unsigned int im_width, const unsigned int im_height,
-                                 const double wsp_x_min, const double wsp_x_max, const double wsp_y_min,
-                                 const double wsp_y_max)
-  : image_width_(im_width)
-  , image_height_(im_height)
-  , wsp_x_min_limit_(wsp_x_min)
-  , wsp_x_max_limit_(wsp_x_max)
-  , wsp_y_min_limit_(wsp_y_min)
-  , wsp_y_max_limit_(wsp_y_max)
-  , filepath_(filepath)
+WSegmentCoManip::WSegmentCoManip(const std::string filepath, const img_wsp_calibration_t calibration_data) : filepath_(filepath)
 {
+  image_width_ = calibration_data.img_width;
+  image_height_ = calibration_data.img_height;
+  wsp_x_min_limit_ = calibration_data.wsp_x_min;
+  wsp_x_max_limit_ = calibration_data.wsp_x_max;
+  wsp_y_min_limit_ = calibration_data.wsp_y_min;
+  wsp_y_max_limit_ = calibration_data.wsp_y_max;
 }
 
 /**

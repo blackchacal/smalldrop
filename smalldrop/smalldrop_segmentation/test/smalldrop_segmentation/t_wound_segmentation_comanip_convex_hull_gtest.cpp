@@ -17,12 +17,14 @@ using namespace smalldrop::smalldrop_segmentation;
 class WSegmentCoManipConvexHullTest : public ::testing::Test
 {
 protected:
-  unsigned int image_width = 800;
-  unsigned int image_height = 800;
-  double wsp_x_min = 0.0;
-  double wsp_x_max = 1.0;
-  double wsp_y_min = -0.5;
-  double wsp_y_max = 0.5;
+  img_wsp_calibration_t calibration_data = {
+    .img_width = 800,
+    .img_height = 800,
+    .wsp_x_min = 0.0,
+    .wsp_x_max = 1.0,
+    .wsp_y_min = -0.5,
+    .wsp_y_max = 0.5
+  };
   unsigned int total_data_points_1 = 4;
   unsigned int total_data_points_2 = 3;
   unsigned int total_data_points_3 = 4;
@@ -53,7 +55,7 @@ protected:
 
 TEST_F(WSegmentCoManipConvexHullTest, getOnePosesContour)
 {
-  WSegmentCoManipConvexHull wseg(filepath_1, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
+  WSegmentCoManipConvexHull wseg(filepath_1, calibration_data);
 
   poses_t contour = wseg.getWoundSegmentationPosesContour(0);
   EXPECT_EQ(contour.size(), total_data_points_1);
@@ -68,7 +70,7 @@ TEST_F(WSegmentCoManipConvexHullTest, getOnePosesContour)
 
 TEST_F(WSegmentCoManipConvexHullTest, getOnePointsContour)
 {
-  WSegmentCoManipConvexHull wseg(filepath_1, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
+  WSegmentCoManipConvexHull wseg(filepath_1, calibration_data);
 
   points_t contour = wseg.getWoundSegmentationPointsContour(0);
   EXPECT_EQ(contour.size(), total_data_points_1);
@@ -83,7 +85,7 @@ TEST_F(WSegmentCoManipConvexHullTest, getOnePointsContour)
 
 TEST_F(WSegmentCoManipConvexHullTest, getAllPosesContours)
 {
-  WSegmentCoManipConvexHull wseg(filepath_1, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
+  WSegmentCoManipConvexHull wseg(filepath_1, calibration_data);
 
   poses_contours_t contours = wseg.getWoundSegmentationPosesContours();
   EXPECT_EQ(contours.size(), total_contours);
@@ -92,7 +94,7 @@ TEST_F(WSegmentCoManipConvexHullTest, getAllPosesContours)
 
 TEST_F(WSegmentCoManipConvexHullTest, getAllPointsContours)
 {
-  WSegmentCoManipConvexHull wseg(filepath_1, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
+  WSegmentCoManipConvexHull wseg(filepath_1, calibration_data);
 
   contours_t contours = wseg.getWoundSegmentationPointsContours();
   EXPECT_EQ(contours.size(), total_contours);
@@ -101,9 +103,9 @@ TEST_F(WSegmentCoManipConvexHullTest, getAllPointsContours)
 
 TEST_F(WSegmentCoManipConvexHullTest, getContourArea)
 {
-  WSegmentCoManipConvexHull wseg_1(filepath_1, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
-  WSegmentCoManipConvexHull wseg_2(filepath_2, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
-  WSegmentCoManipConvexHull wseg_3(filepath_3, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
+  WSegmentCoManipConvexHull wseg_1(filepath_1, calibration_data);
+  WSegmentCoManipConvexHull wseg_2(filepath_2, calibration_data);
+  WSegmentCoManipConvexHull wseg_3(filepath_3, calibration_data);
 
   EXPECT_NEAR(wseg_1.contourArea(0), 0.04, 0.01);
   EXPECT_NEAR(wseg_2.contourArea(0), 0.03, 0.01);
@@ -112,9 +114,9 @@ TEST_F(WSegmentCoManipConvexHullTest, getContourArea)
 
 TEST_F(WSegmentCoManipConvexHullTest, getContourPerimeter)
 {
-  WSegmentCoManipConvexHull wseg_1(filepath_1, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
-  WSegmentCoManipConvexHull wseg_2(filepath_2, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
-  WSegmentCoManipConvexHull wseg_3(filepath_3, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
+  WSegmentCoManipConvexHull wseg_1(filepath_1, calibration_data);
+  WSegmentCoManipConvexHull wseg_2(filepath_2, calibration_data);
+  WSegmentCoManipConvexHull wseg_3(filepath_3, calibration_data);
 
   EXPECT_NEAR(wseg_1.contourPerimeter(0), 0.8, 0.01);
   EXPECT_NEAR(wseg_2.contourPerimeter(0), 0.8325, 0.01);
@@ -123,7 +125,7 @@ TEST_F(WSegmentCoManipConvexHullTest, getContourPerimeter)
 
 TEST_F(WSegmentCoManipConvexHullTest, contourOnlyHasConvexHull)
 {
-  WSegmentCoManipConvexHull wseg(filepath_4, image_width, image_height, wsp_x_min, wsp_x_max, wsp_y_min, wsp_y_max);
+  WSegmentCoManipConvexHull wseg(filepath_4, calibration_data);
 
   poses_t poses_contour = wseg.getWoundSegmentationPosesContour(0);
   points_t points_contour = wseg.getWoundSegmentationPointsContour(0);

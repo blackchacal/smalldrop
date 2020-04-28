@@ -30,7 +30,7 @@ typedef geometry_msgs::Pose pose_t;
 typedef std::vector<pose_t> poses_t;
 
 /**
- * \typedef poses_t
+ * \typedef poses_contours_t
  */
 typedef std::vector<poses_t> poses_contours_t;
 
