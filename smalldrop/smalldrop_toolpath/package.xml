@@ -13,8 +13,10 @@
   <depend>roscpp</depend>
   <depend>geometry_msgs</depend>
   <depend>trajectory_msgs</depend>
+  <depend>cv_bridge</depend>
 
   <depend>smalldrop_state</depend>
+  <depend>smalldrop_segmentation</depend>
 
   <export/>
 </package>
