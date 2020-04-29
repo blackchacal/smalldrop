@@ -119,6 +119,23 @@ TEST_F(ToolPathsTest, toolPathActionsAreValid)
   EXPECT_EQ(stop_cnt, 1);
 }
 
+TEST_F(ToolPathsTest, toolPathLengthIsGreaterThanZero)
+{
+  // Create toolpath for given contour
+  unsigned int offset = 5;
+  unsigned int offset_x = 5;
+  unsigned int offset_y = 5;
+  IMAGE_AXIS axis = IMAGE_AXIS::X;
+  double pose_z = 0;
+  ZigZag zz(contour, offset, axis, pose_z, calibration_data);
+  ParallelLines pl(contour, offset, axis, pose_z, calibration_data);
+  Grid gd(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+
+  EXPECT_GT(zz.length(), 0);
+  EXPECT_GT(pl.length(), 0);
+  EXPECT_GT(gd.length(), 0);
+}
+
 TEST_F(ToolPathsTest, ifContourIsEmptyToolPathLengthIsZero)
 {
   // Create toolpath for given contour

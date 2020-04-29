@@ -54,6 +54,9 @@ Grid::Grid(const points_t contour, const unsigned int offset_x, const unsigned i
     else
       actions_.push_back(PRINT_ACTION::CONTINUE);  // Last pose
   }
+
+  // Calculate path length.
+  calcLength();
 }
 
 }  // namespace smalldrop_toolpath

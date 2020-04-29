@@ -78,6 +78,9 @@ ParallelLines::ParallelLines(const points_t contour, const unsigned int offset, 
     else
       actions_.push_back(PRINT_ACTION::CONTINUE);  // Last pose
   }
+
+  // Calculate path length.
+  calcLength();
 }
 
 }  // namespace smalldrop_toolpath
