@@ -19,7 +19,17 @@ namespace smalldrop_toolpath
 /**
  * \copybrief Trajectory::Trajectory(const poses_t poses, const double length, const double duration)
  */
-Trajectory::Trajectory(const poses_t poses, const double length, const double duration) : poses_(poses), length_(length), duration_(duration)
+Trajectory::Trajectory(const poses_t poses, const double length, const double duration)
+  : poses_(poses), length_(length), duration_(duration)
+{
+}
+
+/**
+ * \copybrief Trajectory::Trajectory(const poses_t poses, const path_actions_t actions, const double length, const
+ * double duration)
+ */
+Trajectory::Trajectory(const poses_t poses, const path_actions_t actions, const double length, const double duration)
+  : poses_(poses), actions_(actions), length_(length), duration_(duration)
 {
 }
 
@@ -53,6 +63,14 @@ double Trajectory::duration() const
 bool Trajectory::empty() const
 {
   return poses_.empty();
+}
+
+/**
+ * \copybrief Trajectory::actions() const
+ */
+path_actions_t Trajectory::actions() const
+{
+  return actions_;
 }
 
 /*****************************************************************************************

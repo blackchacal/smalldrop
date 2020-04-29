@@ -69,7 +69,7 @@ add_dependencies(joint_trajectory_planner ${${PROJECT_NAME}_EXPORTED_TARGETS} ${
 
 target_link_libraries(path_planner ${catkin_LIBRARIES})
 target_link_libraries(toolpath_planner path_planner ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
-target_link_libraries(trajectory_planner path_planner ${catkin_LIBRARIES})
+target_link_libraries(trajectory_planner path_planner toolpath_planner ${catkin_LIBRARIES})
 target_link_libraries(joint_trajectory_planner ${catkin_LIBRARIES})
 
 #############

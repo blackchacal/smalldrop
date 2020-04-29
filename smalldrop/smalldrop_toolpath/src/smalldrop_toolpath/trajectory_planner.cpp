@@ -128,6 +128,103 @@ Trajectory TrajectoryPlanner::plan(const paths_t paths)
 }
 
 /**
+ * \copybrief TrajectoryPlanner::plan(const Toolpath& toolpath)
+ */
+Trajectory TrajectoryPlanner::plan(const ToolPath& toolpath)
+{
+  // Check if speed exceeds upper bound
+  if (duration_ > 0 && toolpath.length()/duration_ > max_speed_)
+    throw smalldrop_state::TrajectoryMaxSpeedExceededException();
+
+  poses_t trajectory;
+  path_actions_t trajectory_actions;
+  poses_t poses = toolpath.poses();
+  unsigned int npoints = poses.size();
+  double t_interval = duration_ / ((double)npoints-1);
+
+  Trajectory t(trajectory, trajectory_actions, 0, duration_);
+
+  if (duration_ > 0 && frequency_ > 0)
+  {
+    for (size_t i = 0; i < npoints - 1; i++)
+    {
+      double t = 0;
+      while (t <= t_interval + 0.0001)
+      {
+        switch (plan_mode_)
+        {
+          case PLAN_MODE::LSPB:
+            trajectory.push_back(lspb(poses[i], poses[i + 1], LSPB_ACCEL, 0, t_interval, t));
+            break;
+          default:  // PLAN_MODE::POLY3
+            trajectory.push_back(poly3(poses[i], poses[i + 1], 0, t_interval, t));
+            break;
+        }
+        t += 1 / frequency_;
+      }
+    }
+
+    Trajectory traj(trajectory, toolpath.actions(), toolpath.length(), duration_);
+    t = traj;
+  }
+
+  return t;
+}
+
+/**
+ * \copybrief Trajectory TrajectoryPlanner::plan(const toolpaths_t toolpaths)
+ */
+Trajectory TrajectoryPlanner::plan(const toolpaths_t toolpaths)
+{
+  // Check if speed exceeds upper bound
+  if (duration_ > 0 && getFullPathLength(toolpaths)/duration_ > max_speed_)
+    throw smalldrop_state::TrajectoryMaxSpeedExceededException();
+
+  poses_t trajectory;
+  path_actions_t trajectory_actions;
+  double path_duration = duration_ / toolpaths.size();
+
+  Trajectory t(trajectory, trajectory_actions, 0, duration_);
+
+  if (duration_ > 0 && frequency_ > 0)
+  {
+    for (size_t i = 0; i < toolpaths.size(); i++)
+    {
+      poses_t poses = toolpaths[i].poses();
+      path_actions_t actions = toolpaths[i].actions();
+      unsigned int npoints = poses.size();
+      double t_interval = path_duration / ((double)npoints-1);
+
+      for (size_t j = 0; j < npoints - 1; j++)
+      {
+        PRINT_ACTION action = actions[j];
+        double t = 0;
+        while (t <= t_interval + 0.0001)
+        {
+          switch (plan_mode_)
+          {
+            case PLAN_MODE::LSPB:
+              trajectory.push_back(lspb(poses[j], poses[j + 1], LSPB_ACCEL, 0, t_interval, t));
+              trajectory_actions.push_back(action);
+              break;
+            default:  // PLAN_MODE::POLY3
+              trajectory.push_back(poly3(poses[j], poses[j + 1], 0, t_interval, t));
+              trajectory_actions.push_back(action);
+              break;
+          }
+          t += 1 / frequency_;
+        }
+      }
+    }
+
+    Trajectory traj(trajectory, trajectory_actions, getFullPathLength(toolpaths), duration_);
+    t = traj;
+  }
+
+  return t;
+}
+
+/**
  * \copybrief TrajectoryPlanner::setDuration()
  */
 void TrajectoryPlanner::setDuration(const double duration)
@@ -461,6 +558,18 @@ double TrajectoryPlanner::getFullPathLength(const paths_t paths)
 }
 
 /**
+ * \copybrief TrajectoryPlanner::getFullPathLength(const toolpaths_t path)
+ */
+double TrajectoryPlanner::getFullPathLength(const toolpaths_t toolpaths)
+{
+  double total_length = 0;
+  for (size_t i = 0; i < toolpaths.size(); i++)
+    total_length += toolpaths[i].length();
+  
+  return total_length;
+}
+
+/**
  * \copybrief TrajectoryPlanner::getFullPathSize(const paths_t path)
  */
 double TrajectoryPlanner::getFullPathSize(const paths_t paths)
@@ -468,6 +577,18 @@ double TrajectoryPlanner::getFullPathSize(const paths_t paths)
   double total_size = 0;
   for (size_t i = 0; i < paths.size(); i++)
     total_size += paths[i].poses().size();
+  
+  return total_size;
+}
+
+/**
+ * \copybrief TrajectoryPlanner::getFullPathSize(const toolpaths_t toolpaths)
+ */
+double TrajectoryPlanner::getFullPathSize(const toolpaths_t toolpaths)
+{
+  double total_size = 0;
+  for (size_t i = 0; i < toolpaths.size(); i++)
+    total_size += toolpaths[i].poses().size();
   
   return total_size;
 }

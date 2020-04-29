@@ -10,6 +10,7 @@
 #define _SMALLDROP_TRAJECTORY_PLANNER_H
 
 #include <smalldrop_toolpath/path.h>
+#include <smalldrop_toolpath/toolpath.h>
 #include <smalldrop_toolpath/trajectory.h>
 
 // ROS messages
@@ -33,6 +34,11 @@ typedef std::vector<geometry_msgs::Pose> poses_t;
  * \typedef paths_t
  */
 typedef std::vector<Path> paths_t;
+
+/**
+ * \typedef toolpaths_t
+ */
+typedef std::vector<ToolPath> toolpaths_t;
 
 enum class PLAN_MODE
 {
@@ -98,6 +104,22 @@ public:
    * \param paths A list of paths that will be concatenated to form the trajectory.
    */
   Trajectory plan(const paths_t paths);
+
+  /**
+   * \fn Trajectory plan(const Toolpath& toolpath)
+   * \brief Plan a trajectory using toolpaths.
+   *
+   * \param toolpath Toolpath associated to the trajectory.
+   */
+  Trajectory plan(const ToolPath& toolpath);
+
+  /**
+   * \fn Trajectory plan(const toolpaths_t toolpaths)
+   * \brief Plan a trajectory using toolpaths.
+   *
+   * \param toolpaths A list of toolpaths that will be concatenated to form the trajectory.
+   */
+  Trajectory plan(const toolpaths_t toolpaths);
 
   /**
    * \fn void setDuration(const double duration)
@@ -217,12 +239,28 @@ private:
   double getFullPathLength(const paths_t paths);
 
   /**
+   * \fn double getFullPathLength(const toolpaths_t toolpaths)
+   * \brief Get the length of all the toolpaths associated with the trajectory
+   * 
+   * \param toolpaths List of wound filling toolpaths.
+   */
+  double getFullPathLength(const toolpaths_t toolpaths);
+
+  /**
    * \fn double getFullPathSize(const paths_t path)
-   * \brief Get the size of all the paths associated with the trajectory
+   * \brief Get the length of all the paths associated with the trajectory
    * 
    * \param paths List of paths.
    */
   double getFullPathSize(const paths_t paths);
+
+  /**
+   * \fn double getFullPathSize(const toolpaths_t toolpaths)
+   * \brief Get the size of all the paths associated with the trajectory
+   * 
+   * \param toolpaths List of wound filling toolpaths.
+   */
+  double getFullPathSize(const toolpaths_t toolpaths);
 };
 
 }  // namespace smalldrop_toolpath
