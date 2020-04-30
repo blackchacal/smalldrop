@@ -29,19 +29,18 @@ public:
    *****************************************************************************************/
 
   /**
-   * \fn Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const IMAGE_AXIS axis,
-   * const double pose_z, const img_wsp_calibration_t calibration_data) 
+   * \fn Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y,
+   * const double pose_z, const img_wsp_calibration_t calibration_data)
    * \brief Constructor for a zig zag wound filling toolpath.
    *
    * \param contour List of opencv points that form a wound contour.
    * \param offset_x Distance between grid lines parallel to x axis.
    * \param offset_y Distance between grid lines parallel to y axis.
-   * \param axis The axis the is parallel to the grid lines.
    * \param pose_z Z axis coordinate for the robot path execution.
    * \param calibration_data Data for image-workspace calibration.
    */
-  Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const IMAGE_AXIS axis,
-       const double pose_z, const img_wsp_calibration_t calibration_data);
+  Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const double pose_z,
+       const img_wsp_calibration_t calibration_data);
 
   ~Grid(){};
 };

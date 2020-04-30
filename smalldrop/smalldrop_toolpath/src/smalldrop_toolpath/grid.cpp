@@ -18,14 +18,13 @@ namespace smalldrop_toolpath
  *****************************************************************************************/
 
 /**
- * \copybrief Grid::Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const IMAGE_AXIS axis, const double
- pose_z, const img_wsp_calibration_t calibration_data)
+ * \copybrief Grid::Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const double
+ * pose_z, const img_wsp_calibration_t calibration_data)
  */
-Grid::Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const IMAGE_AXIS axis, const double pose_z,
+Grid::Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const double pose_z,
            const img_wsp_calibration_t calibration_data)
   : ToolPath(calibration_data)
 {
-  
   points_t path_x, path_y;
   ParallelLines pl_x(contour, offset_x, IMAGE_AXIS::X, pose_z, calibration_data);
   ParallelLines pl_y(contour, offset_y, IMAGE_AXIS::Y, pose_z, calibration_data);
@@ -47,7 +46,7 @@ Grid::Grid(const points_t contour, const unsigned int offset_x, const unsigned i
       actions_.push_back(PRINT_ACTION::START);  // First pose
     else if (i == poses_.size() - 1)
       actions_.push_back(PRINT_ACTION::STOP);  // Last pose
-    else if (i == path_x.size()-1)
+    else if (i == path_x.size() - 1)
       actions_.push_back(PRINT_ACTION::STOP);  // Last pose of path_x
     else if (i == path_x.size())
       actions_.push_back(PRINT_ACTION::START);  // First pose of path_y

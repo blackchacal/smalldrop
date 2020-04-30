@@ -64,7 +64,7 @@ TEST_F(ToolPathsTest, toolPathActionsAreValid)
   double pose_z = 0;
   ZigZag zz(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl(contour, offset, axis, pose_z, calibration_data);
-  Grid gd(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd(contour, offset_x, offset_y, pose_z, calibration_data);
 
   // For ZigZag & ParallelLines toolpaths the actions should be
   // START, for first pose
@@ -129,7 +129,7 @@ TEST_F(ToolPathsTest, toolPathLengthIsGreaterThanZero)
   double pose_z = 0;
   ZigZag zz(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl(contour, offset, axis, pose_z, calibration_data);
-  Grid gd(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd(contour, offset_x, offset_y, pose_z, calibration_data);
 
   EXPECT_GT(zz.length(), 0);
   EXPECT_GT(pl.length(), 0);
@@ -147,7 +147,7 @@ TEST_F(ToolPathsTest, ifContourIsEmptyToolPathLengthIsZero)
   points_t empty_contour;
   ZigZag zz(empty_contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl(empty_contour, offset, axis, pose_z, calibration_data);
-  Grid gd(empty_contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd(empty_contour, offset_x, offset_y, pose_z, calibration_data);
 
   EXPECT_EQ(zz.length(), 0);
   EXPECT_EQ(pl.length(), 0);
@@ -164,7 +164,7 @@ TEST_F(ToolPathsTest, allPathPosesHaveSameZValue)
   double pose_z = 10;
   ZigZag zz(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl(contour, offset, axis, pose_z, calibration_data);
-  Grid gd(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd(contour, offset_x, offset_y, pose_z, calibration_data);
 
   poses_t poses_zz = zz.poses();
   poses_t poses_pl = pl.poses();
@@ -188,31 +188,31 @@ TEST_F(ToolPathsTest, numberOfPosesDecreasesWithIncreasingOffset)
   unsigned int offset_y = 5;
   ZigZag zz_1(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl_1(contour, offset, axis, pose_z, calibration_data);
-  Grid gd_1(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd_1(contour, offset_x, offset_y, pose_z, calibration_data);
   offset = 10;
   offset_x = 10;
   offset_y = 10;
   ZigZag zz_2(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl_2(contour, offset, axis, pose_z, calibration_data);
-  Grid gd_2(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd_2(contour, offset_x, offset_y, pose_z, calibration_data);
   offset = 20;
   offset_x = 20;
   offset_y = 20;
   ZigZag zz_3(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl_3(contour, offset, axis, pose_z, calibration_data);
-  Grid gd_3(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd_3(contour, offset_x, offset_y, pose_z, calibration_data);
   offset = 30;
   offset_x = 30;
   offset_y = 30;
   ZigZag zz_4(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl_4(contour, offset, axis, pose_z, calibration_data);
-  Grid gd_4(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd_4(contour, offset_x, offset_y, pose_z, calibration_data);
   offset = 50;
   offset_x = 50;
   offset_y = 50;
   ZigZag zz_5(contour, offset, axis, pose_z, calibration_data);
   ParallelLines pl_5(contour, offset, axis, pose_z, calibration_data);
-  Grid gd_5(contour, offset_x, offset_y, axis, pose_z, calibration_data);
+  Grid gd_5(contour, offset_x, offset_y, pose_z, calibration_data);
 
   EXPECT_GT(zz_1.poses().size(), zz_2.poses().size());
   EXPECT_GT(zz_2.poses().size(), zz_3.poses().size());

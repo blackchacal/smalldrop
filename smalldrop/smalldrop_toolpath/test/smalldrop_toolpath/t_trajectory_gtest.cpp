@@ -92,7 +92,7 @@ protected:
     IMAGE_AXIS axis = IMAGE_AXIS::X;
     zigzag.reset(new ZigZag(contour, offset, axis, pose_z, calibration_data));
     parallel.reset(new ParallelLines(contour, offset, axis, pose_z, calibration_data));
-    grid.reset(new Grid(contour, offset_x, offset_y, axis, pose_z, calibration_data));
+    grid.reset(new Grid(contour, offset_x, offset_y, pose_z, calibration_data));
   }
 
   void TearDown() override
