@@ -1,0 +1,12 @@
+# Service to change the wound filling toolpath planning
+# path_type: Name of toolpath type
+# offset_x: Offset between lines parallel to x axis
+# offset_y: Offset between lines parallel to y axis
+# axis: Axis used for lines, in case a single axis is used
+
+string path_type
+uint16 offset_x
+uint16 offset_y
+string axis
+---
+bool ack

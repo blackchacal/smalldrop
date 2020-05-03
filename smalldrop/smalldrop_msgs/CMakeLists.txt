@@ -18,6 +18,11 @@ add_message_files(
   JointPositions.msg
 )
 
+add_service_files(
+  FILES
+  SetPathType.srv
+)
+
 generate_messages(
   DEPENDENCIES
   std_msgs

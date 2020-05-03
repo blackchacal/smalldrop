@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   trajectory_msgs
   smalldrop_state
   smalldrop_segmentation
-  cv_bridge
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -24,7 +23,7 @@ find_package(OpenCV 4 REQUIRED)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES toolpath_planner path_planner trajectory_planner joint_trajectory_planner
- CATKIN_DEPENDS geometry_msgs roscpp trajectory_msgs smalldrop_state smalldrop_segmentation cv_bridge
+ CATKIN_DEPENDS geometry_msgs roscpp trajectory_msgs smalldrop_state smalldrop_segmentation
 #  DEPENDS system_lib
 )
 

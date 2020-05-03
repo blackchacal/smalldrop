@@ -30,4 +30,7 @@
   <rosparam file="$(find smalldrop_bioprint)/config/config.yaml" command="load"/>
   
   <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development) --ccam $(arg calib_cam) --cphead $(arg calib_phead)" output="screen" />
+
+  <!-- Show wound segmentation and toolpath image on rviz -->
+  <node name="show_wound_segmentation_toolpath" pkg="smalldrop_rviz" type="toolpath_viewer" required="false" output="screen" />
 </launch>

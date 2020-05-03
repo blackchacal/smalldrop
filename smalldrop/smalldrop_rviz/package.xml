@@ -16,6 +16,12 @@
   <depend>geometry_msgs</depend>
   <depend>tf</depend>
   <depend>gazebo_ros</depend> <!-- For simulation -->
+  <depend>cv_bridge</depend>
+  
+  <depend>smalldrop_msgs</depend>
+  <depend>smalldrop_state</depend>
+  <depend>smalldrop_toolpath</depend>
+  <depend>smalldrop_segmentation</depend>
 
   <doc_depend>doxygen</doc_depend>
   
