@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smalldrop_state</name>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <description>
     Handles the system state and some general ROS publishers that can be used by the other smalldrop packages.
   </description>

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>smalldrop_segmentation</name>
-  <version>0.4.0</version>
+  <version>0.5.0</version>
   <description>Provides wound segmentation algorithms, for co-manipulation mode and when using a camera.</description>  
   <maintainer email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</maintainer>
   <author email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</author>
