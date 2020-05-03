@@ -4,6 +4,11 @@ This changelog will try to follow the recomendations provided by the project [Ke
 
 The versioning scheme will follow the [semantic versioning](https://semver.org/). 
 
+## UNPUBLISHED
+
+### Added
+- Add realsense-ros dependency for depth camera integration.
+
 ## 0.5.0 (2020-05-03)
 
 ### Added

@@ -2,3 +2,6 @@
 	path = smalldrop/dependencies/franka_ros
 	url = https://github.com/frankaemika/franka_ros.git
 	branch = melodic-devel
+[submodule "smalldrop/dependencies/realsense-ros"]
+	path = smalldrop/dependencies/realsense-ros
+	url = https://github.com/IntelRealSense/realsense-ros.git

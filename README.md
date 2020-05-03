@@ -28,6 +28,7 @@ This project is composed of several ROS packages that communicate with each othe
 **Dependencies (git submodules)**
 
 - **franka_ros:** ROS integration for Franka Emika research robots, available on [github](https://github.com/frankaemika/franka_ros). The melodic-devel branch is being used. This project is licensed under the Apache 2.0 license.
+- **realsense-ros:** ROS integration for Intel RealSense cameras, available on [github](https://github.com/IntelRealSense/realsense-ros/tree/2.2.13). The development branch is being used. This project is licensed under the Apache 2.0 license.
 
 ## Installation
 
