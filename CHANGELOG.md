@@ -7,7 +7,8 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 ## UNPUBLISHED
 
 ### Added
-- Add realsense-ros dependency for depth camera integration.
+- Add *realsense-ros* dependency for depth camera integration.
+- Add *smalldrop_vision* package.
 
 ## 0.5.0 (2020-05-03)
 

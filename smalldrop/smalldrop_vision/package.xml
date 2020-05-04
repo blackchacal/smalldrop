@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>smalldrop_vision</name>
+  <version>0.5.0</version>
+  <description>Manages the vision system composed of cameras and lasers.</description>
+  <maintainer email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</maintainer>
+  <author email="rjt16079@campus.fct.unl.pt">Ricardo Tonet</author>
+  <url type="repository">https://github.com/blackchacal/smalldrop</url>
+  <license>MIT</license>
+  
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>realsense2_camera</depend>
+  <depend>realsense2_description</depend>
+  <depend>roscpp</depend>
+  <depend>sensor_msgs</depend>
+
+  <export />
+</package>
