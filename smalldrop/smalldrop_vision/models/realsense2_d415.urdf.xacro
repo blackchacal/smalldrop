@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<robot name="realsense2_d415" xmlns:xacro="http://ros.org/wiki/xacro">
+  <xacro:include filename="$(find realsense2_description)/urdf/_d415.urdf.xacro" />
+
+  <xacro:macro name="realsense2_d415" params="connected_to:='' rpy:='0 0 0' xyz:='0 0 0' ">
+    <xacro:arg name="use_nominal_extrinsics" default="True" />
+    <xacro:sensor_d415 parent="${connected_to}">
+      <origin xyz="${xyz}" rpy="${rpy}"/>
+    </xacro:sensor_d415>
+  </xacro:macro>
+</robot>

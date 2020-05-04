@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
+  <xacro:arg name="robot_name" default="panda"/>
+  <xacro:arg name="has_camera" default="false"/>
+
+  <xacro:include filename="$(find smalldrop_robot_arm)/robots/panda_arm_hand.urdf.xacro"/>
+  <xacro:include filename="$(find smalldrop_vision)/models/realsense2_d415.urdf.xacro" />
+
+  <xacro:if value="$(arg has_camera)">
+    <xacro:realsense2_d415 xyz="0.135 -0.025 0" rpy="${-pi/2} 0 ${-pi/2}" connected_to="panda_link6"/>
+  </xacro:if>
+</robot>
