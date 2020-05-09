@@ -29,6 +29,12 @@ This project is composed of several ROS packages that communicate with each othe
 
 - **franka_ros:** ROS integration for Franka Emika research robots, available on [github](https://github.com/frankaemika/franka_ros). The melodic-devel branch is being used. This project is licensed under the Apache 2.0 license.
 - **realsense-ros:** ROS integration for Intel RealSense cameras, available on [github](https://github.com/IntelRealSense/realsense-ros/tree/2.2.13). The development branch is being used. This project is licensed under the Apache 2.0 license.
+- **realsense_gazebo_plugin:** Simulation of Intel RealSense cameras in Gazebo. It was used to simulate Intel RealSense D415 Depth camera in Gazebo with data topics also published in ROS.
+
+## System dependencies
+
+Some system dependencies need to be installed to run the project.
+- OpenCV 4
 
 ## Installation
 

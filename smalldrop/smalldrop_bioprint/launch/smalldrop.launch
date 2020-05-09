@@ -19,8 +19,8 @@
   <include file="$(find smalldrop_teleoperation)/launch/system_teleoperation.launch" />
 
   <!-- Include robot arm launch -->
-  <param if="$(eval sim_world == 'empty')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/models/smalldrop.urdf.xacro has_camera:=$(arg has_camera)" />
-  <param if="$(eval sim_world == 'hospital_room')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/models/smalldrop.urdf.xacro robot_origin_xyz:='1 0.0 0.945' robot_origin_rpy:='0.0 0.0 3.1415' has_camera:=$(arg has_camera)" />
+  <param if="$(eval sim_world == 'empty')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro has_camera:=$(arg has_camera)" />
+  <param if="$(eval sim_world == 'hospital_room')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro robot_origin_xyz:='1 0.0 0.945' robot_origin_rpy:='0.0 0.0 3.1415' has_camera:=$(arg has_camera)" />
   <include if="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/joint_position_pid_sim_controller.launch">
       <arg name="gains" value="$(arg gains)" />
       <arg name="rviz" value="$(arg rviz)" />
