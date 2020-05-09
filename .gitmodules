@@ -5,3 +5,6 @@
 [submodule "smalldrop/dependencies/realsense-ros"]
 	path = smalldrop/dependencies/realsense-ros
 	url = https://github.com/IntelRealSense/realsense-ros.git
+[submodule "smalldrop/dependencies/realsense_gazebo_plugin"]
+	path = smalldrop/dependencies/realsense_gazebo_plugin
+	url = https://github.com/SyrianSpock/realsense_gazebo_plugin.git
