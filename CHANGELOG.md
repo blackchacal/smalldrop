@@ -9,6 +9,7 @@ The versioning scheme will follow the [semantic versioning](https://semver.org/)
 ### Added
 - Add *realsense-ros* dependency for depth camera integration.
 - Add *smalldrop_vision* package.
+- On *smalldrop_vision* package add Intel RealSense D415 depth camera class.
 
 ## 0.5.0 (2020-05-03)
 
