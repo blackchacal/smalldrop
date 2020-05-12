@@ -52,6 +52,7 @@ int main(int argc, char **argv)
   {
     // Publish system state
     bp.publishState();
+    bp.publishOperationMode();
 
     // State machine
     switch (bp.getCurrentState())

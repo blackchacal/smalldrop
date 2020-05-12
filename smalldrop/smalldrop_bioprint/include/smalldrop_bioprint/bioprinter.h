@@ -14,14 +14,15 @@
 // ROS messages & services
 #include <controller_manager_msgs/SwitchController.h>
 #include <std_msgs/String.h>
+#include <smalldrop_msgs/SetOperationMode.h>
 
 #include <smalldrop_bioprint/system_config.h>
 #include <smalldrop_state/exceptions.h>
 #include <smalldrop_teleoperation/i_remote_controller.h>
 #include <smalldrop_teleoperation/spacemouse.h>
 #include <smalldrop_toolpath/joint_trajectory_planner.h>
-#include <smalldrop_vision/i_camera.h>
 #include <smalldrop_vision/camera_d415.h>
+#include <smalldrop_vision/i_camera.h>
 
 using namespace smalldrop::smalldrop_state;
 using namespace smalldrop::smalldrop_teleoperation;
@@ -94,6 +95,12 @@ public:
   void publishState();
 
   /**
+   * \fn void publishOperationMode()
+   * \brief Publishes the system working mode on a topic.
+   */
+  void publishOperationMode();
+
+  /**
    * \fn STATE getCurrentState() const
    * \brief Returns the current system working state.
    */
@@ -117,6 +124,20 @@ public:
    * object related to the error.
    */
   void setErrorState(SmallDropException& exception);
+
+  /**
+   * \fn MODE getOperationMode() const
+   * \brief Returns thhe current system operation mode.
+   */
+  MODE getOperationMode() const;
+
+  /**
+   * \fn void setOperationMode(MODE new_mode)
+   * \brief Sets the system operation mode.
+   *
+   * \param new_mode New operation mode
+   */
+  void setOperationMode(MODE new_mode);
 
   /**
    * \fn bool isSimulation() const
@@ -178,24 +199,37 @@ private:
   std::unique_ptr<ICamera> camera_ptr_;                /** \var Camera instance. */
 
   // ROS topics
-  std::string remote_ctrl_topic_; /** \var ROS topic where remote controller state will be published. */
-  std::string state_topic_;       /** \var ROS topic where system working state will be published. */
+  std::string remote_ctrl_topic_;    /** \var ROS topic where remote controller state will be published. */
+  std::string state_topic_;          /** \var ROS topic where system working state will be published. */
+  std::string operation_mode_topic_; /** \var ROS topic where system operation mode will be published. */
 
   // Node handle
   ros::NodeHandle nh_; /** \var ROS node handle to access topics system. */
 
   // ROS Publishers
   ros::Publisher state_pub_; /** \var Publisher for the system working state. */
+  ros::Publisher mode_pub_;  /** \var Publisher for the system working mode. */
+
+  // ROS Services
+  std::string mode_srv_name_;
+  
+  ros::ServiceServer mode_srv_; /** \var Service server to change the system operation mode. */
 
   /**
    * Class methods
    *****************************************************************************************/
 
   /**
-   * \fn void setupPublishers()
+   * \fn void setupTopicsAndServices()
    * \brief Setup ROS publishers used by the class.
    */
-  void setupPublishers();
+  void setupTopicsAndServices();
+
+  /**
+   * \fn bool updateOperationMode(smalldrop_msgs::SetOperationMode::Request &req, smalldrop_msgs::SetOperationMode::Response &res)
+   * \brief Service callback for updating the operation mode.
+   */
+  bool updateOperationMode(smalldrop_msgs::SetOperationMode::Request &req, smalldrop_msgs::SetOperationMode::Response &res);
 
   /**
    * \fn bool initRobotArm()
@@ -249,7 +283,7 @@ private:
   /**
    * \fn bool initCamera(const bool calibrate, const bool calib_only)
    * \brief Initialize the camera according to system configuration.
-   * 
+   *
    * \param calibrate Boolean flag to execute camera calibration
    * \param calib_only Boolean flag, if true, only run camera calibration
    */

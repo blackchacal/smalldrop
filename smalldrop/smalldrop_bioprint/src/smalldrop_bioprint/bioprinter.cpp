@@ -37,9 +37,12 @@ Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<Syst
   ss_ = std::move(ss_ptr);
   config_ = std::move(config_ptr);
   state_topic_ = "/smalldrop/bioprint/state";
+  operation_mode_topic_ = "/smalldrop/bioprint/mode";
   remote_ctrl_topic_ = "/spacenav/joy";
 
-  setupPublishers();
+  mode_srv_name_ = "smalldrop/bioprint/update_opmode";
+
+  setupTopicsAndServices();
   publishState();
 }
 
@@ -92,6 +95,33 @@ void Bioprinter::publishState()
 }
 
 /**
+ * \copybrief Bioprinter::publishOperationMode()
+ */
+void Bioprinter::publishOperationMode()
+{
+  std::string mode_str;
+  switch (operation_mode_)
+  {
+    case MODE::GCODE:
+      mode_str = "GCODE";
+      break;
+    case MODE::TELEOP:
+      mode_str = "TELEOP";
+      break;
+    case MODE::COMANIP:
+      mode_str = "COMANIP";
+      break;
+    default:
+      mode_str = "PRINT";
+      break;
+  }
+
+  std_msgs::String msg;
+  msg.data = mode_str;
+  mode_pub_.publish(msg);
+}
+
+/**
  * \copybrief Bioprinter::getCurrentState()
  */
 STATE Bioprinter::getCurrentState() const
@@ -126,6 +156,22 @@ void Bioprinter::setErrorState(smalldrop_state::SmallDropException& exception)
   prev_state_ = state_;
   state_ = STATE::ERROR;
   last_exception_ = exception;
+}
+
+/**
+ * \copybrief Bioprinter::getOperationMode() const
+ */
+MODE Bioprinter::getOperationMode() const
+{
+  return operation_mode_;
+}
+
+/**
+ * \copybrief Bioprinter::setOperationMode(MODE new_mode)
+ */
+void Bioprinter::setOperationMode(MODE new_mode)
+{
+  operation_mode_ = new_mode;
 }
 
 /**
@@ -229,11 +275,34 @@ void Bioprinter::handleErrors()
  *****************************************************************************************/
 
 /**
- * \copybrief Bioprinter::setupPublishers()
+ * \copybrief Bioprinter::setupTopicsAndServices()
  */
-void Bioprinter::setupPublishers()
+void Bioprinter::setupTopicsAndServices()
 {
+  // Topics
   state_pub_ = nh_.advertise<std_msgs::String>(state_topic_, 10);
+  mode_pub_ = nh_.advertise<std_msgs::String>(operation_mode_topic_, 10);
+
+  // Services
+  mode_srv_ = nh_.advertiseService(mode_srv_name_, &Bioprinter::updateOperationMode, this);
+}
+
+/**
+ * \copybrief Bioprinter::updateOperationMode(smalldrop_msgs::SetOperationMode::Request &req, smalldrop_msgs::SetOperationMode::Response &res)
+ */
+bool Bioprinter::updateOperationMode(smalldrop_msgs::SetOperationMode::Request &req, smalldrop_msgs::SetOperationMode::Response &res)
+{
+  if (req.mode.compare("print") == 0 || req.mode.compare("PRINT") == 0)
+    operation_mode_ = MODE::PRINT;
+  else if (req.mode.compare("teleop") == 0 || req.mode.compare("TELEOP") == 0)
+    operation_mode_ = MODE::TELEOP;
+  else if (req.mode.compare("comanip") == 0 || req.mode.compare("COMANIP") == 0)
+    operation_mode_ = MODE::COMANIP;
+  else if (req.mode.compare("gcode") == 0 || req.mode.compare("GCODE") == 0)
+    operation_mode_ = MODE::GCODE;
+
+  res.ack = true;
+  return true;
 }
 
 /**
