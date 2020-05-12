@@ -25,6 +25,7 @@
   <depend>smalldrop_teleoperation</depend>
   <depend>smalldrop_state</depend>
   <depend>smalldrop_toolpath</depend>
+  <depend>smalldrop_vision</depend>
 
   <export></export>
 </package>

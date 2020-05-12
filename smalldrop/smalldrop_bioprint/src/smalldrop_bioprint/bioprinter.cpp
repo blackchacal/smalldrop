@@ -27,9 +27,11 @@ namespace smalldrop_bioprint
  *****************************************************************************************/
 
 /**
- * \copybrief Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development)
+ * \copybrief Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr,
+ * const bool simulation, const bool development)
  */
-Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development)
+Bioprinter::Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr,
+                       const bool simulation, const bool development)
   : state_(STATE::OFF), prev_state_(STATE::OFF), operation_mode_(MODE::PRINT), is_sim_(simulation), is_dev_(development)
 {
   ss_ = std::move(ss_ptr);
@@ -116,7 +118,7 @@ void Bioprinter::setState(STATE new_state)
 
 /**
  * \fn void setErrorState(smalldrop_state::SmallDropException& exception)
- * \brief Sets the system at error state and updates previous state. It receives an exception 
+ * \brief Sets the system at error state and updates previous state. It receives an exception
  * object related to the error.
  */
 void Bioprinter::setErrorState(smalldrop_state::SmallDropException& exception)
@@ -158,7 +160,9 @@ void Bioprinter::init(const bool calib_cam, const bool calib_phead, const bool c
     initRobotArm();
   }
   // init print head
-  // init camera
+
+  initCamera(calib_cam, calib_only);
+
   if (!calib_only)
   {
     initRemoteController();
@@ -174,6 +178,7 @@ void Bioprinter::shutdown()
   shutdownRemoteController();
 
   // Run camera shutdown sequence
+  shutdownCamera();
 
   // Run print head shutdown sequence
 
@@ -191,31 +196,31 @@ void Bioprinter::handleErrors()
 {
   switch (prev_state_)
   {
-  case STATE::INIT:
-    if (last_exception_.getType().compare("RobotArmInit") == 0)
-      setState(STATE::OFF); // Essential component. Irrecoverable error and should shutdown.
-    else if (last_exception_.getType().compare("RemoteCtrlInit") == 0)
-    {
-      // Wait 5 seconds and try to init again
-      ros::Rate r(0.2);  // 0.2 Hz - T = 5 sec
-      r.sleep();
+    case STATE::INIT:
+      if (last_exception_.getType().compare("RobotArmInit") == 0)
+        setState(STATE::OFF);  // Essential component. Irrecoverable error and should shutdown.
+      else if (last_exception_.getType().compare("RemoteCtrlInit") == 0)
+      {
+        // Wait 5 seconds and try to init again
+        ros::Rate r(0.2);  // 0.2 Hz - T = 5 sec
+        r.sleep();
 
-      try
-      {
-        initRemoteController();
-        setState(STATE::IDLE);
-      }
-      catch(const RemoteCtrlInitException& e)
-      {
-        if (is_sim_)
-          shutdown(); // If in simulation mode and not able to recover, shutdown the system.
-        else
+        try
+        {
+          initRemoteController();
           setState(STATE::IDLE);
-      } 
-    }
-    break;
-  default:
-    break;
+        }
+        catch (const RemoteCtrlInitException& e)
+        {
+          if (is_sim_)
+            shutdown();  // If in simulation mode and not able to recover, shutdown the system.
+          else
+            setState(STATE::IDLE);
+        }
+      }
+      break;
+    default:
+      break;
   }
 }
 
@@ -306,8 +311,8 @@ bool Bioprinter::initRobotArm()
 void Bioprinter::shutdownRobotArm()
 {
   // Change to joint controller
-  names_t start_controllers = {"joint_position_pid"};
-  names_t stop_controllers = {"cartesian_impedance"};
+  names_t start_controllers = { "joint_position_pid" };
+  names_t stop_controllers = { "cartesian_impedance" };
   switchRobotArmControllers(start_controllers, stop_controllers);
 
   // Move to shutdown position
@@ -321,8 +326,8 @@ void Bioprinter::shutdownRobotArm()
   config_->readConfigParam("robot", "standard_poses", "shutdown", shutdown_position);
   config_->readConfigParam("robot", "standard_poses", shutdown_position, joints_f);
 
-  double duration = 10; // Movement duration in seconds
-  double freq = 100; // Hz
+  double duration = 10;  // Movement duration in seconds
+  double freq = 100;     // Hz
 
   planRobotJointMovement(duration, freq, PLAN_MODE::POLY3, joints_i, joints_f);
 }
@@ -335,8 +340,8 @@ void Bioprinter::moveRobotArmHome()
   // All the controllers are already loaded from launch file
   // Joint controller is already selected
 
-  ros::spinOnce(); // Update the system state subscribers
-  
+  ros::spinOnce();  // Update the system state subscribers
+
   // Read current joint positions
   smalldrop_msgs::JointPositions jpos = ss_->getRobotArmJointPositions();
   jpos_t joints_i = jpos.positions;
@@ -345,14 +350,14 @@ void Bioprinter::moveRobotArmHome()
   jpos_t joints_f;
   config_->readConfigParam("robot", "standard_poses", "home", joints_f);
 
-  double duration = 10; // Movement duration in seconds
-  double freq = 100; // Hz
+  double duration = 10;  // Movement duration in seconds
+  double freq = 100;     // Hz
 
   planRobotJointMovement(duration, freq, PLAN_MODE::POLY3, joints_i, joints_f);
 
   // Switch to cartesian impedance controller
-  names_t start_controllers = {"cartesian_impedance"};
-  names_t stop_controllers = {"joint_position_pid"};
+  names_t start_controllers = { "cartesian_impedance" };
+  names_t stop_controllers = { "joint_position_pid" };
   switchRobotArmControllers(start_controllers, stop_controllers);
 }
 
@@ -394,9 +399,9 @@ void Bioprinter::switchRobotArmControllers(const names_t start_controllers, cons
       srv.request.stop_controllers.push_back(stop.str());
     }
   }
-  srv.request.strictness = 2; // STRICT
+  srv.request.strictness = 2;  // STRICT
   srv.request.start_asap = true;
-  srv.request.timeout = 5; // seconds
+  srv.request.timeout = 5;  // seconds
 
   if (!client.call(srv) || !srv.response.ok)
     throw RobotArmControllerSwitchException();
@@ -405,10 +410,11 @@ void Bioprinter::switchRobotArmControllers(const names_t start_controllers, cons
 /**
  * \copybrief Bioprinter::planRobotJointMovement()
  */
-void Bioprinter::planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode, const jpos_t joints_i, const jpos_t joints_f)
+void Bioprinter::planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode,
+                                        const jpos_t joints_i, const jpos_t joints_f)
 {
   // Plan joint trajectory between joints_i and joints_f
-  JointTrajectoryPlanner pl(duration, frequency, plan_mode);  
+  JointTrajectoryPlanner pl(duration, frequency, plan_mode);
   std::vector<jpos_t> traj = pl.plan(joints_i, joints_f);
 
   ros::Rate r(frequency);
@@ -478,6 +484,47 @@ bool Bioprinter::initRemoteController()
 void Bioprinter::shutdownRemoteController()
 {
   remote_ctrl_ptr_->turnOff();
+}
+
+/**
+ * \copybrief Bioprinter::initCamera(const bool calibrate, const bool calib_only)
+ */
+bool Bioprinter::initCamera(const bool calibrate, const bool calib_only)
+{
+  if (!calib_only)
+  {
+    camera_topics_t topics;
+    config_->readConfigParam("vision", "general", "rgb_info_topic", topics.rgb_info_topic);
+    config_->readConfigParam("vision", "general", "rgb_image_topic", topics.rgb_image_topic);
+    config_->readConfigParam("vision", "general", "ir1_info_topic", topics.ir1_info_topic);
+    config_->readConfigParam("vision", "general", "ir1_image_topic", topics.ir1_image_topic);
+    config_->readConfigParam("vision", "general", "ir2_info_topic", topics.ir2_info_topic);
+    config_->readConfigParam("vision", "general", "ir2_image_topic", topics.ir2_image_topic);
+    config_->readConfigParam("vision", "general", "depth_info_topic", topics.depth_info_topic);
+    config_->readConfigParam("vision", "general", "depth_image_topic", topics.depth_image_topic);
+    config_->readConfigParam("vision", "general", "rgb_pcloud_topic", topics.rgb_pcloud_topic);
+
+    std::unique_ptr<ICamera> cam(new CameraD415(is_sim_, topics));
+    camera_ptr_ = std::move(cam);
+
+    if (!camera_ptr_->turnOn())
+      throw smalldrop_state::CameraInitException();
+  }
+
+  if (calibrate)
+  {
+    // TODO: Execute calibration routine
+  }
+
+  return true;
+}
+
+/**
+ * \copybrief Bioprinter::shutdownCamera()
+ */
+void Bioprinter::shutdownCamera()
+{
+  camera_ptr_->turnOff();
 }
 
 }  // namespace smalldrop_bioprint

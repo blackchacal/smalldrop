@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   smalldrop_teleoperation
   smalldrop_toolpath
+  smalldrop_vision
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -32,6 +33,7 @@ catkin_package(
   std_msgs 
   smalldrop_teleoperation 
   smalldrop_toolpath
+  smalldrop_vision
 )
 
 ###########

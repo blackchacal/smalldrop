@@ -61,6 +61,20 @@ public:
   }
 };
 
+class CameraInitException : public SmallDropException
+{
+public:
+  CameraInitException() 
+  {
+    type_ = "CameraInit";
+  }
+
+  virtual const char* what() const throw()
+  {
+    return "Camera Initalisation Failure Exception.";
+  }
+};
+
 class ConfigFileSaveException : public SmallDropException
 {
 public:

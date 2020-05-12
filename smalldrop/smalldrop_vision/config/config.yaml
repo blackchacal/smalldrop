@@ -1,0 +1,24 @@
+smalldrop:
+  vision:
+    general:
+      rgb_info_topic: /realsense_plugin/camera/color/camera_info
+      rgb_image_topic: /realsense_plugin/camera/color/image_raw
+      ir1_info_topic: /realsense_plugin/camera/ir/camera_info
+      ir1_image_topic: /realsense_plugin/camera/ir/image_raw
+      ir2_info_topic: /realsense_plugin/camera/ir2/camera_info
+      ir2_image_topic: /realsense_plugin/camera/ir2/image_raw
+      depth_info_topic: /realsense_plugin/camera/depth/camera_info
+      depth_image_topic: /realsense_plugin/camera/depth/image_raw
+      rgb_pcloud_topic: /realsense_plugin/camera/pcloud/image_raw
+    rgb_camera:
+      resolution:
+        - 1920
+        - 1080
+    ir_camera:
+      resolution:
+        - 640
+        - 480
+    depth_camera:
+      resolution:
+        - 640
+        - 480

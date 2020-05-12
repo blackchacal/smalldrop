@@ -12,24 +12,26 @@
 #include <ros/ros.h>
 
 // ROS messages & services
-#include <std_msgs/String.h>
 #include <controller_manager_msgs/SwitchController.h>
+#include <std_msgs/String.h>
 
 #include <smalldrop_bioprint/system_config.h>
 #include <smalldrop_state/exceptions.h>
 #include <smalldrop_teleoperation/i_remote_controller.h>
 #include <smalldrop_teleoperation/spacemouse.h>
 #include <smalldrop_toolpath/joint_trajectory_planner.h>
+#include <smalldrop_vision/i_camera.h>
+#include <smalldrop_vision/camera_d415.h>
 
 using namespace smalldrop::smalldrop_state;
 using namespace smalldrop::smalldrop_teleoperation;
 using namespace smalldrop::smalldrop_toolpath;
+using namespace smalldrop::smalldrop_vision;
 
 namespace smalldrop
 {
 namespace smalldrop_bioprint
 {
-
 /**
  * \typedef names_t
  */
@@ -70,15 +72,16 @@ public:
    *****************************************************************************************/
 
   /**
-   * \fn Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development)
-   * \brief Constructor
+   * \fn Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool
+   * simulation, const bool development) \brief Constructor
    *
    * \param ss_ptr SystemState class pointer.
    * \param config_ptr SystemConfig class pointer.
    * \param simulation Boolean that defines if system should operation in simulation or with real robot.
    * \param development Boolean that defines if the system is in development mode or production mode.
    */
-  Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation, const bool development);
+  Bioprinter(std::unique_ptr<SystemState> ss_ptr, std::unique_ptr<SystemConfig> config_ptr, const bool simulation,
+             const bool development);
 
   ~Bioprinter()
   {
@@ -172,6 +175,7 @@ private:
 
   // System components
   std::unique_ptr<IRemoteController> remote_ctrl_ptr_; /** \var Remote Controller instance. */
+  std::unique_ptr<ICamera> camera_ptr_;                /** \var Camera instance. */
 
   // ROS topics
   std::string remote_ctrl_topic_; /** \var ROS topic where remote controller state will be published. */
@@ -230,16 +234,32 @@ private:
   void shutdownRemoteController();
 
   /**
-   * \fn void planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode, const jpos_t joints_i, const jpos_t joints_f)
-   * \brief Plan and send joint configuration to robot.
-   * 
+   * \fn void planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode, const
+   * jpos_t joints_i, const jpos_t joints_f) \brief Plan and send joint configuration to robot.
+   *
    * \param duration Joint movement duration.
    * \param frequency Publishing frequency.
    * \param plan_mode Planning mode.
    * \param joints_i Initial joint configuration.
    * \param joints_f Final joint configuration.
    */
-  void planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode, const jpos_t joints_i, const jpos_t joints_f);
+  void planRobotJointMovement(const double duration, const double frequency, const PLAN_MODE plan_mode,
+                              const jpos_t joints_i, const jpos_t joints_f);
+
+  /**
+   * \fn bool initCamera(const bool calibrate, const bool calib_only)
+   * \brief Initialize the camera according to system configuration.
+   * 
+   * \param calibrate Boolean flag to execute camera calibration
+   * \param calib_only Boolean flag, if true, only run camera calibration
+   */
+  bool initCamera(const bool calibrate, const bool calib_only);
+
+  /**
+   * \fn void shutdownCamera()
+   * \brief Shut down the camera.
+   */
+  void shutdownCamera();
 };
 
 }  // namespace smalldrop_bioprint

@@ -33,6 +33,11 @@
     <arg name="rviz" value="$(arg rviz)" />
   </include>
 
+  <!-- Include camera launch -->
+  <include if="$(arg has_camera)" file="$(find smalldrop_vision)/launch/camera.launch">
+    <arg name="is_simulation" value="$(arg is_simulation)" />
+  </include>
+
   <rosparam file="$(find smalldrop_bioprint)/config/config.yaml" command="load"/>
   
   <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development) --ccam $(arg calib_cam) --cphead $(arg calib_phead)" output="screen" />

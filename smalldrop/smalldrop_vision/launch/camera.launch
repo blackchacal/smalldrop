@@ -1,0 +1,6 @@
+<?xml version="1.0" ?>
+<launch>
+  <arg name="is_simulation" default="1" /> 
+
+  <rosparam if="$(arg is_simulation)" file="$(find smalldrop_vision)/config/config.yaml" command="load"/>
+</launch>

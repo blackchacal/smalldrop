@@ -34,6 +34,7 @@ SystemConfig::SystemConfig(ros::NodeHandle nh) : nh_(nh)
     { "bioprint", "smalldrop_bioprint" },
     { "robot", "smalldrop_robot_arm" },
     { "teleop", "smalldrop_teleoperation" },
+    { "vision", "smalldrop_vision" },
   };
 }
 
@@ -261,7 +262,7 @@ std::string SystemConfig::getConfigFilePath(const std::string module) const
   std::stringstream path;
   if (config_filemap_.find(module) != config_filemap_.end())
   {
-    path << ros::package::getPath(config_filemap_.find(module)->second) << "/config/test_config.yaml";
+    path << ros::package::getPath(config_filemap_.find(module)->second) << "/config/config.yaml";
     return path.str();
   }
   else
