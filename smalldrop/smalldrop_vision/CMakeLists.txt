@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   realsense2_camera
   realsense2_description
+  smalldrop_segmentation
 )
 find_package(PkgConfig REQUIRED)
 pkg_search_module(EIGEN REQUIRED eigen3)
@@ -25,7 +26,8 @@ catkin_package(
   geometry_msgs 
   sensor_msgs
   realsense2_camera 
-  realsense2_description 
+  realsense2_description
+  smalldrop_segmentation
 #  DEPENDS system_lib
 )
 
@@ -47,16 +49,12 @@ add_library(${PROJECT_NAME}
 
 add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
-## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
-# add_executable(${PROJECT_NAME}_node src/smalldrop_vision_node.cpp)
+add_executable(detect_wound src/nodes/detect_wound.cpp)
 
-## Add cmake target dependencies of the executable
-## same as for the library above
-# add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_dependencies(detect_wound ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
+target_link_libraries(detect_wound ${PROJECT_NAME} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
 
 #############
 ## Install ##

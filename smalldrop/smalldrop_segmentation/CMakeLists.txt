@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   image_transport
   roscpp
   std_msgs
+  sensor_msgs
 )
 find_package(OpenCV 4 REQUIRED)
 
@@ -19,7 +20,7 @@ find_package(OpenCV 4 REQUIRED)
 catkin_package(
  INCLUDE_DIRS include
  LIBRARIES smalldrop_segmentation
- CATKIN_DEPENDS cv_bridge geometry_msgs image_transport roscpp std_msgs
+ CATKIN_DEPENDS cv_bridge geometry_msgs image_transport roscpp std_msgs sensor_msgs
 #  DEPENDS system_lib
 )
 
@@ -36,6 +37,8 @@ include_directories(
 add_library(${PROJECT_NAME}
   src/${PROJECT_NAME}/wound_segmentation_comanip.cpp
   src/${PROJECT_NAME}/wound_segmentation_comanip_convex_hull.cpp
+  src/${PROJECT_NAME}/wound_segmentation_camera.cpp
+  src/${PROJECT_NAME}/wound_segmentation_camera_binarization.cpp
 )
 
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES} ${catkin_LIBRARIES})
