@@ -13,11 +13,17 @@
 
 // ROS messages
 #include <sensor_msgs/Image.h>
+#include <pcl_ros/point_cloud.h>
+
+#include <tf2_ros/transform_listener.h>
 
 namespace smalldrop
 {
 namespace smalldrop_segmentation
 {
+
+typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
+
 /**
  * \class WSegmentCamBinary
  * \brief Class for camera wound segmentation binarization algorithm.
@@ -30,12 +36,17 @@ public:
    *****************************************************************************************/
 
   /**
-   * \fn WSegmentCamBinary(const sensor_msgs::Image& rgb_image) 
+   * \fn WSegmentCamBinary(const sensor_msgs::Image& rgb_image, const sensor_msgs::Image& depth_image, const PointCloud& point_cloud) 
    * \brief Default constructor
    *
    * \param rgb_image RGB image from were the wound will be segmented.
+   * \param depth_image Depth image from were the wound will be segmented.
+   * \param point_cloud Point Cloud from were the wound will be segmented.
+   * \param transform Transform matrix from camera depth frame and robot base frame 
+   * \param calibration_data Data for image-workspace calibration.
    */
-  WSegmentCamBinary(const sensor_msgs::Image& rgb_image);
+  WSegmentCamBinary(const sensor_msgs::Image& rgb_image, const sensor_msgs::Image& depth_image,
+                    const PointCloud& point_cloud, const Eigen::Matrix4d& transform, const img_wsp_calibration_t calibration_data);
 
   ~WSegmentCamBinary()
   {

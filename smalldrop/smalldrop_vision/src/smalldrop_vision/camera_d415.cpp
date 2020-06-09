@@ -138,7 +138,7 @@ sensor_msgs::Image CameraD415::getDepthImage() const
 /**
  * \copybrief CameraD415::getPointCloud() const
  */
-sensor_msgs::PointCloud2 CameraD415::getPointCloud() const
+PointCloud CameraD415::getPointCloud() const
 {
   return point_cloud_;
 }
@@ -186,7 +186,7 @@ void CameraD415::subscribeToCameraTopics()
   depth_image_topic_sub_ =
       nh_.subscribe<sensor_msgs::Image>(depth_image_topic_, 10, &CameraD415::getDepthImageFromTopic, this);
   rgb_pcloud_topic_sub_ =
-      nh_.subscribe<sensor_msgs::PointCloud2>(rgb_pcloud_topic_, 10, &CameraD415::getPointCloudFromTopic, this);
+      nh_.subscribe<PointCloud>(rgb_pcloud_topic_, 10, &CameraD415::getPointCloudFromTopic, this);
 }
 
 /**
@@ -270,10 +270,12 @@ void CameraD415::getDepthImageFromTopic(const sensor_msgs::Image::ConstPtr &msg)
 }
 
 /**
- * \copybrief CameraD415::getPointCloudFromTopic(const sensor_msgs::PointCloud2::ConstPtr &msg)
+ * \copybrief CameraD415::getPointCloudFromTopic(const PointCloud::ConstPtr &msg)
  */
-void CameraD415::getPointCloudFromTopic(const sensor_msgs::PointCloud2::ConstPtr &msg)
+void CameraD415::getPointCloudFromTopic(const PointCloud::ConstPtr &msg)
 {
+  if (isConnected())
+    point_cloud_ = *msg;
 }
 
 }  // namespace smalldrop_vision

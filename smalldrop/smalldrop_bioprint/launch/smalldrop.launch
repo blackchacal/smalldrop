@@ -11,6 +11,7 @@
   <arg name="gains" default="true" />
   <arg name="rviz" default="true" />
   <arg name="sim_world" default="empty" />
+  <arg name="gui" default="true" />
 
   <!-- Arguments for camera -->
   <arg name="has_camera" default="true" />
@@ -22,15 +23,17 @@
   <param if="$(eval sim_world == 'empty')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro has_camera:=$(arg has_camera)" />
   <param if="$(eval sim_world == 'hospital_room')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro robot_origin_xyz:='1 0.0 0.945' robot_origin_rpy:='0.0 0.0 3.1415' has_camera:=$(arg has_camera)" />
   <include if="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/joint_position_pid_sim_controller.launch">
-      <arg name="gains" value="$(arg gains)" />
-      <arg name="rviz" value="$(arg rviz)" />
-      <arg name="sim_world" value="$(arg sim_world)" />
-      <arg name="use_description" value="false"/>
+    <arg name="gains" value="$(arg gains)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="sim_world" value="$(arg sim_world)" />
+    <arg name="use_description" value="false"/>
+    <arg name="gui" value="$(arg gui)" />
   </include>
   <include unless="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/cartesian_impedance_real_controller.launch">
     <arg name="robot_ip" value="$(arg robot_ip)" />
     <arg name="gains" value="$(arg gains)" />
     <arg name="rviz" value="$(arg rviz)" />
+    <arg name="gui" value="$(arg gui)" />
   </include>
 
   <!-- Include camera launch -->

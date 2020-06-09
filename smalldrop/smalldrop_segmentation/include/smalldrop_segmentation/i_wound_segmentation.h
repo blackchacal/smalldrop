@@ -51,6 +51,19 @@ typedef std::vector<point_t> points_t;
 typedef std::vector<points_t> contours_t;
 
 /**
+ * \typedef img_wsp_calibration_t
+ */
+typedef struct
+{
+  unsigned int img_width;  /** Image width in px. */
+  unsigned int img_height; /** Image height in px. */
+  double wsp_x_min;        /** Robot workspace coordinates minimum x limit. */
+  double wsp_x_max;        /** Robot workspace coordinates maximum x limit. */
+  double wsp_y_min;        /** Robot workspace coordinates minimum y limit. */
+  double wsp_y_max;        /** Robot workspace coordinates maximum y limit. */
+} img_wsp_calibration_t;
+
+/**
  * \class IWoundSegmentation
  * \brief Interface for wound segmentation algorithms.
  */

@@ -16,7 +16,7 @@
 // ROS messages
 #include <sensor_msgs/CameraInfo.h>
 #include <sensor_msgs/Image.h>
-#include <sensor_msgs/PointCloud2.h>
+#include <pcl_ros/point_cloud.h>
 
 namespace smalldrop
 {
@@ -34,6 +34,8 @@ typedef struct {
   std::string depth_image_topic;
   std::string rgb_pcloud_topic;
 } camera_topics_t;
+
+typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
 /**
  * \class CameraD415
@@ -121,10 +123,10 @@ public:
   sensor_msgs::Image getDepthImage() const;
 
   /**
-   * \fn sensor_msgs::PointCloud2 getPointCloud() const
+   * \fn PointCloud getPointCloud() const
    * \brief Return point cloud data.
    */
-  sensor_msgs::PointCloud2 getPointCloud() const;
+  PointCloud getPointCloud() const;
 
 private:
   /**
@@ -147,7 +149,7 @@ private:
   sensor_msgs::CameraInfo depth_info_;      /** \var Depth camera information. */
   sensor_msgs::Image depth_curr_image_raw_; /** \var Current RGB camera image. */
 
-  sensor_msgs::PointCloud2 point_cloud_; /** \var Point cloud obtained from depth data. */
+  PointCloud point_cloud_; /** \var Point cloud (pcl format) obtained from depth data. */
 
   // ROS Topics
   std::string rgb_info_topic_;
@@ -243,10 +245,10 @@ private:
   void getDepthImageFromTopic(const sensor_msgs::Image::ConstPtr &msg);
 
   /**
-   * \fn void getPointCloudFromTopic(const sensor_msgs::PointCloud2::ConstPtr &msg)
-   * \brief Get point cloud data from topic.
+   * \fn void getPointCloudFromTopic(const PointCloud::ConstPtr &msg)
+   * \brief Get point cloud data (pcl format) from topic.
    */
-  void getPointCloudFromTopic(const sensor_msgs::PointCloud2::ConstPtr &msg);
+  void getPointCloudFromTopic(const PointCloud::ConstPtr &msg);
 };
 
 }  // namespace smalldrop_vision

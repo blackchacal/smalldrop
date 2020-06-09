@@ -10,7 +10,7 @@
     
     <!-- Add RealSense plugin to publish camera topics to Gazebo and ROS -->
     <gazebo>
-      <plugin name="realsense_plugin" filename="librealsense_gazebo_plugin.so"/>
+      <plugin name="smalldrop/vision" filename="librealsense_gazebo.so"/>
     </gazebo>
 
     <!-- Add color camera sensor -->

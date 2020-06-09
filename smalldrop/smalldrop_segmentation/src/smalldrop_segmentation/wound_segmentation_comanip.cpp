@@ -35,6 +35,7 @@ WSegmentCoManip::WSegmentCoManip(const std::string filepath)
  */
 WSegmentCoManip::WSegmentCoManip(const std::string filepath, const img_wsp_calibration_t calibration_data) : filepath_(filepath)
 {
+  filepath_ = filepath;
   image_width_ = calibration_data.img_width;
   image_height_ = calibration_data.img_height;
   wsp_x_min_limit_ = calibration_data.wsp_x_min;

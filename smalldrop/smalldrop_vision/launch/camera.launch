@@ -3,4 +3,31 @@
   <arg name="is_simulation" default="1" /> 
 
   <rosparam if="$(arg is_simulation)" file="$(find smalldrop_vision)/config/config.yaml" command="load"/>
+
+  <arg name="camera_name" default="smalldrop/vision" />
+
+  <arg name="rgb_camera_info" value="/$(arg camera_name)/camera/color/camera_info"/>
+  <arg name="rgb_image_rect" value="/$(arg camera_name)/camera/color/image_raw"/>  <!--Rectified color image-->
+  <arg name="depth_camera_info" value="/$(arg camera_name)/camera/depth/camera_info"/>  <!--Raw depth image-->
+  <arg name="depth_image_raw" value="/$(arg camera_name)/camera/depth/image_raw"/>  <!--Raw depth image-->
+  <arg name="depth_image_rect" value="/$(arg camera_name)/camera/depth/image_rect"/>  <!--Raw depth image-->
+  <arg name="point_cloud" value="/$(arg camera_name)/camera/point_cloud/points"/>
+  <!-- <arg name="point_cloud_rgb" value="/$(arg camera_name)/camera/point_cloud_rgb/points"/> -->
+
+  <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen"/>
+
+  <!-- Construct point cloud of the rgb and depth topics -->
+  <node pkg="nodelet" type="nodelet" name="points_xyz" args="load depth_image_proc/point_cloud_xyz standalone_nodelet --no-bond">
+    <remap from="camera_info" to="$(arg depth_camera_info)" />
+    <remap from="image_rect" to="$(arg depth_image_raw)"/>
+    <remap from="points" to="$(arg point_cloud)"/>
+  </node>
+
+  <!-- Construct point cloud of the rgb and depth topics -->
+  <!-- <node pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet -no-bond">
+    <remap from="rgb/camera_info" to="$(arg rgb_camera_info)" />
+    <remap from="rgb/image_rect_color" to="$(arg rgb_image_rect)"/>
+    <remap from="depth_registered/image_rect" to="$(arg depth_image_raw)"/>
+    <remap from="depth_registered/points" to="$(arg point_cloud_rgb)"/>
+  </node> -->
 </launch>

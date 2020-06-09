@@ -1,5 +1,6 @@
 <launch>
   <arg name="sim_world" default="empty" />
+  <arg name="gui" default="true" />
   <arg name="use_description" default="true" />
   
   <!-- Robot gains setup and test arguments -->
@@ -7,8 +8,12 @@
   <arg name="rviz" default="false" />
 
   <!-- Start Gazebo world -->
-  <include if="$(eval sim_world == 'empty')" file="$(find smalldrop_robot_arm)/launch/create_empty_sim_world.launch" />
-  <include if="$(eval sim_world == 'hospital_room')" file="$(find smalldrop_robot_arm)/launch/create_hospital_room_sim_world.launch" />
+  <include if="$(eval sim_world == 'empty')" file="$(find smalldrop_robot_arm)/launch/create_empty_sim_world.launch">
+    <arg name="gui" value="$(arg gui)" />
+  </include>
+  <include if="$(eval sim_world == 'hospital_room')" file="$(find smalldrop_robot_arm)/launch/create_hospital_room_sim_world.launch">
+    <arg name="gui" value="$(arg gui)" />
+  </include>
 
   <group if="$(eval use_description == true)">
     <param if="$(eval sim_world == 'empty')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_robot_arm)/robots/panda_arm_hand.urdf.xacro" />

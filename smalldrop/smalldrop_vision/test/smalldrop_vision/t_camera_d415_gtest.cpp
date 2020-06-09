@@ -19,15 +19,15 @@ class CameraD415Test : public ::testing::Test
 
     void SetUp() override 
     {
-      topics.rgb_info_topic = "/realsense_plugin/camera/color/camera_info";
-      topics.rgb_image_topic = "/realsense_plugin/camera/color/image_raw";
-      topics.ir1_info_topic = "/realsense_plugin/camera/ir/camera_info";
-      topics.ir1_image_topic = "/realsense_plugin/camera/ir/image_raw";
-      topics.ir2_info_topic = "/realsense_plugin/camera/ir2/camera_info";
-      topics.ir2_image_topic = "/realsense_plugin/camera/ir2/image_raw";
-      topics.depth_info_topic = "/realsense_plugin/camera/depth/camera_info";
-      topics.depth_image_topic = "/realsense_plugin/camera/depth/image_raw";
-      topics.rgb_pcloud_topic = "/realsense_plugin/camera/point_cloud/data";
+      topics.rgb_info_topic = "/smalldrop/vision/camera/color/camera_info";
+      topics.rgb_image_topic = "/smalldrop/vision/camera/color/image_raw";
+      topics.ir1_info_topic = "/smalldrop/vision/camera/ir/camera_info";
+      topics.ir1_image_topic = "/smalldrop/vision/camera/ir/image_raw";
+      topics.ir2_info_topic = "/smalldrop/vision/camera/ir2/camera_info";
+      topics.ir2_image_topic = "/smalldrop/vision/camera/ir2/image_raw";
+      topics.depth_info_topic = "/smalldrop/vision/camera/depth/camera_info";
+      topics.depth_image_topic = "/smalldrop/vision/camera/depth/image_raw";
+      topics.rgb_pcloud_topic = "/smalldrop/vision/camera/point_cloud/points";
     }
 
     void TearDown() override {}
