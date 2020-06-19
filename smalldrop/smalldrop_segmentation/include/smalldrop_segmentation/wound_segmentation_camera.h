@@ -136,6 +136,15 @@ protected:
   void getContoursRegion();
 
   /**
+   * \fn poses_contours_t getPosesContours(const PointCloud& point_cloud, const Eigen::Matrix4d& transform)
+   * \brief Get the contours poses
+   * 
+   * \param point_cloud Camera point cloud
+   * \param transform Transformation matrix from the camera frame to the robot base frame
+   */
+  void getPosesContours(const PointCloud& point_cloud, const Eigen::Matrix4d& transform);
+
+  /**
    * \fn poses_contours_t getPosesContoursRegion(const PointCloud& point_cloud, const Eigen::Matrix4d& transform)
    * \brief Get poses inside the region defined by the contours
    * 
@@ -143,6 +152,15 @@ protected:
    * \param transform Transformation matrix from the camera frame to the robot base frame
    */
   void getPosesContoursRegion(const PointCloud& point_cloud, const Eigen::Matrix4d& transform);
+
+  /**
+   * \fn PointCloud filterPointCloud(const PointCloud& point_cloud) const
+   * \brief Filter the camera generated point cloud to reduce points. It filters on x, y and z directions
+   * and uses voxel grid for downsampling.
+   * 
+   * \param point_cloud Camera generated point cloud.
+   */
+  PointCloud filterPointCloud(const PointCloud& point_cloud) const;
 
 private:
   /**

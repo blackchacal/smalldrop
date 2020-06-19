@@ -9,20 +9,29 @@
 #include <ros/ros.h>
 #include <getopt.h>
 
+#include <smalldrop_vision/camera_d415.h>
+#include <smalldrop_segmentation/wound_segmentation_camera_binarization.h>
+
 #include <smalldrop_toolpath/trajectory.h>
 #include <smalldrop_toolpath/trajectory_planner.h>
 #include <smalldrop_toolpath/line.h>
 #include <smalldrop_toolpath/circle.h>
 #include <smalldrop_toolpath/circular_spiral.h>
+#include <smalldrop_toolpath/zigzag.h>
+#include <smalldrop_toolpath/parallel_lines.h>
+#include <smalldrop_toolpath/grid.h>
 
 // ROS messages
 #include <tf/transform_broadcaster.h>
+#include <tf/transform_listener.h>
 #include <geometry_msgs/Pose.h>
 #include <visualization_msgs/Marker.h>
 
 // Libraries
 #include <Eigen/Dense>
 
+using namespace smalldrop::smalldrop_vision;
+using namespace smalldrop::smalldrop_segmentation;
 using namespace smalldrop::smalldrop_toolpath;
 
 /**
@@ -46,6 +55,7 @@ double radius = 0.1; // circular path radius
 double eradius = 0.1; // circular spiral path external radius
 double iradius = 0.0; // circular spiral path internal radius
 std::string plane = "xy";
+unsigned int offset = 10;
 
 /**
  * Function prototypes
@@ -53,6 +63,7 @@ std::string plane = "xy";
 
 void currentPoseCallback(geometry_msgs::Pose::ConstPtr msg);
 bool processCmdArgs(int argc, char **argv);
+void getTransformToBase(tf::TransformListener& tf_listener, Eigen::Matrix4d& transform);
 
 /**
  * Main
@@ -68,10 +79,31 @@ int main(int argc, char **argv)
   ros::Publisher pub_markers = nh.advertise<visualization_msgs::Marker>("/smalldrop/robot_arm/trajectory_markers", 10);
   ros::Subscriber sub = nh.subscribe("/smalldrop/robot_arm/current_pose", 10, currentPoseCallback);
 
+  camera_topics_t camera_topics;
+  camera_topics.rgb_info_topic = "/smalldrop/vision/camera/color/camera_info";
+  camera_topics.rgb_image_topic = "/smalldrop/vision/camera/color/image_raw";
+  camera_topics.ir1_info_topic = "/smalldrop/vision/camera/ir/camera_info";
+  camera_topics.ir1_image_topic = "/smalldrop/vision/camera/ir/image_raw";
+  camera_topics.ir2_info_topic = "/smalldrop/vision/camera/ir2/camera_info";
+  camera_topics.ir2_image_topic = "/smalldrop/vision/camera/ir2/image_raw";
+  camera_topics.depth_info_topic = "/smalldrop/vision/camera/depth/camera_info";
+  camera_topics.depth_image_topic = "/smalldrop/vision/camera/depth/image_raw";
+  camera_topics.rgb_pcloud_topic = "/smalldrop/vision/camera/point_cloud/points";
+
+  tf::TransformListener tf_listener;
+  Eigen::Matrix4d transform;
+  transform.setIdentity();
+
+  CameraD415 cam(true, camera_topics);
+  int pcloud_size = 0;
+  cam.turnOn();
+
   // Process current pose callback
   ros::Rate r(10);
-  while (ros::ok() && !has_pose)
+  while (ros::ok() && (!has_pose || pcloud_size == 0))
   {
+    PointCloud pc = cam.getPointCloud();
+    pcloud_size = pc.width;
     ros::spinOnce();
     r.sleep();
   }
@@ -101,7 +133,8 @@ int main(int argc, char **argv)
   if (plane.compare("yz") == 0)
     path_plane = PATH_PLANE::YZ;
   
-  TrajectoryPlanner pl(ttime, freq, PLAN_MODE::LSPB);
+  TrajectoryPlanner pl(ttime, freq, PLAN_MODE::POLY3);
+  // TrajectoryPlanner pl(ttime, freq, PLAN_MODE::LSPB);
   if (path_type.compare("line") == 0)
   {
     Line line(initial_pose, final_pose);
@@ -144,6 +177,95 @@ int main(int argc, char **argv)
   {
     CircularSpiral circular_spiral(initial_pose, eradius, iradius, loops, 20, path_plane);
     Trajectory t(pl.plan(circular_spiral));
+    traj = t.poses();
+  }
+  else if (path_type.compare("zigzag") == 0)
+  {
+    unsigned int image_width = 640;
+    unsigned int image_height = 480;
+    double distance = 0.702;
+    double wsp_w = 0.838 * distance; 
+    double wsp_h = 0.75 * wsp_w;
+    img_wsp_calibration_t calibration_data = {
+      .img_width = image_width,
+      .img_height = image_height,
+      .wsp_x_min = -wsp_w/2,
+      .wsp_x_max = wsp_w/2,
+      .wsp_y_min = -wsp_h/2 + 0.075,
+      .wsp_y_max = wsp_h/2 + 0.075
+    };
+    getTransformToBase(tf_listener, transform);
+    WSegmentCamBinary wseg(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
+
+    points_t contour = wseg.getWoundSegmentationPointsContour(0);
+    poses_t poses_contour_region = wseg.getWoundSegmentationPosesContourRegion(0);
+
+    IMAGE_AXIS axis = IMAGE_AXIS::X;
+    if (!plane.compare("xz") == 0 && !plane.compare("xy") == 0)
+      axis = IMAGE_AXIS::Y;
+    
+    ZigZag zigzag(contour, poses_contour_region, transform, offset, axis, calibration_data);
+    Line line(initial_pose, zigzag.poses()[0]);
+    std::vector<Path> paths = {line, zigzag};
+    Trajectory t(pl.plan(paths));
+    traj = t.poses();
+  }
+  else if (path_type.compare("parallel_lines") == 0)
+  {
+    unsigned int image_width = 640;
+    unsigned int image_height = 480;
+    double distance = 0.702;
+    double wsp_w = 0.838 * distance; 
+    double wsp_h = 0.75 * wsp_w;
+    img_wsp_calibration_t calibration_data = {
+      .img_width = image_width,
+      .img_height = image_height,
+      .wsp_x_min = -wsp_w/2,
+      .wsp_x_max = wsp_w/2,
+      .wsp_y_min = -wsp_h/2 + 0.075,
+      .wsp_y_max = wsp_h/2 + 0.075
+    };
+    getTransformToBase(tf_listener, transform);
+    WSegmentCamBinary wseg(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
+
+    points_t contour = wseg.getWoundSegmentationPointsContour(0);
+    poses_t poses_contour_region = wseg.getWoundSegmentationPosesContourRegion(0);
+
+    IMAGE_AXIS axis = IMAGE_AXIS::X;
+    if (!plane.compare("xz") == 0 && !plane.compare("xy") == 0)
+      axis = IMAGE_AXIS::Y;
+
+    ParallelLines parallel_lines(contour, poses_contour_region, transform, offset, axis, calibration_data);
+    Line line(initial_pose, parallel_lines.poses()[0]);
+    std::vector<Path> paths = {line, parallel_lines};
+    Trajectory t(pl.plan(paths));
+    traj = t.poses();
+  }
+  else if (path_type.compare("grid") == 0)
+  {
+    unsigned int image_width = 640;
+    unsigned int image_height = 480;
+    double distance = 0.702;
+    double wsp_w = 0.838 * distance; 
+    double wsp_h = 0.75 * wsp_w;
+    img_wsp_calibration_t calibration_data = {
+      .img_width = image_width,
+      .img_height = image_height,
+      .wsp_x_min = -wsp_w/2,
+      .wsp_x_max = wsp_w/2,
+      .wsp_y_min = -wsp_h/2 + 0.075,
+      .wsp_y_max = wsp_h/2 + 0.075
+    };
+    getTransformToBase(tf_listener, transform);
+    WSegmentCamBinary wseg(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
+
+    points_t contour = wseg.getWoundSegmentationPointsContour(0);
+    poses_t poses_contour_region = wseg.getWoundSegmentationPosesContourRegion(0);
+
+    Grid grid(contour, poses_contour_region, transform, offset, offset, calibration_data);
+    Line line(initial_pose, grid.poses()[0]);
+    std::vector<Path> paths = {line, grid};
+    Trajectory t(pl.plan(paths));
     traj = t.poses();
   }
   else
@@ -220,7 +342,9 @@ int main(int argc, char **argv)
     time_elapsed = (double)(te.sec - ts.sec) + (double)(te.nsec - ts.nsec) / 1000000000;
     std::cout << "Time elapsed: " << time_elapsed << std::endl;
   }
-  
+
+  cam.turnOff();
+
   return 0;
 }
 
@@ -245,7 +369,7 @@ bool processCmdArgs(int argc, char **argv)
 {
   // Process command-line arguments
   int opt;
-  const char* const short_opts = ":smrtfp:x:y:z:q:u:v:w:T:L:F:R:E:I:P:";
+  const char* const short_opts = ":smrtfp:x:y:z:q:u:v:w:T:L:F:R:E:I:O:P:";
   const option long_opts[] = {
     {"rx", required_argument, nullptr, 'q'},
     {"ry", required_argument, nullptr, 'u'},
@@ -256,6 +380,7 @@ bool processCmdArgs(int argc, char **argv)
     {"radius", required_argument, nullptr, 'R'},
     {"eradius", required_argument, nullptr, 'E'},
     {"iradius", required_argument, nullptr, 'I'},
+    {"offset", required_argument, nullptr, 'O'},
     {"help", no_argument, nullptr, 'h'},
     {nullptr, no_argument, nullptr, 0}
   };
@@ -342,6 +467,9 @@ bool processCmdArgs(int argc, char **argv)
       case 'I':
         iradius = std::stod(optarg);
         break;
+      case 'O':
+        offset = std::stoi(optarg);
+        break;
       case 'P':
         plane = static_cast<std::string>(optarg);
         break;
@@ -363,4 +491,22 @@ bool processCmdArgs(int argc, char **argv)
     }
   }
   return true;
+}
+
+void getTransformToBase(tf::TransformListener& tf_listener, Eigen::Matrix4d& transform)
+{
+  tf::StampedTransform transformStamped;
+  try {
+    tf_listener.lookupTransform("panda_link0", "camera_depth_optical_frame", ros::Time(0), transformStamped);
+    
+    Eigen::Vector4d t_vector(transformStamped.getOrigin().x(), transformStamped.getOrigin().y(), transformStamped.getOrigin().z(), 1);
+    transform.col(3) << transformStamped.getOrigin().x(), transformStamped.getOrigin().y(), transformStamped.getOrigin().z(), 1;
+    transform.col(0) << transformStamped.getBasis().getColumn(0)[0], transformStamped.getBasis().getColumn(0)[1], transformStamped.getBasis().getColumn(0)[2], 0;
+    transform.col(1) << transformStamped.getBasis().getColumn(1)[0], transformStamped.getBasis().getColumn(1)[1], transformStamped.getBasis().getColumn(1)[2], 0;
+    transform.col(2) << transformStamped.getBasis().getColumn(2)[0], transformStamped.getBasis().getColumn(2)[1], transformStamped.getBasis().getColumn(2)[2], 0;
+
+    // std::cout << transform << std::endl;
+  } catch (tf2::TransformException &ex) {
+    return;
+  }
 }

@@ -42,6 +42,22 @@ public:
   Grid(const points_t contour, const unsigned int offset_x, const unsigned int offset_y, const double pose_z,
        const img_wsp_calibration_t calibration_data);
 
+  /**
+   * \fn Grid(const points_t contour, const poses_t poses_contour_region, const Eigen::Matrix4d& transform, const
+   * unsigned int offset_x, const unsigned int offset_y, const img_wsp_calibration_t calibration_data) 
+   * \brief Constructor for a zig zag wound filling toolpath.
+   *
+   * \param contour List of opencv points that form a wound contour.
+   * \param poses_contour_region List of poses points contained inside the wound contour
+   * \param transform Transformation matrix between camera frame and robot base frame.
+   * \param offset_x Distance between grid lines parallel to x axis.
+   * \param offset_y Distance between grid lines parallel to y axis.
+   * \param pose_z Z axis coordinate for the robot path execution.
+   * \param calibration_data Data for image-workspace calibration.
+   */
+  Grid(const points_t contour, const poses_t poses_contour_region, const Eigen::Matrix4d& transform,
+       const unsigned int offset_x, const unsigned int offset_y, const img_wsp_calibration_t calibration_data);
+
   ~Grid(){};
 };
 

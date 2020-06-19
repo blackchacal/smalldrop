@@ -17,7 +17,6 @@
 #include "opencv2/imgcodecs.hpp"
 
 #include <pcl/point_types.h>
-#include <pcl/filters/passthrough.h>
 
 #include <Eigen/Dense>
 
@@ -83,26 +82,12 @@ WSegmentCamBinary::WSegmentCamBinary(const sensor_msgs::Image& rgb_image, const 
   // Get points inside contours
   getContoursRegion();
 
-  // Create the filtering object
-  pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZ>);
-  *cloud_ptr = point_cloud;
+  // Filter the point cloud
   pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered_ptr (new pcl::PointCloud<pcl::PointXYZ>);
-  pcl::PassThrough<pcl::PointXYZ> pass;
-  pass.setInputCloud(cloud_ptr);
-  pass.setFilterFieldName("x");
-  pass.setFilterLimits (wsp_x_min_limit_, wsp_x_max_limit_);
-  pass.filter(*cloud_filtered_ptr);
-  
-  pass.setInputCloud(cloud_filtered_ptr);
-  pass.setFilterFieldName("y");
-  pass.setFilterLimits (wsp_y_min_limit_, wsp_y_max_limit_);
-  pass.filter(*cloud_filtered_ptr);
+  *cloud_filtered_ptr = filterPointCloud(point_cloud);
 
-  pass.setInputCloud(cloud_filtered_ptr);
-  pass.setFilterFieldName("z");
-  pass.setFilterLimits (0.3, 0.75);
-  pass.filter(*cloud_filtered_ptr);
-  
+  // Get poses from contours
+  getPosesContours(*cloud_filtered_ptr, transform);
   // Get poses inside contours
   getPosesContoursRegion(*cloud_filtered_ptr, transform);
 }

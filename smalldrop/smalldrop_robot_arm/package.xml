@@ -28,6 +28,8 @@
   <depend>controller_interface</depend> <!-- For real robot -->
 
   <depend>smalldrop_toolpath</depend>
+  <depend>smalldrop_vision</depend>
+  <depend>smalldrop_segmentation</depend>
   
   <doc_depend>doxygen</doc_depend>
   

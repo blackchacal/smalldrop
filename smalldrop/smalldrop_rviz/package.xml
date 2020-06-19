@@ -22,6 +22,7 @@
   <depend>smalldrop_state</depend>
   <depend>smalldrop_toolpath</depend>
   <depend>smalldrop_segmentation</depend>
+  <depend>smalldrop_vision</depend>
 
   <doc_depend>doxygen</doc_depend>
   

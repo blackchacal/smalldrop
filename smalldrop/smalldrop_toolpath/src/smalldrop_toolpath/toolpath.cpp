@@ -129,6 +129,46 @@ poses_t ToolPath::convPathPointToPose(const points_t path, const double pose_z) 
 }
 
 /**
+ * \copybrief ToolPath::convPathPointToPose(const points_t path, const poses_t poses_contour_region, const Eigen::Matrix4d& transform) const
+ */
+poses_t ToolPath::convPathPointToPose(const points_t path, const poses_t poses_contour_region, const Eigen::Matrix4d& transform) const
+{
+  poses_t new_path;
+  std::vector<double> pxDim = convPx2Meter();  // pixel dimensions in m
+  double delta = 0.01;
+
+  for (unsigned int i = 0; i < path.size(); i++)
+  {
+    double xr = (wsp_x_max_limit_ - wsp_x_min_limit_) / image_width_ * path[i].x + wsp_x_min_limit_;
+    double yr = (wsp_y_max_limit_ - wsp_y_min_limit_) / image_height_ * path[i].y + wsp_y_min_limit_;
+    Eigen::Vector4d pt_cam_path, pt_base_path;
+    pt_cam_path << xr, yr, 0.43, 1;
+    pt_base_path = transform * pt_cam_path;
+
+    pose_t pose;
+    pose.position.x = pt_base_path(0);
+    pose.position.y = pt_base_path(1);
+    pose.position.z = 0;
+
+    pose.orientation.x = 1.0;
+    pose.orientation.y = 0;
+    pose.orientation.z = 0;
+    pose.orientation.w = 0;
+
+    for (unsigned int j = 0; j < poses_contour_region.size(); j++)
+    {
+      if (pose.position.x <= poses_contour_region[j].position.x + delta && pose.position.x >= poses_contour_region[j].position.x - delta && pose.position.y <= poses_contour_region[j].position.y + delta && pose.position.y >= poses_contour_region[j].position.y - delta)
+      {
+        pose.position.z = poses_contour_region[j].position.z;
+        break;
+      }
+    }
+    new_path.push_back(pose);
+  }
+  return new_path;
+}
+
+/**
  * \copybrief ToolPath::convPx2Meter() const
  */
 std::vector<double> ToolPath::convPx2Meter() const

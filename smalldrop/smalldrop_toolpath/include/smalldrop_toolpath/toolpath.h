@@ -15,6 +15,7 @@
 
 // Libraries
 #include "opencv2/imgproc.hpp"
+#include <Eigen/Dense>
 
 using namespace smalldrop::smalldrop_segmentation;
 
@@ -123,6 +124,15 @@ protected:
    * \param pose_z Z axis coordinate for the robot path execution.
    */
   poses_t convPathPointToPose(const points_t path, const double pose_z) const;
+
+  /**
+   * \fn poses_t convPathPointToPose(const points_t path, const poses_t poses_contour_region, const Eigen::Matrix4d& transform) const
+   * \brief Returns a wound filling as robot poses instead of opencv points.
+   *
+   * \param path List of opencv points that form a wound filling path.
+   * \param poses_contour_region Path contour region poses.
+   */
+  poses_t convPathPointToPose(const points_t path, const poses_t poses_contour_region, const Eigen::Matrix4d& transform) const;
 
   /**
    * \fn double convPx2Meter()

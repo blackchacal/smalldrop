@@ -29,9 +29,9 @@ public:
    *****************************************************************************************/
 
   /**
-   * \fn ParallelLines(const points_t contour, const unsigned int offset, const IMAGE_AXIS axis, const double pose_z, const
-   * img_wsp_calibration_t calibration_data) 
-   * \brief Constructor for a zig zag wound filling toolpath.
+   * \fn ParallelLines(const points_t contour, const unsigned int offset, const IMAGE_AXIS axis, const double pose_z,
+   * const img_wsp_calibration_t calibration_data) 
+   * \brief Constructor for a parallel lines wound filling toolpath.
    *
    * \param contour List of opencv points that form a wound contour.
    * \param offset Distance between grid lines.
@@ -40,7 +40,22 @@ public:
    * \param calibration_data Data for image-workspace calibration.
    */
   ParallelLines(const points_t contour, const unsigned int offset, const IMAGE_AXIS axis, const double pose_z,
-         const img_wsp_calibration_t calibration_data);
+                const img_wsp_calibration_t calibration_data);
+
+  /**
+   * \fn ParallelLines(const points_t contour, const poses_t poses_contour_region, const Eigen::Matrix4d& transform,
+   * const unsigned int offset, const IMAGE_AXIS axis, const img_wsp_calibration_t calibration_data) 
+   * \brief Constructor for a parallel lines wound filling toolpath.
+   *
+   * \param contour List of opencv points that form a wound contour.
+   * \param poses_contour_region List of poses points contained inside the wound contour.
+   * \param transform Transformation matrix between camera frame and robot base frame.
+   * \param offset Distance between grid lines.
+   * \param axis The axis the is parallel to the grid lines.
+   * \param calibration_data Data for image-workspace calibration.
+   */
+  ParallelLines(const points_t contour, const poses_t poses_contour_region, const Eigen::Matrix4d& transform,
+                const unsigned int offset, const IMAGE_AXIS axis, const img_wsp_calibration_t calibration_data);
 
   ~ParallelLines(){};
 };

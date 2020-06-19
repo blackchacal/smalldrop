@@ -15,6 +15,8 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_ros
   franka_hw
   smalldrop_toolpath
+  smalldrop_vision
+  smalldrop_segmentation
 )
 
 find_package(Boost REQUIRED COMPONENTS system)
@@ -49,6 +51,8 @@ catkin_package(
   gazebo_ros
   franka_hw
   smalldrop_toolpath
+  smalldrop_vision
+  smalldrop_segmentation
  DEPENDS 
   Boost
   Eigen3
