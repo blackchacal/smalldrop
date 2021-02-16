@@ -46,6 +46,8 @@ SpaceMouse::SpaceMouse(std::string topic, smalldrop_state::SystemState* system_s
   state_prev_.axes[5] = -1;
   state_prev_.buttons[0] = -1;
   state_prev_.buttons[1] = -1;
+
+  continuous_action_ = false;
 }
 
 /**
@@ -78,6 +80,8 @@ SpaceMouse::SpaceMouse(std::string topic, std::list<IRemoteControllerMode *> mod
   state_prev_.axes[5] = -1;
   state_prev_.buttons[0] = -1;
   state_prev_.buttons[1] = -1;
+
+  continuous_action_ = false;
 }
 
 /**
@@ -180,6 +184,11 @@ void SpaceMouse::checkButtonPress()
     button_map_t button_map = active_mode_->getButtonMap();
     button_map_t::iterator it = button_map.begin();
 
+    if (continuous_action_)
+    {
+      callButtonAction("ok", system_state_);
+    }
+
     // Check control buttons
     if (state_.buttons[0] != state_prev_.buttons[0] && state_prev_.buttons[0] != -1 && !state_.buttons[0])
     {
@@ -212,7 +221,17 @@ void SpaceMouse::checkButtonPress()
             callButtonAction(it->first, system_state_);
           }
           else
-            callButtonAction(it->first, system_state_);
+          {
+            if (continuous_action_)
+            {
+              continuous_action_ = false;
+            }
+            else
+            {
+              continuous_action_ = true;
+              callButtonAction(it->first, system_state_);
+            }
+          }
           break;
         }
         it++;

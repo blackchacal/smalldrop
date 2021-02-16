@@ -8,21 +8,24 @@
 
   <!-- Arguments for robot arm -->
   <arg name="robot_ip" default="172.16.0.2" />
-  <arg name="gains" default="true" />
+  <arg name="gains" default="false" />
   <arg name="rviz" default="true" />
   <arg name="sim_world" default="empty" />
-  <arg name="gui" default="true" />
+  <arg name="gui" default="false" />
 
   <!-- Arguments for camera -->
-  <arg name="has_camera" default="true" />
+  <arg name="has_camera" default="false" />
+  <arg name="use_otsu" default="false" /> <!-- Use OTSU for wound segmentation -->
 
   <!-- Include remote controller launch -->
-  <include file="$(find smalldrop_teleoperation)/launch/system_teleoperation.launch" />
+  <!-- <include file="$(find smalldrop_teleoperation)/launch/default_teleoperation.launch" /> -->
+  <!-- <include file="$(find smalldrop_teleoperation)/launch/system_teleoperation.launch" /> -->
 
   <!-- Include robot arm launch -->
-  <param if="$(eval sim_world == 'empty')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro has_camera:=$(arg has_camera)" />
-  <param if="$(eval sim_world == 'hospital_room')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro robot_origin_xyz:='1 0.0 0.945' robot_origin_rpy:='0.0 0.0 3.1415' has_camera:=$(arg has_camera)" />
-  <include if="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/joint_position_pid_sim_controller.launch">
+  <param if="$(eval sim_world == 'empty')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro has_camera:=$(arg has_camera) is_simulation:=$(arg is_simulation)" />
+  <param if="$(eval sim_world == 'hospital_room')" name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro robot_origin_xyz:='1 0.0 0.945' robot_origin_rpy:='0.0 0.0 3.1415' has_camera:=$(arg has_camera) is_simulation:=$(arg is_simulation)" />
+  <include if="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/cartesian_impedance_sim_controller.launch">
+  <!-- <include if="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/joint_position_pid_sim_controller.launch"> -->
     <arg name="gains" value="$(arg gains)" />
     <arg name="rviz" value="$(arg rviz)" />
     <arg name="sim_world" value="$(arg sim_world)" />
@@ -30,21 +33,23 @@
     <arg name="gui" value="$(arg gui)" />
   </include>
   <include unless="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/cartesian_impedance_real_controller.launch">
+  <!-- <include unless="$(arg is_simulation)" file="$(find smalldrop_robot_arm)/launch/gravity_compensation_real_controller.launch"> -->
     <arg name="robot_ip" value="$(arg robot_ip)" />
     <arg name="gains" value="$(arg gains)" />
     <arg name="rviz" value="$(arg rviz)" />
-    <arg name="gui" value="$(arg gui)" />
   </include>
 
   <!-- Include camera launch -->
   <include if="$(arg has_camera)" file="$(find smalldrop_vision)/launch/camera.launch">
     <arg name="is_simulation" value="$(arg is_simulation)" />
+    <arg name="use_otsu" value="$(arg use_otsu)" />
   </include>
 
   <rosparam file="$(find smalldrop_bioprint)/config/config.yaml" command="load"/>
   
-  <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="--sim $(arg is_simulation) --dev $(arg is_development) --ccam $(arg calib_cam) --cphead $(arg calib_phead)" output="screen" />
+  <!-- <node name="smalldrop" pkg="smalldrop_bioprint" type="bioprinter" args="-sim $(arg is_simulation) -dev $(arg is_development) -ccam $(arg calib_cam) -cphead $(arg calib_phead)" output="screen" /> -->
 
   <!-- Show wound segmentation and toolpath image on rviz -->
-  <node name="show_wound_segmentation_toolpath" pkg="smalldrop_rviz" type="toolpath_viewer" required="false" output="screen" />
+  <!-- <node name="show_wound_segmentation_toolpath" pkg="smalldrop_rviz" type="toolpath_viewer" required="false" output="screen" /> -->
+  <!-- <node name="show_camera_wound_segmentation_toolpath" pkg="smalldrop_rviz" type="toolpath_viewer_camera" required="false" output="screen" /> -->
 </launch>

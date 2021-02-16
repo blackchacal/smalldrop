@@ -37,7 +37,7 @@ bool CartesianImpedanceRealController::init(hardware_interface::RobotHW *robot_h
   auto *model_interface = robot_hw->get<franka_hw::FrankaModelInterface>();
   if (model_interface == nullptr)
   {
-    ROS_ERROR_STREAM("CartesianImpedanceExampleController: Error getting model interface from hardware");
+    ROS_ERROR_STREAM("CartesianImpedanceRealController: Error getting model interface from hardware");
     return false;
   }
   try
@@ -47,7 +47,7 @@ bool CartesianImpedanceRealController::init(hardware_interface::RobotHW *robot_h
   catch (hardware_interface::HardwareInterfaceException &ex)
   {
     ROS_ERROR_STREAM(
-        "CartesianImpedanceExampleController: Exception getting model handle from interface: " << ex.what());
+        "CartesianImpedanceRealController: Exception getting model handle from interface: " << ex.what());
     return false;
   }
 
@@ -56,7 +56,7 @@ bool CartesianImpedanceRealController::init(hardware_interface::RobotHW *robot_h
   auto *state_interface = robot_hw->get<franka_hw::FrankaStateInterface>();
   if (state_interface == nullptr)
   {
-    ROS_ERROR_STREAM("CartesianImpedanceExampleController: Error getting state interface from hardware");
+    ROS_ERROR_STREAM("CartesianImpedanceRealController: Error getting state interface from hardware");
     return false;
   }
   try
@@ -66,7 +66,7 @@ bool CartesianImpedanceRealController::init(hardware_interface::RobotHW *robot_h
   catch (hardware_interface::HardwareInterfaceException &ex)
   {
     ROS_ERROR_STREAM(
-        "CartesianImpedanceExampleController: Exception getting state handle from interface: " << ex.what());
+        "CartesianImpedanceRealController: Exception getting state handle from interface: " << ex.what());
     return false;
   }
 
@@ -153,11 +153,11 @@ bool CartesianImpedanceRealController::init(hardware_interface::RobotHW *robot_h
 
   // Workspace limits
   std::vector<double> x_limits;
-  std::vector<double> x_limits_defaults = {0.1, 0.5};
+  std::vector<double> x_limits_defaults = {0.1, 1.5};
   std::vector<double> y_limits;
-  std::vector<double> y_limits_defaults = {-0.2, 0.2};
+  std::vector<double> y_limits_defaults = {-0.5, 0.5};
   std::vector<double> z_limits;
-  std::vector<double> z_limits_defaults = {0, 0.5};
+  std::vector<double> z_limits_defaults = {0, 1.5};
   nh.param("smalldrop/robot/workspace/x_limits", x_limits, x_limits_defaults);
   nh.param("smalldrop/robot/workspace/y_limits", y_limits, y_limits_defaults);
   nh.param("smalldrop/robot/workspace/z_limits", z_limits, z_limits_defaults);
@@ -198,6 +198,9 @@ void CartesianImpedanceRealController::starting(const ros::Time &time)
 
 void CartesianImpedanceRealController::update(const ros::Time &time, const ros::Duration &period)
 {
+  // ROS_INFO("x min limit: %f", wsp_x_min_limit_);
+  // ROS_INFO("x max limit: %f", wsp_x_max_limit_);
+
   // Get robot state
   franka::RobotState robot_state = state_handle_->getRobotState();
 

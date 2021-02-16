@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   camera_info_manager
   gazebo_ros
   pcl_ros
+  cv_bridge
 )
 find_package(PkgConfig REQUIRED)
 pkg_search_module(EIGEN REQUIRED eigen3)
@@ -36,6 +37,7 @@ catkin_package(
   smalldrop_segmentation
   gazebo_ros
   pcl_ros
+  cv_bridge
 #  DEPENDS system_lib
 )
 

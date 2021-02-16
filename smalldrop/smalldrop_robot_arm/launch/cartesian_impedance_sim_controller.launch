@@ -34,5 +34,5 @@
   <node name="joint_state_desired_publisher" pkg="topic_tools" type="relay" args="joint_states joint_states_desired" />
 
   <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
-  <node if="$(arg rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(find smalldrop_rviz)/rviz/config_tests.rviz" />
+  <node if="$(arg rviz)" name="rviz" pkg="rviz" type="rviz" args="-d $(find smalldrop_rviz)/rviz/config_sim.rviz" />
 </launch>

@@ -1,33 +1,63 @@
 <?xml version="1.0" ?>
 <launch>
   <arg name="is_simulation" default="1" /> 
+  <arg name="use_otsu" default="0" /> 
 
   <rosparam if="$(arg is_simulation)" file="$(find smalldrop_vision)/config/config.yaml" command="load"/>
 
-  <arg name="camera_name" default="smalldrop/vision" />
+  <node if="$(arg use_otsu)" name="detect_wound" pkg="smalldrop_vision" type="detect_wound" output="screen" args="-o" />
+  <node unless="$(arg use_otsu)" name="detect_wound" pkg="smalldrop_vision" type="detect_wound" output="screen" />
 
-  <arg name="rgb_camera_info" value="/$(arg camera_name)/camera/color/camera_info"/>
-  <arg name="rgb_image_rect" value="/$(arg camera_name)/camera/color/image_raw"/>  <!--Rectified color image-->
-  <arg name="depth_camera_info" value="/$(arg camera_name)/camera/depth/camera_info"/>  <!--Raw depth image-->
-  <arg name="depth_image_raw" value="/$(arg camera_name)/camera/depth/image_raw"/>  <!--Raw depth image-->
-  <arg name="depth_image_rect" value="/$(arg camera_name)/camera/depth/image_rect"/>  <!--Raw depth image-->
-  <arg name="point_cloud" value="/$(arg camera_name)/camera/point_cloud/points"/>
-  <!-- <arg name="point_cloud_rgb" value="/$(arg camera_name)/camera/point_cloud_rgb/points"/> -->
+  <group if="$(arg is_simulation)">
+    <arg name="camera_name" default="smalldrop/vision" />
 
-  <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen"/>
+    <arg name="rgb_camera_info" value="/$(arg camera_name)/camera/color/camera_info"/>
+    <arg name="rgb_image_rect" value="/$(arg camera_name)/camera/color/image_raw"/>  <!--Rectified color image-->
+    <arg name="depth_camera_info" value="/$(arg camera_name)/camera/depth/camera_info"/>  <!--Raw depth image-->
+    <arg name="depth_image_raw" value="/$(arg camera_name)/camera/depth/image_raw"/>  <!--Raw depth image-->
+    <arg name="depth_image_rect" value="/$(arg camera_name)/camera/depth/image_rect"/>  <!--Raw depth image-->
+    <arg name="point_cloud" value="/$(arg camera_name)/camera/depth/color/points"/>
 
-  <!-- Construct point cloud of the rgb and depth topics -->
-  <node pkg="nodelet" type="nodelet" name="points_xyz" args="load depth_image_proc/point_cloud_xyz standalone_nodelet --no-bond">
-    <remap from="camera_info" to="$(arg depth_camera_info)" />
-    <remap from="image_rect" to="$(arg depth_image_raw)"/>
-    <remap from="points" to="$(arg point_cloud)"/>
-  </node>
+    <node pkg="nodelet" type="nodelet" name="standalone_nodelet" args="manager" output="screen"/>
 
-  <!-- Construct point cloud of the rgb and depth topics -->
-  <!-- <node pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet -no-bond">
-    <remap from="rgb/camera_info" to="$(arg rgb_camera_info)" />
-    <remap from="rgb/image_rect_color" to="$(arg rgb_image_rect)"/>
-    <remap from="depth_registered/image_rect" to="$(arg depth_image_raw)"/>
-    <remap from="depth_registered/points" to="$(arg point_cloud_rgb)"/>
-  </node> -->
+    <!-- Construct point cloud of the rgb and depth topics -->
+    <node pkg="nodelet" type="nodelet" name="points_xyz" args="load depth_image_proc/point_cloud_xyz standalone_nodelet --no-bond">
+      <remap from="camera_info" to="$(arg depth_camera_info)" />
+      <remap from="image_rect" to="$(arg depth_image_raw)"/>
+      <remap from="points" to="$(arg point_cloud)"/>
+    </node>
+
+    <!-- Construct point cloud of the rgb and depth topics -->
+    <!-- <node pkg="nodelet" type="nodelet" name="points_xyzrgb" args="load depth_image_proc/point_cloud_xyzrgb standalone_nodelet -no-bond">
+      <remap from="rgb/camera_info" to="$(arg rgb_camera_info)" />
+      <remap from="rgb/image_rect_color" to="$(arg rgb_image_rect)"/>
+      <remap from="depth_registered/image_rect" to="$(arg depth_image_raw)"/>
+      <remap from="depth_registered/points" to="$(arg point_cloud_rgb)"/>
+    </node> -->
+  </group>
+
+  <group unless="$(arg is_simulation)">
+    <include file="$(find realsense2_camera)/launch/rs_camera.launch">
+      <arg name="camera" default="smalldrop/vision/camera/" />
+      <!-- <arg name="tf_prefix" default="smalldrop/vision/camera" /> -->
+      <arg name="tf_prefix" default="camera" />
+
+      <arg name="initial_reset" default="true"/>
+
+      <arg name="color_width" default="640"/>
+      <!-- <arg name="color_width" default="1920"/> -->
+      <arg name="color_height" default="480"/> 
+      <!-- <arg name="color_height" default="1080"/>  -->
+
+      <arg name="depth_fps" default="6"/>
+      <arg name="color_fps" default="6"/>
+
+      <arg name="enable_pointcloud" default="true"/>
+
+      <arg name="filters" default="pointcloud"/>
+
+      <arg name="align_depth" default="true"/>
+    </include>
+  </group>
+
 </launch>

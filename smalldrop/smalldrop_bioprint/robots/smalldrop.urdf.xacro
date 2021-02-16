@@ -2,11 +2,19 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
   <xacro:arg name="robot_name" default="panda"/>
   <xacro:arg name="has_camera" default="false"/>
+  <xacro:arg name="is_simulation" default="false"/>
 
-  <xacro:include filename="$(find smalldrop_robot_arm)/robots/panda_arm_hand.urdf.xacro"/>
+  <xacro:if value="$(arg is_simulation)">
+    <xacro:include filename="$(find smalldrop_robot_arm)/robots/panda_arm_hand.urdf.xacro" />
+    <xacro:arg name="camera_tf_prefix" default="camera"/>
+  </xacro:if>
+  <xacro:unless value="$(arg is_simulation)">
+    <xacro:include filename="$(find franka_description)/robots/panda_arm_hand.urdf.xacro" />
+    <xacro:arg name="camera_tf_prefix" default="camera"/>
+  </xacro:unless>
   <xacro:include filename="$(find smalldrop_vision)/robots/realsense2_d415.urdf.xacro" />
 
   <xacro:if value="$(arg has_camera)">
-    <xacro:realsense2_d415 xyz="0.135 -0.025 0" rpy="${-pi/2} 0 ${-pi/2}" connected_to="panda_link6"/>
+    <xacro:realsense2_d415 xyz="0.135 -0.025 0" rpy="${-pi/2} 0 ${-pi/2}" connected_to="panda_link6" is_simulation="$(arg is_simulation)" camera_tf_prefix="$(arg camera_tf_prefix)"/>
   </xacro:if>
 </robot>

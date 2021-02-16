@@ -16,6 +16,7 @@ add_message_files(
   Tau.msg
   TrackingError.msg
   JointPositions.msg
+  PoseEuler.msg
 )
 
 add_service_files(

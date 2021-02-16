@@ -29,7 +29,7 @@ namespace smalldrop_robot_arm
  * \class CartesianImpedanceSimController
  * \brief Cartesian impedance controller to be use during simulation.
  */
-class CartesianImpedanceSimController : public virtual RobotArmController
+class CartesianImpedanceSimController : public RobotArmController, public virtual controller_interface::MultiInterfaceController<hardware_interface::EffortJointInterface>
 {
 private:
   /**

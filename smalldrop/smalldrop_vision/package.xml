@@ -19,6 +19,7 @@
   <depend>camera_info_manager</depend> <!-- For camera simulation -->
   <exec_depend>depth_image_proc</exec_depend> <!-- For camera simulation -->
   <depend>pcl_ros</depend> <!-- For point cloud manipulation -->
+  <depend>cv_bridge</depend>
 
   <depend>smalldrop_segmentation</depend>
 

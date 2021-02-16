@@ -45,6 +45,8 @@ private:
   // Publishers
   ros::Subscriber state_sub_;       /** \var ROS topic subscriber instance to subscribe to space mouse state topic. */
 
+  bool continuous_action_; /** \var Flag to activate continuous action call. */
+
   /**
    * Class methods
    *****************************************************************************************/

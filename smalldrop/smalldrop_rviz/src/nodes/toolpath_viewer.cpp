@@ -31,8 +31,8 @@ using namespace smalldrop::smalldrop_toolpath;
  *********************************************************************************************/
 
 std::string toolpath_image_topic = "/smalldrop/rviz/toolpath_image";
-unsigned int image_width = 400;
-unsigned int image_height = 400;
+unsigned int image_width = 640;
+unsigned int image_height = 480;
 std::string path_type = "zig_zag";
 unsigned int offset_x = 5;
 unsigned int offset_y = 5;

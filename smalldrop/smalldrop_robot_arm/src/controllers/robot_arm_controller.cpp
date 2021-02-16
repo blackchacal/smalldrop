@@ -22,6 +22,8 @@ void RobotArmController::setupPublishersAndSubscribers(ros::NodeHandle nh)
 {
   pose_sub_ = nh.subscribe("/smalldrop/robot_arm/desired_pose", 10, &RobotArmController::updatePoseCallback, this);
   pose_pub_ = nh.advertise<geometry_msgs::Pose>("/smalldrop/robot_arm/current_pose", 10);
+  pose_euler_pub_ = nh.advertise<smalldrop_msgs::PoseEuler>("/smalldrop/robot_arm/current_pose_euler", 10);
+  pose_d_euler_pub_ = nh.advertise<smalldrop_msgs::PoseEuler>("/smalldrop/robot_arm/desired_pose_euler", 10);
   tau_pub_ = nh.advertise<smalldrop_msgs::Tau>("/smalldrop/robot_arm/tau", 10);
   wrench_pub_ = nh.advertise<geometry_msgs::Wrench>("/smalldrop/robot_arm/wrench", 10);
   error_pub_ = nh.advertise<smalldrop_msgs::TrackingError>("/smalldrop/robot_arm/error", 10);
@@ -66,12 +68,25 @@ void RobotArmController::updatePoseCallback(const geometry_msgs::PoseConstPtr &m
 
   if (last_orient_d_target_.coeffs().dot(orient_d_target_.coeffs()) < 0.0)
     orient_d_target_.coeffs() << -orient_d_target_.coeffs();
+
+  // Publish desired pose with euler angles
+  smalldrop_msgs::PoseEuler msg_euler;
+  msg_euler.pose.resize(6);
+  msg_euler.pose[0] = msg->position.x;
+  msg_euler.pose[1] = msg->position.y;
+  msg_euler.pose[2] = msg->position.z;
+  Eigen::Matrix3d R0ee_d = orient_d_target_.toRotationMatrix();
+  Eigen::Vector3d euler_angles(R2EulerAngles(R0ee_d));
+  msg_euler.pose[3] = euler_angles[0];
+  msg_euler.pose[4] = euler_angles[1];
+  msg_euler.pose[5] = euler_angles[2];
+  pose_d_euler_pub_.publish(msg_euler);
 }
 
 /**
  * \brief Publishes the robot arm current pose to a topic.
  */
-void RobotArmController::publishCurrentPose(const Eigen::Vector3d X0ee, const Eigen::Matrix3d R0ee)
+void RobotArmController::publishCurrentPose(const Eigen::Vector3d X0ee, Eigen::Matrix3d R0ee)
 {
   geometry_msgs::Pose msg;
   msg.position.x = X0ee[0];
@@ -83,6 +98,17 @@ void RobotArmController::publishCurrentPose(const Eigen::Vector3d X0ee, const Ei
   msg.orientation.z = quat.z();
   msg.orientation.w = quat.w();
   pose_pub_.publish(msg);
+
+  smalldrop_msgs::PoseEuler msg_euler;
+  msg_euler.pose.resize(6);
+  msg_euler.pose[0] = X0ee[0];
+  msg_euler.pose[1] = X0ee[1];
+  msg_euler.pose[2] = X0ee[2];
+  Eigen::Vector3d euler_angles(R2EulerAngles(R0ee));
+  msg_euler.pose[3] = euler_angles[0];
+  msg_euler.pose[4] = euler_angles[1];
+  msg_euler.pose[5] = euler_angles[2];
+  pose_euler_pub_.publish(msg_euler);
 }
 
 /**
@@ -167,6 +193,31 @@ Eigen::Vector3d RobotArmController::R2r(Eigen::Matrix3d &rotation)
   r = 0.5 * aux;
 
   return r;
+}
+
+/**
+ * \brief Convert rotation matrix to euler angles(XYZ)
+ */
+Eigen::Vector3d RobotArmController::R2EulerAngles(Eigen::Matrix3d& Rotation)
+{
+  Eigen::Vector3d euler_angles;
+  double sy = sqrt( Rotation(0,0) * Rotation(0,0) +  Rotation(1,0) * Rotation(1,0) );
+  bool singular = sy < 1e-6; // If
+  double x, y, z;
+
+  if (!singular){
+      x = atan2(Rotation(2,1) , Rotation(2,2));
+      y = atan2(-Rotation(2,0), sy);
+      z = atan2(Rotation(1,0), Rotation(0,0));
+  }
+  else{
+      x = atan2(-Rotation(1,2), Rotation(1,1));
+      y = atan2(-Rotation(2,0), sy);
+      z = 0;
+  }
+  euler_angles << x, y, z;
+
+  return euler_angles;
 }
 
 /**

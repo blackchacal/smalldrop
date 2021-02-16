@@ -159,7 +159,7 @@ poses_t ToolPath::convPathPointToPose(const points_t path, const poses_t poses_c
     {
       if (pose.position.x <= poses_contour_region[j].position.x + delta && pose.position.x >= poses_contour_region[j].position.x - delta && pose.position.y <= poses_contour_region[j].position.y + delta && pose.position.y >= poses_contour_region[j].position.y - delta)
       {
-        pose.position.z = poses_contour_region[j].position.z;
+        pose.position.z = poses_contour_region[j].position.z;// + 0.05;
         break;
       }
     }

@@ -10,10 +10,6 @@
 
 #include <smalldrop_robot_arm/robot_arm_controller.h>
 
-// Franka Hardware
-#include "franka_hw/franka_model_interface.h"
-#include "franka_hw/franka_state_interface.h"
-
 namespace smalldrop
 {
 namespace smalldrop_robot_arm
@@ -22,7 +18,10 @@ namespace smalldrop_robot_arm
  * \class GravityCompensationRealController
  * \brief Gravity compensation controller to be use during real robot operation.
  */
-class GravityCompensationRealController : public virtual RobotArmController
+class GravityCompensationRealController
+  : public RobotArmController,
+    public virtual controller_interface::MultiInterfaceController<
+        hardware_interface::EffortJointInterface, franka_hw::FrankaStateInterface, franka_hw::FrankaModelInterface>
 {
 private:
   /**
@@ -38,8 +37,8 @@ private:
    *****************************************************************************************/
 
   /**
-   * \fn Eigen::Matrix<double, 7, 1> saturateTorqueRate(const Eigen::Matrix<double, 7, 1> &tau_d_calculated, const Eigen::Matrix<double, 7, 1> &tau_J_d) 
-   * \brief Clamps the joint torques if they go beyond the defined limits.
+   * \fn Eigen::Matrix<double, 7, 1> saturateTorqueRate(const Eigen::Matrix<double, 7, 1> &tau_d_calculated, const
+   * Eigen::Matrix<double, 7, 1> &tau_J_d) \brief Clamps the joint torques if they go beyond the defined limits.
    *
    * \param tau_d Calculated desired torque vector.
    * \param tau_J_d Desired link-side joint torque sensor signals without gravity.

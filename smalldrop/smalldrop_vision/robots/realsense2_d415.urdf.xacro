@@ -2,126 +2,130 @@
 <robot name="realsense2_d415" xmlns:xacro="http://ros.org/wiki/xacro">
   <xacro:include filename="$(find realsense2_description)/urdf/_d415.urdf.xacro" />
 
-  <xacro:macro name="realsense2_d415" params="connected_to:='' rpy:='0 0 0' xyz:='0 0 0' ">
-    <xacro:arg name="use_nominal_extrinsics" default="True" />
-    <xacro:sensor_d415 parent="${connected_to}">
+  <xacro:macro name="realsense2_d415" params="connected_to:='' rpy:='0 0 0' xyz:='0 0 0' is_simulation:=0 camera_tf_prefix:='camera' ">
+    <xacro:arg name="use_nominal_extrinsics" default="true" />
+    <xacro:sensor_d415 parent="${connected_to}" name="${camera_tf_prefix}">
       <origin xyz="${xyz}" rpy="${rpy}"/>
     </xacro:sensor_d415>
-    
-    <!-- Add RealSense plugin to publish camera topics to Gazebo and ROS -->
-    <gazebo>
-      <plugin name="smalldrop/vision" filename="librealsense_gazebo.so"/>
-    </gazebo>
 
-    <!-- Add color camera sensor -->
-    <gazebo reference="camera_color_frame">
-      <sensor name="color" type="camera">
-        <pose frame="">0 0 0 0 0 0</pose>
-        <camera name="camera_color">
-          <!-- HFOV in radians: 69.4 deg. Source: https://www.intelrealsense.com/depth-camera-d415/ -->
-          <horizontal_fov>1.211</horizontal_fov>
-          <image>
-            <width>1920</width>
-            <height>1080</height>
-            <format>RGB_INT8</format>
-          </image>
-          <clip>
-            <near>0.01</near>
-            <far>100</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.001</stddev>
-          </noise>
-        </camera>
-        <always_on>1</always_on>
-        <update_rate>30</update_rate>
-        <visualize>0</visualize>
-      </sensor>
-    </gazebo>
-    
-    <!-- Add IR camera sensor -->
-    <gazebo reference="camera_infra1_frame">
-      <sensor name="ired1" type="camera">
-        <pose frame="">0 0 0 0 0 0</pose>
-        <camera name="camera_ir1">
-          <!-- HFOV in radians: 48 deg for 640x480. Source: https://www.intelrealsense.com/wp-content/uploads/2020/05/Intel-RealSense-D400-Series-Datasheet-May-2020.pdf?_ga=2.226282394.1226260989.1588977110-847519638.1576517169 -->
-          <horizontal_fov>0.838</horizontal_fov>
-          <image>
-            <width>640</width>
-            <height>480</height>
-            <format>L_INT8</format>
-          </image>
-          <clip>
-            <near>0.31</near>
-            <far>100</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.001</stddev>
-          </noise>
-        </camera>
-        <always_on>1</always_on>
-        <update_rate>60</update_rate>
-        <visualize>0</visualize>
-      </sensor>
-    </gazebo>
+    <xacro:if value="$(arg is_simulation)">
+      <!-- Add RealSense plugin to publish camera topics to Gazebo and ROS -->
+      <gazebo>
+        <plugin name="smalldrop/vision" filename="librealsense_gazebo.so"/>
+      </gazebo>
 
-    <!-- Add another IR camera sensor -->
-    <gazebo reference="camera_infra2_frame">
-      <sensor name="ired2" type="camera">
-        <pose frame="">0 0 0 0 0 0</pose>
-        <camera name="camera_ir2">
-          <!-- HFOV in radians: 48 deg for 640x480. Source: https://www.intelrealsense.com/wp-content/uploads/2020/05/Intel-RealSense-D400-Series-Datasheet-May-2020.pdf?_ga=2.226282394.1226260989.1588977110-847519638.1576517169 -->
-          <horizontal_fov>0.838</horizontal_fov>
-          <image>
-            <width>640</width>
-            <height>480</height>
-            <format>L_INT8</format>
-          </image>
-          <clip>
-            <near>0.31</near>
-            <far>100</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.001</stddev>
-          </noise>
-        </camera>
-        <always_on>1</always_on>
-        <update_rate>60</update_rate>
-        <visualize>0</visualize>
-      </sensor>
-    </gazebo>
-    
-    <!-- Add depth camera sensor -->
-    <gazebo reference="camera_depth_frame">
-      <sensor name="depth" type="depth">
-        <pose frame="">0 0 0 0 0 0</pose>
-        <camera name="camera_depth">
-          <!-- HFOV in radians: 48 deg for 640x480. Source: https://www.intelrealsense.com/wp-content/uploads/2020/05/Intel-RealSense-D400-Series-Datasheet-May-2020.pdf?_ga=2.226282394.1226260989.1588977110-847519638.1576517169 -->
-          <horizontal_fov>0.838</horizontal_fov>
-          <image>
-            <width>640</width>
-            <height>480</height>
-          </image>
-          <clip>
-            <near>0.31</near>
-            <far>100</far>
-          </clip>
-          <noise>
-            <type>gaussian</type>
-            <mean>0.0</mean>
-            <stddev>0.001</stddev>
-          </noise>
-        </camera>
-        <always_on>1</always_on>
-        <update_rate>60</update_rate>
-        <visualize>0</visualize>
-      </sensor>
-    </gazebo>
+      <!-- Add color camera sensor -->
+      <gazebo reference="camera_color_frame">
+        <sensor name="color" type="camera">
+          <pose frame="">0 0 0 0 0 0</pose>
+          <camera name="camera_color">
+            <!-- HFOV in radians: 69.4 deg. Source: https://www.intelrealsense.com/depth-camera-d415/ -->
+            <horizontal_fov>1.211</horizontal_fov>
+            <image>
+              <!-- <width>1920</width>
+              <height>1080</height> -->
+              <width>640</width>
+              <height>480</height>
+              <format>RGB_INT8</format>
+            </image>
+            <clip>
+              <near>0.01</near>
+              <far>100</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.001</stddev>
+            </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>30</update_rate>
+          <visualize>0</visualize>
+        </sensor>
+      </gazebo>
+      
+      <!-- Add IR camera sensor -->
+      <gazebo reference="camera_infra1_frame">
+        <sensor name="ired1" type="camera">
+          <pose frame="">0 0 0 0 0 0</pose>
+          <camera name="camera_ir1">
+            <!-- HFOV in radians: 48 deg for 640x480. Source: https://www.intelrealsense.com/wp-content/uploads/2020/05/Intel-RealSense-D400-Series-Datasheet-May-2020.pdf?_ga=2.226282394.1226260989.1588977110-847519638.1576517169 -->
+            <horizontal_fov>0.838</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+              <format>L_INT8</format>
+            </image>
+            <clip>
+              <near>0.31</near>
+              <far>100</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.001</stddev>
+            </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>60</update_rate>
+          <visualize>0</visualize>
+        </sensor>
+      </gazebo>
+
+      <!-- Add another IR camera sensor -->
+      <gazebo reference="camera_infra2_frame">
+        <sensor name="ired2" type="camera">
+          <pose frame="">0 0 0 0 0 0</pose>
+          <camera name="camera_ir2">
+            <!-- HFOV in radians: 48 deg for 640x480. Source: https://www.intelrealsense.com/wp-content/uploads/2020/05/Intel-RealSense-D400-Series-Datasheet-May-2020.pdf?_ga=2.226282394.1226260989.1588977110-847519638.1576517169 -->
+            <horizontal_fov>0.838</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+              <format>L_INT8</format>
+            </image>
+            <clip>
+              <near>0.31</near>
+              <far>100</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.001</stddev>
+            </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>60</update_rate>
+          <visualize>0</visualize>
+        </sensor>
+      </gazebo>
+      
+      <!-- Add depth camera sensor -->
+      <gazebo reference="camera_depth_frame">
+        <sensor name="depth" type="depth">
+          <pose frame="">0 0 0 0 0 0</pose>
+          <camera name="camera_depth">
+            <!-- HFOV in radians: 48 deg for 640x480. Source: https://www.intelrealsense.com/wp-content/uploads/2020/05/Intel-RealSense-D400-Series-Datasheet-May-2020.pdf?_ga=2.226282394.1226260989.1588977110-847519638.1576517169 -->
+            <horizontal_fov>0.838</horizontal_fov>
+            <image>
+              <width>640</width>
+              <height>480</height>
+            </image>
+            <clip>
+              <near>0.31</near>
+              <far>100</far>
+            </clip>
+            <noise>
+              <type>gaussian</type>
+              <mean>0.0</mean>
+              <stddev>0.001</stddev>
+            </noise>
+          </camera>
+          <always_on>1</always_on>
+          <update_rate>60</update_rate>
+          <visualize>0</visualize>
+        </sensor>
+      </gazebo>
+    </xacro:if>    
   </xacro:macro>
 </robot>

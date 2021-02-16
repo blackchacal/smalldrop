@@ -1,0 +1,47 @@
+<launch>
+  <!-- (start your robot's MoveIt! stack, e.g. include its moveit_planning_execution.launch) -->
+  <!-- (start your tracking system's ROS driver) -->
+
+  <!-- Arguments for robot arm -->
+  <arg name="robot_ip" default="172.16.0.2" />
+  <arg name="gains" default="false" />
+  <arg name="rviz" default="false" />
+  <arg name="gui" default="false" />
+
+  <!-- <include file="$(find smalldrop_robot_arm)/launch/gravity_compensation_real_controller.launch">
+    <arg name="robot_ip" value="$(arg robot_ip)" />
+    <arg name="gains" value="$(arg gains)" />
+    <arg name="rviz" value="$(arg rviz)" />
+  </include> -->
+
+  <param name="robot_description" command="$(find xacro)/xacro $(find smalldrop_bioprint)/robots/smalldrop.urdf.xacro has_camera:=1 is_simulation:=1" />
+  <include file="$(find smalldrop_robot_arm)/launch/joint_position_pid_sim_controller.launch">
+    <arg name="gains" value="$(arg gains)" />
+    <arg name="rviz" value="$(arg rviz)" />
+    <arg name="sim_world" value="empty" />
+    <arg name="use_description" value="true"/>
+    <arg name="gui" value="$(arg gui)" />
+  </include>
+
+  <node pkg="tf" type="static_transform_publisher" name="marker_frame" args="0.4 0 0 0 0 0 /panda_link0 /marker_frame 100"/> 
+
+  <!-- Include camera launch -->
+  <include file="$(find smalldrop_vision)/launch/camera.launch">
+    <arg name="is_simulation" value="true" />
+  </include>
+
+  <include file="$(find easy_handeye)/launch/calibrate.launch">
+    <arg name="eye_on_hand" value="true"/>
+
+    <!-- you can choose any identifier, as long as you use the same for publishing the calibration -->
+    <!-- <arg name="namespace" value="my_eih_calib"/> -->
+
+    <!-- fill in the following parameters according to your robot's published tf frames -->
+    <arg name="robot_base_frame" value="/panda_link0"/>
+    <arg name="robot_effector_frame" value="/panda_EE"/>
+
+    <!-- fill in the following parameters according to your tracking system's published tf frames -->
+    <arg name="tracking_base_frame" value="/camera_bottom_screw_frame"/>
+    <arg name="tracking_marker_frame" value="/marker_frame"/>
+  </include>
+</launch>

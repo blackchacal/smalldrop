@@ -57,7 +57,7 @@ bool changeMode(smalldrop_state::SystemState* system_state)
  */
 bool moveRobotArm(smalldrop_state::SystemState* system_state)
 {
-  ROS_INFO_NAMED(LOG_TAG, "%s: Moving Robot Arm...", LOG_TAG.c_str());
+  // ROS_INFO_NAMED(LOG_TAG, "%s: Moving Robot Arm...", LOG_TAG.c_str());
 
   double sensitivity_factor = 0.01;
 
@@ -135,7 +135,7 @@ bool moveRobotArm(smalldrop_state::SystemState* system_state)
  */
 bool publishSegmentationPoint(smalldrop_state::SystemState* system_state)
 {
-  ROS_INFO_NAMED(LOG_TAG, "%s: Publish Segmentation Point...", LOG_TAG.c_str());
+  // ROS_INFO_NAMED(LOG_TAG, "%s: Publish Segmentation Point...", LOG_TAG.c_str());
 
   std::stringstream path;
   path << ros::package::getPath("smalldrop_segmentation") << "/data/segmentation_points.dat";	
@@ -171,25 +171,25 @@ bool publishSegmentationPoint(smalldrop_state::SystemState* system_state)
     marker.color.a = 1.0;
     rviz_segmentation_points_pub.publish(marker);
 
-    visualization_msgs::Marker marker_text;
-    marker_text.header.frame_id = "panda_link0";
-    marker_text.header.stamp = ros::Time();
-    marker_text.ns = "/smalldrop/teleoperation/segmentation_points_text";
-    marker_text.id = segmentation_marker_id++;
-    marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
-    marker_text.action = visualization_msgs::Marker::ADD;
-    marker_text.pose = robot_arm_pose;
-    marker_text.pose.position.z = robot_arm_pose.position.z + 0.03;
-    marker_text.scale.z = 0.03;
-    marker_text.color.r = 1.0;
-    marker_text.color.g = 1.0;
-    marker_text.color.b = 0;
-    marker_text.color.a = 1.0;
-    std::ostringstream txt;
-    txt.precision(3);
-    txt << "(" << robot_arm_pose.position.x << "," << robot_arm_pose.position.y << "," << robot_arm_pose.position.z << ")";
-    marker_text.text = txt.str();
-    rviz_segmentation_points_pub.publish(marker_text);
+    // visualization_msgs::Marker marker_text;
+    // marker_text.header.frame_id = "panda_link0";
+    // marker_text.header.stamp = ros::Time();
+    // marker_text.ns = "/smalldrop/teleoperation/segmentation_points_text";
+    // marker_text.id = segmentation_marker_id++;
+    // marker_text.type = visualization_msgs::Marker::TEXT_VIEW_FACING;
+    // marker_text.action = visualization_msgs::Marker::ADD;
+    // marker_text.pose = robot_arm_pose;
+    // marker_text.pose.position.z = robot_arm_pose.position.z + 0.03;
+    // marker_text.scale.z = 0.03;
+    // marker_text.color.r = 1.0;
+    // marker_text.color.g = 1.0;
+    // marker_text.color.b = 0;
+    // marker_text.color.a = 1.0;
+    // std::ostringstream txt;
+    // txt.precision(3);
+    // txt << "(" << robot_arm_pose.position.x << "," << robot_arm_pose.position.y << "," << robot_arm_pose.position.z << ")";
+    // marker_text.text = txt.str();
+    // rviz_segmentation_points_pub.publish(marker_text);
 
     fh.close(); // Close file
   }

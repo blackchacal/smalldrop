@@ -6,15 +6,19 @@
 
   <arg name="robot_ip" />
   <arg name="load_gripper" default="true" />
-  <include file="$(find franka_control)/launch/franka_control.launch" >
+  <include file="$(find smalldrop_robot_arm)/launch/franka_control.launch" >
     <arg name="robot_ip" value="$(arg robot_ip)" />
     <arg name="load_gripper" value="$(arg load_gripper)" />
   </include>
 
+  <!-- Load joint controller configurations from YAML file to parameter server -->
   <rosparam command="load" file="$(find smalldrop_robot_arm)/config/panda_control.yaml" />
+  <rosparam file="$(find smalldrop_robot_arm)/config/config.yaml" command="load"/>
+
+  <!-- load the controllers -->
   <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="cartesian_impedance_real_controller"/>
 
-  <node if="$(arg rviz)" pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find smalldrop_rviz)/rviz/config_tests.rviz"/>
+  <node if="$(arg rviz)" pkg="rviz" type="rviz" output="screen" name="rviz" args="-d $(find smalldrop_rviz)/rviz/config_real.rviz"/>
   <node if="$(arg gains)" name="rqt_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure" required="false" />
 
 </launch>

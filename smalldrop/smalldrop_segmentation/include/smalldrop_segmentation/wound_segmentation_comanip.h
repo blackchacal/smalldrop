@@ -73,6 +73,8 @@ protected:
 
   poses_contours_t poses_contours_; /** \var Vector with detected wound segmentation contours using poses. */
   contours_t contours_;             /** \var Vector with detected wound segmentation contours. */
+  poses_contours_t poses_contours_region_;  /** \var Vector with poses contained by detected wound segmentation contours */
+  contours_t contours_region_;              /** \var Vector with points contained by detected wound segmentation contours */
 
   // Robot workspace and segmentation image
   unsigned int image_width_;  /** \var Image width in px. */

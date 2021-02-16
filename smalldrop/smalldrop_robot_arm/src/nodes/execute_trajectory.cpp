@@ -7,10 +7,12 @@
  */
 
 #include <ros/ros.h>
+#include <ros/package.h>
 #include <getopt.h>
 
 #include <smalldrop_vision/camera_d415.h>
 #include <smalldrop_segmentation/wound_segmentation_camera_binarization.h>
+#include <smalldrop_segmentation/wound_segmentation_comanip_convex_hull.h>
 
 #include <smalldrop_toolpath/trajectory.h>
 #include <smalldrop_toolpath/trajectory_planner.h>
@@ -41,6 +43,7 @@ using namespace smalldrop::smalldrop_toolpath;
 pose_t initial_pose;
 pose_t final_pose;
 pose_t center;
+bool has_camera = false;
 bool has_pose = false;
 bool show_tf = false;
 bool show_markers = false;
@@ -56,6 +59,9 @@ double eradius = 0.1; // circular spiral path external radius
 double iradius = 0.0; // circular spiral path internal radius
 std::string plane = "xy";
 unsigned int offset = 10;
+unsigned int image_width = 640;
+unsigned int image_height = 480;
+double pose_z = 0.1;
 
 /**
  * Function prototypes
@@ -82,35 +88,23 @@ int main(int argc, char **argv)
   camera_topics_t camera_topics;
   camera_topics.rgb_info_topic = "/smalldrop/vision/camera/color/camera_info";
   camera_topics.rgb_image_topic = "/smalldrop/vision/camera/color/image_raw";
-  camera_topics.ir1_info_topic = "/smalldrop/vision/camera/ir/camera_info";
-  camera_topics.ir1_image_topic = "/smalldrop/vision/camera/ir/image_raw";
-  camera_topics.ir2_info_topic = "/smalldrop/vision/camera/ir2/camera_info";
-  camera_topics.ir2_image_topic = "/smalldrop/vision/camera/ir2/image_raw";
+  // camera_topics.ir1_info_topic = "/smalldrop/vision/camera/ir/camera_info";
+  // camera_topics.ir1_image_topic = "/smalldrop/vision/camera/ir/image_raw";
+  // camera_topics.ir2_info_topic = "/smalldrop/vision/camera/ir2/camera_info";
+  // camera_topics.ir2_image_topic = "/smalldrop/vision/camera/ir2/image_raw";
+  camera_topics.ir1_info_topic = "/smalldrop/vision/camera/infra1/camera_info";
+  camera_topics.ir1_image_topic = "/smalldrop/vision/camera/infra1/image_raw";
+  camera_topics.ir2_info_topic = "/smalldrop/vision/camera/infra1/camera_info";
+  camera_topics.ir2_image_topic = "/smalldrop/vision/camera/infra1/image_raw";
   camera_topics.depth_info_topic = "/smalldrop/vision/camera/depth/camera_info";
   camera_topics.depth_image_topic = "/smalldrop/vision/camera/depth/image_raw";
-  camera_topics.rgb_pcloud_topic = "/smalldrop/vision/camera/point_cloud/points";
+  camera_topics.rgb_pcloud_topic = "/smalldrop/vision/camera/depth/color/points";
 
   tf::TransformListener tf_listener;
   Eigen::Matrix4d transform;
   transform.setIdentity();
 
   CameraD415 cam(true, camera_topics);
-  int pcloud_size = 0;
-  cam.turnOn();
-
-  // Process current pose callback
-  ros::Rate r(10);
-  while (ros::ok() && (!has_pose || pcloud_size == 0))
-  {
-    PointCloud pc = cam.getPointCloud();
-    pcloud_size = pc.width;
-    ros::spinOnce();
-    r.sleep();
-  }
-
-  // We have the initial pose. Set final and center poses
-  final_pose = initial_pose;
-  center = initial_pose;
 
   // process command line arguments
   // change the final_pose or center pose depending on the arguments
@@ -119,14 +113,59 @@ int main(int argc, char **argv)
     return 0;
   }
 
+  if (has_camera)
+  {
+    int pcloud_size = 0;
+    int im_w = 0;
+    int im_h = 0;
+    cam.turnOn();
+
+    // Process current pose callback
+    ros::Rate r(1);
+    while (!has_pose && pcloud_size == 0 && im_w == 0 && im_h == 0)
+    {
+      PointCloud pc = cam.getPointCloud();
+      sensor_msgs::Image img = cam.getRGBImage();
+      pcloud_size = pc.width;
+      im_w = img.width;
+      im_h = img.height;
+
+      if (!has_pose)
+        std::cout << "Waiting for pose!" << std::endl;
+
+      if (pcloud_size == 0)
+        std::cout << "Waiting for point cloud!" << std::endl;
+      else
+        std::cout << "point cloud size: " << pcloud_size << std::endl;
+
+      if (im_w == 0 || im_h == 0)
+        std::cout << "Waiting for rgb image!" << std::endl;
+      else
+        std::cout << "rgb image size: " << im_w << "x" << im_h << std::endl;
+
+      ros::spinOnce();
+      r.sleep();
+    }
+  } else {
+    ros::Rate wait(1);
+    while(!has_pose)
+    {
+      ros::spinOnce();
+      wait.sleep();
+    }
+  }
+
+  // We have the initial pose. Set final and center poses
+  final_pose = initial_pose;
+  center = initial_pose;
+
   ros::Rate rate(freq);
-  
+  ros::Rate img_rate(1);
   ros::Time ts, te;
   double time_elapsed;
 
   poses_t traj;
   PATH_PLANE path_plane = PATH_PLANE::XY;
-
   
   if (plane.compare("xz") == 0)
     path_plane = PATH_PLANE::XZ;
@@ -181,39 +220,75 @@ int main(int argc, char **argv)
   }
   else if (path_type.compare("zigzag") == 0)
   {
-    unsigned int image_width = 640;
-    unsigned int image_height = 480;
-    double distance = 0.702;
-    double wsp_w = 0.838 * distance; 
-    double wsp_h = 0.75 * wsp_w;
-    img_wsp_calibration_t calibration_data = {
-      .img_width = image_width,
-      .img_height = image_height,
-      .wsp_x_min = -wsp_w/2,
-      .wsp_x_max = wsp_w/2,
-      .wsp_y_min = -wsp_h/2 + 0.075,
-      .wsp_y_max = wsp_h/2 + 0.075
-    };
-    getTransformToBase(tf_listener, transform);
-    WSegmentCamBinary wseg(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
-
-    points_t contour = wseg.getWoundSegmentationPointsContour(0);
-    poses_t poses_contour_region = wseg.getWoundSegmentationPosesContourRegion(0);
-
     IMAGE_AXIS axis = IMAGE_AXIS::X;
     if (!plane.compare("xz") == 0 && !plane.compare("xy") == 0)
       axis = IMAGE_AXIS::Y;
-    
-    ZigZag zigzag(contour, poses_contour_region, transform, offset, axis, calibration_data);
-    Line line(initial_pose, zigzag.poses()[0]);
-    std::vector<Path> paths = {line, zigzag};
-    Trajectory t(pl.plan(paths));
-    traj = t.poses();
+
+    if (has_camera)
+    {
+      double distance = 0.702;
+      double wsp_w = 0.838 * distance; 
+      double wsp_h = 0.75 * wsp_w;
+      img_wsp_calibration_t calibration_data = {
+        .img_width = image_width,
+        .img_height = image_height,
+        .wsp_x_min = -wsp_w/2,
+        .wsp_x_max = wsp_w/2,
+        .wsp_y_min = -wsp_h/2,
+        .wsp_y_max = wsp_h/2
+      };
+
+      getTransformToBase(tf_listener, transform);
+      WSegmentCamBinary wseg(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
+
+      points_t contour = wseg.getWoundSegmentationPointsContour(0);
+      poses_t poses_contour_region = wseg.getWoundSegmentationPosesContourRegion(0);
+      int contour_size = contour.size();
+
+      // If any error happens and the contour is empty
+      // Spin once and try to get the contour again
+      while(contour_size == 0)
+      {
+        ros::spinOnce();
+        img_rate.sleep();
+
+        wseg = WSegmentCamBinary(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
+        contour = wseg.getWoundSegmentationPointsContour(0);
+        poses_contour_region = wseg.getWoundSegmentationPosesContourRegion(0);
+        contour_size = contour.size();
+      }
+
+      ZigZag zigzag(contour, poses_contour_region, transform, offset, axis, calibration_data);
+      Line line(initial_pose, zigzag.poses()[0]);
+      std::vector<Path> paths = {line, zigzag};
+      Trajectory t(pl.plan(paths));
+      traj = t.poses();
+    } else
+    {
+      img_wsp_calibration_t calibration_data = {
+        .img_width = image_width,
+        .img_height = image_height,
+        .wsp_x_min = 0,
+        .wsp_x_max = 1.0,
+        .wsp_y_min = -0.5,
+        .wsp_y_max = 0.5
+      };
+
+      std::stringstream path;
+      path << ros::package::getPath("smalldrop_segmentation") << "/data/segmentation_points.dat";
+      std::string filepath = path.str();
+      WSegmentCoManipConvexHull wseg(filepath, calibration_data);
+      points_t contour = wseg.getWoundSegmentationPointsContour(0);
+
+      ZigZag zigzag(contour, offset, axis, pose_z, calibration_data);
+      Line line(initial_pose, zigzag.poses()[0]);
+      std::vector<Path> paths = {line, zigzag};
+      Trajectory t(pl.plan(paths));
+      traj = t.poses();
+    }
   }
-  else if (path_type.compare("parallel_lines") == 0)
+  else if (has_camera && path_type.compare("parallel_lines") == 0)
   {
-    unsigned int image_width = 640;
-    unsigned int image_height = 480;
     double distance = 0.702;
     double wsp_w = 0.838 * distance; 
     double wsp_h = 0.75 * wsp_w;
@@ -222,8 +297,8 @@ int main(int argc, char **argv)
       .img_height = image_height,
       .wsp_x_min = -wsp_w/2,
       .wsp_x_max = wsp_w/2,
-      .wsp_y_min = -wsp_h/2 + 0.075,
-      .wsp_y_max = wsp_h/2 + 0.075
+      .wsp_y_min = -wsp_h/2,// + 0.075,
+      .wsp_y_max = wsp_h/2// + 0.075
     };
     getTransformToBase(tf_listener, transform);
     WSegmentCamBinary wseg(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
@@ -241,10 +316,8 @@ int main(int argc, char **argv)
     Trajectory t(pl.plan(paths));
     traj = t.poses();
   }
-  else if (path_type.compare("grid") == 0)
+  else if (has_camera && path_type.compare("grid") == 0)
   {
-    unsigned int image_width = 640;
-    unsigned int image_height = 480;
     double distance = 0.702;
     double wsp_w = 0.838 * distance; 
     double wsp_h = 0.75 * wsp_w;
@@ -253,8 +326,8 @@ int main(int argc, char **argv)
       .img_height = image_height,
       .wsp_x_min = -wsp_w/2,
       .wsp_x_max = wsp_w/2,
-      .wsp_y_min = -wsp_h/2 + 0.075,
-      .wsp_y_max = wsp_h/2 + 0.075
+      .wsp_y_min = -wsp_h/2,// + 0.075,
+      .wsp_y_max = wsp_h/2// + 0.075
     };
     getTransformToBase(tf_listener, transform);
     WSegmentCamBinary wseg(cam.getRGBImage(), cam.getDepthImage(), cam.getPointCloud(), transform, calibration_data);
@@ -282,6 +355,7 @@ int main(int argc, char **argv)
   if (show_time) {
     ts = ros::Time::now();
   }
+
   for (size_t i = 0; i < traj.size(); i++)
   {
     pose_t p = traj[i];
@@ -343,7 +417,8 @@ int main(int argc, char **argv)
     std::cout << "Time elapsed: " << time_elapsed << std::endl;
   }
 
-  cam.turnOff();
+  if (has_camera)
+    cam.turnOff();
 
   return 0;
 }
@@ -369,7 +444,7 @@ bool processCmdArgs(int argc, char **argv)
 {
   // Process command-line arguments
   int opt;
-  const char* const short_opts = ":smrtfp:x:y:z:q:u:v:w:T:L:F:R:E:I:O:P:";
+  const char* const short_opts = ":csmrtfp:x:y:z:q:u:v:w:T:L:F:R:E:I:O:P:";
   const option long_opts[] = {
     {"rx", required_argument, nullptr, 'q'},
     {"ry", required_argument, nullptr, 'u'},
@@ -389,6 +464,9 @@ bool processCmdArgs(int argc, char **argv)
   {
     switch (opt)
     {
+      case 'c':
+        has_camera = true;
+        break;
       case 's':
         show_size = true;
         break;
@@ -422,6 +500,8 @@ bool processCmdArgs(int argc, char **argv)
       case 'z':
         if (path_type == "line")
           final_pose.position.z = std::stod(optarg);
+        else if (path_type == "zigzag")
+          pose_z = std::stod(optarg);
         else
           center.position.z = std::stod(optarg);
         break;
@@ -476,15 +556,17 @@ bool processCmdArgs(int argc, char **argv)
       case 'h':
       default:
         std::cout << "Help:" << std::endl; 
-        std::cout << "execute_trajectory -smrtf -p <path_type> -P <trajectory_plane> -T <trajectory_time> -L <number_loops> \
+        std::cout << "execute_trajectory -csmrtf -p <path_type> -P <trajectory_plane> -T <trajectory_time> -L <number_loops> \
         --freq <frequency> --radius <radius> --eradius <external_radius> --iradius <internal_radius> \
-        -x <pos_x> -y <pos_y> -z <pos_z> --rx <orient_x> --ry <orient_y> --rz <orient_z> --rw <orient_w>" << std::endl; 
+        -x <pos_x> -y <pos_y> -z <pos_z> --rx <orient_x> --ry <orient_y> --rz <orient_z> --rw <orient_w> --offset <toopath_offset>" << std::endl; 
+        std::cout << "c: robot has camera" << std::endl; 
         std::cout << "s: show trajectory size" << std::endl; 
         std::cout << "m: show trajectory markers" << std::endl; 
         std::cout << "r: send trajectory to robot" << std::endl; 
         std::cout << "t: show trajectory planning time" << std::endl; 
         std::cout << "f: show trajectory tf" << std::endl;
-        std::cout << "p: path type: line, circle, circular_spiral" << std::endl;
+        std::cout << "p: path type: line, circle, circular_spiral, zigzag, parallel_lines, grid" << std::endl;
+        std::cout << "O: Toolpath offset" << std::endl;
         std::cout << "P: Trajectory plane: xy, xz, yz" << std::endl;
         return false;
         break;

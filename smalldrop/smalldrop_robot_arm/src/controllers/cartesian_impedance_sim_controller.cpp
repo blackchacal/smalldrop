@@ -276,6 +276,12 @@ void CartesianImpedanceSimController::update(const ros::Time &time, const ros::D
 
   // Calculate final torque
   tau_d << tau_task + tau_null + C + g;
+ 
+  // Calculate euler angles from rotation matrix
+  Eigen::Vector3d euler_angles(R2EulerAngles(R0ee)); // XYZ
+  Eigen::Vector3d euler_angles_d_(R2EulerAngles(R0ee_d_)); // XYZ
+  Eigen::Vector3d euler_error = euler_angles_d_ - euler_angles;
+  error_.tail(3) << euler_error;
 
   // Publish torques, wrenches and tracking errors
   publishTorques(tau_d, tau_task, tau_null);

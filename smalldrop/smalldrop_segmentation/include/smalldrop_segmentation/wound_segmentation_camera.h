@@ -159,8 +159,9 @@ protected:
    * and uses voxel grid for downsampling.
    * 
    * \param point_cloud Camera generated point cloud.
+   * \param transform Transformation matrix from the camera frame to the robot base frame
    */
-  PointCloud filterPointCloud(const PointCloud& point_cloud) const;
+  PointCloud filterPointCloud(const PointCloud& point_cloud, const Eigen::Matrix4d& transform) const;
 
 private:
   /**

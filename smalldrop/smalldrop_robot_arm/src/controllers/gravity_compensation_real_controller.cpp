@@ -38,7 +38,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
   auto* model_interface = robot_hw->get<franka_hw::FrankaModelInterface>();
   if (model_interface == nullptr) {
     ROS_ERROR_STREAM(
-        "GravityCompensationExampleController: Error getting model interface from hardware");
+        "GravityCompensationRealController: Error getting model interface from hardware");
     return false;
   }
   try {
@@ -46,7 +46,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
         model_interface->getHandle(arm_id + "_model"));
   } catch (hardware_interface::HardwareInterfaceException& ex) {
     ROS_ERROR_STREAM(
-        "GravityCompensationExampleController: Exception getting model handle from interface: "
+        "GravityCompensationRealController: Exception getting model handle from interface: "
         << ex.what());
     return false;
   }
@@ -56,7 +56,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
   auto* state_interface = robot_hw->get<franka_hw::FrankaStateInterface>();
   if (state_interface == nullptr) {
     ROS_ERROR_STREAM(
-        "GravityCompensationExampleController: Error getting state interface from hardware");
+        "GravityCompensationRealController: Error getting state interface from hardware");
     return false;
   }
   try {
@@ -64,7 +64,7 @@ bool GravityCompensationRealController::init(hardware_interface::RobotHW *robot_
         state_interface->getHandle(arm_id + "_robot"));
   } catch (hardware_interface::HardwareInterfaceException& ex) {
     ROS_ERROR_STREAM(
-        "GravityCompensationExampleController: Exception getting state handle from interface: "
+        "GravityCompensationRealController: Exception getting state handle from interface: "
         << ex.what());
     return false;
   }
